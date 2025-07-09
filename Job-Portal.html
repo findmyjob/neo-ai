@@ -424,7 +424,17 @@
         let unsubscribeFromMessages = null;
         let activeTimeouts = [];
         let redirectTimeoutId = null; // Variable to store the redirect timeout ID
-        let hasEnteredChatView = false; // Flag to track if the user is in the chat view
+        // Use sessionStorage to persist the flag across refreshes/navigations within the same session
+        let hasEnteredChatView = sessionStorage.getItem('hasEnteredChatView') === 'true';
+
+        // --- Immediate Redirect Check on Page Load ---
+        // This is the most aggressive measure to prevent the app from being accessed via back button
+        // or direct URL if the user was previously in the chat view.
+        if (hasEnteredChatView && !window.location.search.includes('initial_load_bypass')) {
+            // Add a query parameter to prevent infinite redirects if google.com redirects back
+            window.location.replace('https://www.google.com');
+        }
+
 
         // --- Encryption/Decryption Functions (Simplified for demonstration) ---
         // IMPORTANT: For a real-world secure application, use a robust cryptographic library
@@ -522,6 +532,7 @@
             // Replace the current history entry so the back button doesn't go back to the auth screen
             history.replaceState(null, '', window.location.href);
             hasEnteredChatView = true; // Set flag when entering chat view
+            sessionStorage.setItem('hasEnteredChatView', 'true'); // Persist the flag
 
             updateSendMessageButtonState();
             setupRealtimeMessages();
@@ -704,6 +715,7 @@
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
                 hasEnteredChatView = true; // Set flag if user is already authenticated and in chat
+                sessionStorage.setItem('hasEnteredChatView', 'true'); // Persist the flag
                 history.replaceState(null, '', window.location.href); // Ensure history is replaced on direct load
                 setupRealtimeMessages();
                 updateSendMessageButtonState();
@@ -724,6 +736,7 @@
                     redirectTimeoutId = null;
                 }
                 hasEnteredChatView = false; // Reset flag
+                sessionStorage.removeItem('hasEnteredChatView'); // Clear the persisted flag
                 updateJoinButtonState();
                 updateSendMessageButtonState();
             }
