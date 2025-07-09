@@ -3,519 +3,705 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Search-Bot</title>
-    <!-- Tailwind CSS CDN for styling -->
+    <title>Job-Portal - Secure Data Exchange</title>
+    <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- CryptoJS CDN for AES encryption -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <!-- Firebase SDKs for Firestore and Auth -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global variables for Firebase instances (will be initialized later)
-        let app;
-        let db;
-        let auth;
-        let currentUserId = null;
-        let unsubscribeFromMessages = null; // To store the unsubscribe function for Firestore listener
-
-        // MANDATORY: Firebase config and app ID provided by the Canvas environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-secret-chat-app';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        // Get references to DOM elements
-        const chatInput = document.getElementById('chatInput');
-        const secretKeyInput = document.getElementById('secretKeyInput'); // Now Job ID
-        const sendButton = document.getElementById('sendButton');
-        const messagesDisplay = document.getElementById('messagesDisplay');
-        const joinChatIdInput = document.getElementById('joinChatIdInput'); // Now Job Profile
-        const joinChatButton = document.getElementById('joinChatButton'); // Now Search
-        const currentChatIdDisplay = document.getElementById('currentChatIdDisplay');
-        const currentUserIdDisplay = document.getElementById('currentUserIdDisplay'); // This will be hidden/removed per request
-        const decodeSecretKeyInput = document.getElementById('decodeSecretKeyInput');
-        const decodeButton = document.getElementById('decodeButton');
-        const decodedMessageOutput = document.getElementById('decodedMessageOutput');
-        const statusMessageBox = document.getElementById('statusMessageBox');
-        const messageListContainer = document.getElementById('messageListContainer');
-        const displayNameInput = document.getElementById('displayNameInput'); // Initials Default Name (John Doe)
-
-        let currentChatId = null;
-        let selectedEncryptedMessage = null;
-        let currentDisplayName = null; // To store the user's display name
-
-        // --- Firebase Initialization and Authentication ---
-        async function initializeFirebase() {
-            try {
-                if (Object.keys(firebaseConfig).length === 0) {
-                    showStatusMessage("Firebase config not found. Running in demo mode without persistence.", "error");
-                    // Disable features that require Firebase
-                    joinChatButton.disabled = true;
-                    sendButton.disabled = true;
-                    return;
-                }
-
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // Sign in using the provided custom token or anonymously
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                    showStatusMessage("Signed in with custom token.", "success");
-                } else {
-                    await signInAnonymously(auth);
-                    showStatusMessage("Signed in anonymously.", "success");
-                }
-
-                // Listen for auth state changes to get the user ID
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUserId = user.uid;
-                        // currentUserIdDisplay.textContent = `User ID: ${currentUserId}`; // Removed per request
-                        showStatusMessage("Authentication successful.", "success");
-                        // Enable features after successful auth
-                        joinChatButton.disabled = false;
-                        sendButton.disabled = false;
-                    } else {
-                        currentUserId = null;
-                        // currentUserIdDisplay.textContent = "User ID: Not authenticated"; // Removed per request
-                        showStatusMessage("Authentication failed or not signed in.", "error");
-                        joinChatButton.disabled = true;
-                        sendButton.disabled = true;
-                    }
-                });
-
-            } catch (error) {
-                console.error("Error initializing Firebase or signing in:", error);
-                showStatusMessage(`Firebase init error: ${error.message}`, "error");
-                joinChatButton.disabled = true;
-                sendButton.disabled = true;
-            }
-        }
-
-        // --- Encryption/Decryption Functions ---
-        function encryptMessage(message, key) {
-            try {
-                if (!message || !key) return null;
-                return CryptoJS.AES.encrypt(message, key).toString();
-            } catch (error) {
-                console.error("Encryption failed:", error);
-                showStatusMessage("Encryption failed. Check your message and key.", "error");
-                return null;
-            }
-        }
-
-        function decryptMessage(encryptedMessage, key) {
-            try {
-                if (!encryptedMessage || !key) return null;
-                const decryptedBytes = CryptoJS.AES.decrypt(encryptedMessage, key);
-                // Check if decryption was successful (e.g., if it's a valid UTF-8 string)
-                const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
-                if (decryptedText === "") {
-                    // This often means the key was wrong or the message was corrupted
-                    throw new Error("Empty decrypted string, likely wrong key or corrupted message.");
-                }
-                return decryptedText;
-            } catch (error) {
-                console.error("Decryption failed:", error);
-                showStatusMessage("Decryption failed. Ensure the secret key is correct.", "error");
-                return null;
-            }
-        }
-
-        // --- UI and Firestore Interaction ---
-
-        // Function to show temporary status messages
-        function showStatusMessage(message, type = "info") {
-            statusMessageBox.textContent = message;
-            statusMessageBox.className = `message-box show ${type === "error" ? "bg-red-100 text-red-700 border-red-400" : "bg-green-100 text-green-700 border-green-400"}`;
-            setTimeout(() => {
-                statusMessageBox.classList.remove('show');
-            }, 3000); // Hide after 3 seconds
-        }
-
-        // Join/Create Chat (now Search)
-        joinChatButton.addEventListener('click', () => {
-            const chatId = joinChatIdInput.value.trim(); // Now Job Profile
-            const displayName = displayNameInput.value.trim(); // Initials Default Name (John Doe)
-
-            if (!chatId) {
-                showStatusMessage("Please enter a Job Profile to search.", "error");
-                return;
-            }
-            if (!displayName) {
-                showStatusMessage("Please enter your Initials/Default Name.", "error");
-                return;
-            }
-
-            currentChatId = chatId;
-            currentDisplayName = displayName; // Store display name
-            currentChatIdDisplay.textContent = `Current Job Profile: ${currentChatId}`;
-            showStatusMessage(`Searching Job Profile: ${currentChatId}`, "success");
-            setupMessageListener(currentChatId);
-            // Clear previous messages when joining a new chat
-            messagesDisplay.innerHTML = '';
-            decodedMessageOutput.textContent = 'Decoded message will appear here.';
-            selectedEncryptedMessage = null;
-        });
-
-        // Send Encrypted Message
-        sendButton.addEventListener('click', async () => {
-            if (!currentChatId) {
-                showStatusMessage("Please search a Job Profile first.", "error");
-                return;
-            }
-            if (!currentUserId) {
-                showStatusMessage("Not authenticated. Please wait for user ID.", "error");
-                return;
-            }
-            if (!currentDisplayName) {
-                showStatusMessage("Please enter your Initials/Default Name.", "error");
-                return;
-            }
-
-            const message = chatInput.value;
-            const key = secretKeyInput.value; // Now Job ID
-
-            if (!message) {
-                showStatusMessage("Please enter a message.", "error");
-                return;
-            }
-            if (!key) {
-                showStatusMessage("Please enter the Job ID for encryption.", "error");
-                return;
-            }
-
-            const encrypted = encryptMessage(message, key);
-            if (!encrypted) {
-                return; // Error already shown by encryptMessage
-            }
-
-            try {
-                // Store encrypted message in Firestore
-                const messagesCollectionRef = collection(db, `artifacts/${appId}/public/data/secret_chats/${currentChatId}/messages`);
-                await addDoc(messagesCollectionRef, {
-                    senderId: currentUserId,
-                    senderDisplayName: currentDisplayName, // Store display name
-                    encryptedMessage: encrypted,
-                    timestamp: serverTimestamp() // Firestore server timestamp
-                });
-                chatInput.value = ''; // Clear input after sending
-                showStatusMessage("Message sent successfully!", "success");
-            } catch (e) {
-                console.error("Error adding document: ", e);
-                showStatusMessage(`Error sending message: ${e.message}`, "error");
-            }
-        });
-
-        // Setup Firestore Listener for Messages
-        function setupMessageListener(chatId) {
-            if (!db) {
-                showStatusMessage("Firestore not initialized.", "error");
-                return;
-            }
-            if (unsubscribeFromMessages) {
-                unsubscribeFromMessages(); // Unsubscribe from previous chat if any
-            }
-
-            const messagesCollectionRef = collection(db, `artifacts/${appId}/public/data/secret_chats/${chatId}/messages`);
-            const q = query(messagesCollectionRef); // No orderBy due to constraint
-
-            unsubscribeFromMessages = onSnapshot(q, (snapshot) => {
-                let messages = [];
-                snapshot.forEach((doc) => {
-                    messages.push({ id: doc.id, ...doc.data() });
-                });
-
-                // Manually sort messages by timestamp if available, otherwise by ID
-                messages.sort((a, b) => {
-                    if (a.timestamp && b.timestamp) {
-                        return a.timestamp.toDate() - b.timestamp.toDate();
-                    }
-                    return a.id.localeCompare(b.id); // Fallback sort
-                });
-
-                messagesDisplay.innerHTML = ''; // Clear current display
-                messages.forEach(msg => {
-                    const messageElement = document.createElement('div');
-                    messageElement.className = `message-item p-3 mb-2 rounded-lg break-words cursor-pointer transition-all duration-200 ease-in-out ${msg.senderId === currentUserId ? 'bg-blue-100 text-blue-800 self-end' : 'bg-gray-100 text-gray-800 self-start'} hover:bg-blue-200 hover:shadow-md`;
-                    messageElement.dataset.encryptedMessage = msg.encryptedMessage; // Store encrypted message for decoding
-                    messageElement.dataset.senderId = msg.senderId;
-
-                    // Only display the encrypted message content
-                    messageElement.innerHTML = `
-                        <div class="text-sm mt-1">${msg.encryptedMessage}</div>
-                    `;
-                    messagesDisplay.appendChild(messageElement);
-
-                    // Add click listener to select message for decoding
-                    messageElement.addEventListener('click', () => {
-                        // Remove 'selected' class from previously selected message
-                        const previouslySelected = document.querySelector('.message-item.selected');
-                        if (previouslySelected) {
-                            previouslySelected.classList.remove('selected');
-                            previouslySelected.classList.remove('bg-purple-200');
-                            previouslySelected.classList.remove('border-purple-500');
-                        }
-
-                        // Add 'selected' class to the clicked message
-                        messageElement.classList.add('selected');
-                        messageElement.classList.add('bg-purple-200');
-                        messageElement.classList.add('border-purple-500');
-                        selectedEncryptedMessage = msg.encryptedMessage;
-                        decodedMessageOutput.textContent = 'Ready to decode selected message.';
-                        showStatusMessage("Message selected for decoding.", "info");
-                    });
-                });
-                // Scroll to the bottom of the messages display
-                messagesDisplay.scrollTop = messagesDisplay.scrollHeight;
-            }, (error) => {
-                console.error("Error listening to messages:", error);
-                showStatusMessage(`Error fetching messages: ${error.message}`, "error");
-            });
-        }
-
-        // Decode Selected Message
-        decodeButton.addEventListener('click', () => {
-            if (!selectedEncryptedMessage) {
-                showStatusMessage("Please select an encrypted message from the list first.", "error");
-                return;
-            }
-            const key = decodeSecretKeyInput.value; // Now Job ID for decryption
-            if (!key) {
-                showStatusMessage("Please enter the Job ID for decryption.", "error");
-                return;
-            }
-
-            const decoded = decryptMessage(selectedEncryptedMessage, key);
-            if (decoded) {
-                decodedMessageOutput.textContent = decoded;
-                showStatusMessage("Message decoded successfully!", "success");
-            } else {
-                decodedMessageOutput.textContent = "Failed to decode. Check Job ID.";
-                showStatusMessage("Failed to decode. Check Job ID.", "error");
-            }
-        });
-
-        // Initialize Firebase when the window loads
-        window.onload = initializeFirebase;
-    </script>
-
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
+            background-color: #e6f7f2; /* Light turquoise background */
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Align to top for better scrolling */
+            align-items: center;
             min-height: 100vh;
-            padding: 2rem;
-            box-sizing: border-box;
+            margin: 0;
+            position: relative; /* Needed for modal positioning */
         }
         .container {
-            background-color: #ffffff;
+            background-color: #ffffff; /* White card background */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
             padding: 2.5rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-            max-width: 800px;
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            box-sizing: border-box;
+            max-width: 500px;
+            text-align: center;
+            display: flex; /* Added for consistent layout */
+            flex-direction: column; /* Added for consistent layout */
+            gap: 1.5rem; /* Space between sections */
         }
         h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            text-align: center;
-            color: #1a202c;
-            margin-bottom: 0rem; /* Adjusted margin */
-        }
-        .slogan {
-            text-align: center;
-            color: #4a5568;
-            margin-bottom: 1.5rem; /* Adjusted margin */
-            font-size: 1rem;
-        }
-        label {
-            display: block;
-            color: #4a5568;
-            font-weight: 600;
+            color: #136f57; /* Darker turquoise heading */
+            font-size: 2.25rem; /* Larger heading */
+            font-weight: 700; /* Already bold, but ensuring */
             margin-bottom: 0.5rem;
-            font-size: 0.9rem;
         }
-        input[type="text"], textarea {
-            border: 1px solid #cbd5e0;
-            border-radius: 0.75rem;
-            padding: 0.8rem 1rem;
+        p {
+            color: #4a6a6a; /* Medium grey-turquoise for body text */
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1a4d4d; /* Darker turquoise for labels */
+        }
+        .input-group input,
+        .input-group textarea {
             width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #a7d9cb; /* Light turquoise border */
+            border-radius: 0.75rem; /* Rounded input fields */
             font-size: 1rem;
             box-sizing: border-box;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: border-color 0.2s;
         }
-        input[type="text"]:focus, textarea:focus {
+        .input-group input:focus,
+        .input-group textarea:focus {
             outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            border-color: #20c997; /* Primary turquoise focus color */
+            box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.2); /* Turquoise focus ring */
         }
-        button {
-            background-color: #6366f1;
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.1s ease;
+        .button {
             width: 100%;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
         }
-        button:hover {
-            background-color: #4f46e5;
-            transform: translateY(-1px);
+        .button.primary {
+            background-color: #20c997; /* Primary turquoise */
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
         }
-        button:active {
-            transform: translateY(0);
+        .button.primary:hover:not(:disabled) {
+            background-color: #1a9e7a; /* Darker turquoise on hover */
+            box-shadow: 0 6px 15px rgba(32, 201, 151, 0.4);
         }
-        button:disabled {
-            background-color: #a0aec0;
+        .button:disabled {
+            background-color: #d1e8e2; /* Lighter, muted turquoise when disabled */
+            color: #88a8a0; /* Darker muted turquoise text for disabled */
             cursor: not-allowed;
+            opacity: 0.7;
             box-shadow: none;
         }
-        .result-box {
-            background-color: #edf2f7;
-            padding: 1.2rem;
-            border-radius: 0.75rem;
-            word-break: break-all;
-            font-family: 'Cascadia Code', 'Consolas', monospace;
-            white-space: pre-wrap;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            color: #2d3748;
-            border: 1px solid #e2e8f0;
-        }
         .message-box {
-            background-color: #e6fffa;
-            border: 1px solid #b2f5ea;
-            border-radius: 0.75rem;
+            background-color: #e6f7f2; /* Light turquoise for info */
+            border: 1px solid #a7d9cb;
+            color: #1a4d4d;
             padding: 1rem;
+            border-radius: 0.75rem;
             margin-top: 1.5rem;
-            text-align: center;
             font-size: 0.9rem;
-            color: #2c5282;
-            display: none;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        .message-box.show {
-            display: block;
+            text-align: left;
+            display: none; /* Hidden by default */
         }
         .message-box.error {
-            background-color: #fee2e2;
+            background-color: #fee2e2; /* Light red for error */
             border-color: #fca5a5;
-            color: #991b1b;
+            color: #c53030;
         }
-        .message-box.success {
-            background-color: #d1fae5;
-            border-color: #6ee7b7;
-            color: #065f46;
+        .chat-area {
+            margin-top: 2rem;
+            border-top: 1px solid #a7d9cb; /* Light turquoise border */
+            padding-top: 1.5rem;
+            text-align: left;
         }
-        .section-header {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 0.5rem;
-        }
-        .message-list-container {
-            max-height: 300px; /* Fixed height for message list */
-            overflow-y: auto; /* Enable scrolling */
-            border: 1px solid #e2e8f0;
+        .chat-messages {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #a7d9cb; /* Light turquoise border */
             border-radius: 0.75rem;
             padding: 1rem;
-            background-color: #f7fafc;
+            margin-bottom: 1rem;
+            background-color: #f0fcf9; /* Very light turquoise-grey */
+            display: flex; /* Added for consistent layout */
+            flex-direction: column; /* Added for consistent layout */
+            gap: 0.75rem; /* Space between messages */
+        }
+        .chat-message {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            word-wrap: break-word;
+        }
+        .chat-message.sent {
+            background-color: #d1f0e8; /* Lighter turquoise for sent messages */
+            text-align: right;
+            margin-left: auto; /* Push to right */
+            max-width: 85%;
+            color: #1a4d4d;
+        }
+        .chat-message.received {
+            background-color: #e6f7f2; /* Light turquoise for received messages */
+            text-align: left;
+            margin-right: auto; /* Push to left */
+            max-width: 85%;
+            color: #1a4d4d;
+        }
+        .chat-message .timestamp {
+            font-size: 0.75rem;
+            color: #4a6a6a; /* Medium grey-turquoise timestamp */
+            margin-top: 0.25rem;
+        }
+        .send-message-form {
             display: flex;
-            flex-direction: column; /* Ensure messages stack vertically */
+            align-items: flex-end;
+            gap: 0.75rem;
         }
-        .message-item {
+        .send-message-form textarea {
+            flex-grow: 1;
+            resize: vertical; /* Allow vertical resizing */
+            min-height: 40px; /* Minimum height for textarea */
+            border-radius: 0.75rem; /* Match other inputs */
+            padding-top: 0.75rem; /* Adjust padding for better text alignment */
+            padding-bottom: 0.75rem;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .encoded-preview {
+            font-family: 'monospace', monospace; /* Monospace font for encoded text */
+            font-size: 0.85rem;
+            color: #4a6a6a; /* Medium grey-turquoise for encoded text */
+            background-color: #f0fcf9; /* Very light turquoise */
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            word-break: break-all; /* Break long words */
+            display: none; /* Hidden by default */
+            text-align: left;
+            width: 100%; /* Ensure it spans full width */
+            box-sizing: border-box; /* Include padding in width */
+        }
+        .decode-button-icon,
+        .send-button-icon {
+            background-color: #20c997; /* Primary turquoise */
+            color: #ffffff;
+            border: none;
+            border-radius: 0.75rem; /* Match other elements */
+            width: 50px; /* Consistent size for icons */
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
+            box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
+            flex-shrink: 0;
+        }
+        .decode-button-icon:hover:not(:disabled),
+        .send-button-icon:hover:not(:disabled) {
+            background-color: #1a9e7a; /* Darker turquoise on hover */
+            box-shadow: 0 6px 15px rgba(32, 201, 151, 0.4);
+        }
+        .decode-button-icon:disabled,
+        .send-button-icon:disabled {
+            background-color: #d1e8e2;
+            color: #88a8a0;
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+        .decode-button-icon svg,
+        .send-button-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .decoded-text {
+            font-weight: 600;
+            color: #136f57; /* Darkest turquoise for decoded message */
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
             background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            text-align: left;
         }
-        .message-item.selected {
-            border: 2px solid #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+        .modal-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a4d4d; /* Darker turquoise for modal heading */
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .modal-content input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #a7d9cb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            box-sizing: border-box;
+            color: #1a4d4d;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+        .modal-buttons .button {
+            width: 48%;
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+        .modal-buttons .button.secondary {
+            background-color: #d1e8e2; /* Light muted turquoise for secondary */
+            color: #4a6a6a; /* Darker muted turquoise text */
+            box-shadow: none;
+        }
+        .modal-buttons .button.secondary:hover {
+            background-color: #a7d9cb; /* Slightly darker muted turquoise on hover */
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">AI-Search-Bot</h1>
-        <p class="slogan">powered by ChatGPT</p>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Job-Portal</h1>
+        <!-- Removed the descriptive paragraph below the heading -->
 
-        <!-- User ID Display (Removed from visible UI, but kept in JS for functionality) -->
-        <div class="text-center text-sm text-gray-600 mb-4 hidden" id="currentUserIdDisplay">
-            User ID: Loading...
-        </div>
-
-        <!-- Chat ID Section (now Job Profile Section) -->
-        <div class="mb-6 p-4 border border-gray-200 rounded-xl shadow-sm">
-            <h2 class="section-header">Search Job Profile</h2>
-            <label for="joinChatIdInput">Job Profile:</label>
-            <input type="text" id="joinChatIdInput" placeholder="e.g., 'familychat2025' or 'projectX'">
-            <p class="text-xs text-gray-500 mt-1 mb-3">This ID defines your conversation group. Share it with your recipient.</p>
-            
-            <label for="displayNameInput">Initials Default Name (John Doe):</label>
-            <input type="text" id="displayNameInput" placeholder="e.g., JD">
-            <p class="text-xs text-gray-500 mt-1 mb-3">Your initials or default name for this profile.</p>
-
-            <button id="joinChatButton">Search</button>
-            <div class="mt-4 text-center text-md font-semibold text-gray-700" id="currentChatIdDisplay">
-                Current Job Profile: None
+        <div id="auth-section">
+            <div class="input-group">
+                <label for="chatIdInput">Job Profile:</label>
+                <input type="text" id="chatIdInput" placeholder="Enter a unique Job Profile (e.g., software-engineer)">
+                <p class="text-xs text-gray-500 mt-1">Share this Job Profile with your recipient.</p>
             </div>
-        </div>
-
-        <!-- Send Message Section -->
-        <div class="mb-6 p-4 border border-gray-200 rounded-xl shadow-sm">
-            <h2 class="section-header">Send Encrypted Message</h2>
-            <label for="chatInput">Your Message:</label>
-            <textarea id="chatInput" rows="3" placeholder="Type your secret message here..."></textarea>
-
-            <label for="secretKeyInput" class="mt-4">Job ID (for Encryption):</label>
-            <input type="text" id="secretKeyInput" placeholder="Enter the shared Job ID">
-            <p class="text-xs text-gray-500 mt-1 mb-3">This ID must be *exactly* the same for both encryption and decryption.</p>
-
-            <button id="sendButton" disabled>Send Encrypted Message</button>
-        </div>
-
-        <!-- Received Messages Section -->
-        <div class="mb-6 p-4 border border-gray-200 rounded-xl shadow-sm">
-            <h2 class="section-header">Received Encrypted Messages</h2>
-            <div id="messagesDisplay" class="message-list-container">
-                <p class="text-gray-500 text-center py-4">Search a Job Profile to see messages.</p>
+            <div class="input-group">
+                <label for="secretKeyInput">Job ID:</label>
+                <input type="password" id="secretKeyInput" placeholder="Enter a shared Job ID (e.g., JID12345)">
+                <p class="text-xs text-gray-500 mt-1">This ID encrypts/decrypts messages. Share it securely, out-of-band.</p>
             </div>
-        </div>
-
-        <!-- Decode Message Section -->
-        <div class="p-4 border border-gray-200 rounded-xl shadow-sm">
-            <h2 class="section-header">Decode Selected Message</h2>
-            <label for="decodeSecretKeyInput">Job ID (for Decryption):</label>
-            <input type="text" id="decodeSecretKeyInput" placeholder="Enter the shared Job ID">
-            <p class="text-xs text-gray-500 mt-1 mb-3">Use the same Job ID used for encryption.</p>
-
-            <button id="decodeButton">Decode Selected Message</button>
-
-            <label for="decodedMessageOutput" class="mt-4">Decoded Message:</label>
-            <div id="decodedMessageOutput" class="result-box">
-                Decoded message will appear here.
+            <div class="input-group">
+                <label for="displayNameInput">Subsidiary:</label>
+                <input type="text" id="displayNameInput" placeholder="Enter your Subsidiary (e.g., Google)">
             </div>
+            <button id="joinChatButton" class="button primary" disabled>
+                <span id="buttonText">Deep Search</span>
+                <span id="loadingSpinner" class="spinner hidden"></span>
+            </button>
+            <div id="messageBox" class="message-box"></div>
         </div>
 
-        <!-- Status Message Box -->
-        <div id="statusMessageBox" class="message-box"></div>
+        <div id="chat-section" class="chat-area hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Job Profile: <span id="currentChatId"></span></h2>
+            <p class="text-sm text-gray-600 mb-4">You are: <span id="currentDisplayNameDisplay" class="font-medium text-gray-700 bg-gray-100 px-2 py-1 rounded-md"></span></p>
+
+            <div id="chatMessages" class="chat-messages">
+                <!-- Messages will be loaded here -->
+            </div>
+
+            <!-- Decode All Messages Button (now an icon button) -->
+            <button id="decodeAllMessagesButton" class="decode-button-icon w-full mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+
+            <form id="sendMessageForm" class="send-message-form">
+                <textarea id="messageInput" placeholder="Type your message..." rows="1" class="flex-grow"></textarea>
+                <!-- Encoded preview is still here, but positioned differently by flexbox -->
+                <div id="encodedPreview" class="encoded-preview hidden">
+                    Encoded: <span id="encodedTextSpan"></span>
+                </div>
+                <!-- Send Encoded Message Button (now an icon button) -->
+                <button type="submit" id="sendMessageButton" class="send-button-icon" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
+                </button>
+            </form>
+        </div>
     </div>
+
+    <!-- Decode Secret Key Modal -->
+    <div id="decodeModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>Enter Secret Key to Decode</h3>
+            <input type="password" id="modalSecretKeyInput" placeholder="Secret Key">
+            <div class="modal-buttons">
+                <button id="modalDecodeButton" class="button primary">Decode</button>
+                <button id="modalCancelButton" class="button secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Import the functions you need from the Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase config and app ID (provided by Canvas environment)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyE_p7cLuWYEUHz7a991nXAJFBFvNUjgc",
+            authDomain: "codedrop-007.firebaseapp.com",
+            projectId: "codedrop-007",
+            storageBucket: "codedrop-007.firebasestorage.app",
+            messagingSenderId: "795800759176",
+            appId: "1:795800759176:web:d8004fb546f35fbd8ae83d",
+            measurementId: "G-3BGWGERRY2"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- UI Elements ---
+        const chatIdInput = document.getElementById('chatIdInput');
+        const secretKeyInput = document.getElementById('secretKeyInput');
+        const displayNameInput = document.getElementById('displayNameInput');
+        const joinChatButton = document.getElementById('joinChatButton');
+        const authSection = document.getElementById('auth-section');
+        const chatSection = document.getElementById('chat-section');
+        const currentChatIdSpan = document.getElementById('currentChatId');
+        const currentDisplayNameDisplay = document.getElementById('currentDisplayNameDisplay');
+        const chatMessagesDiv = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendMessageForm = document.getElementById('sendMessageForm');
+        const messageBox = document.getElementById('messageBox');
+        const buttonText = document.getElementById('buttonText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const encodedPreview = document.getElementById('encodedPreview');
+        const encodedTextSpan = document.getElementById('encodedTextSpan');
+        const sendMessageButton = document.getElementById('sendMessageButton');
+        const decodeAllMessagesButton = document.getElementById('decodeAllMessagesButton');
+
+        // Modal elements
+        const decodeModal = document.getElementById('decodeModal');
+        const modalSecretKeyInput = document.getElementById('modalSecretKeyInput');
+        const modalDecodeButton = document.getElementById('modalDecodeButton');
+        const modalCancelButton = document.getElementById('modalCancelButton');
+
+
+        let currentChatId = '';
+        let currentSecretKey = '';
+        let currentDisplayName = '';
+        let currentUser = null;
+        let unsubscribeFromMessages = null;
+        let activeTimeouts = [];
+
+        // --- Encryption/Decryption Functions (Simplified for demonstration) ---
+        // IMPORTANT: For a real-world secure application, use a robust cryptographic library
+        // and follow best practices for key management and encryption.
+        // This is a very basic XOR cipher for illustrative purposes only.
+        function xorEncryptDecrypt(text, key) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+            return result;
+        }
+
+        // --- UI State Management ---
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = `message-box ${type}`;
+            messageBox.style.display = 'block';
+        }
+
+        function hideMessage() {
+            messageBox.style.display = 'none';
+        }
+
+        function setButtonLoading(isLoading) {
+            if (isLoading) {
+                joinChatButton.disabled = true;
+                buttonText.textContent = 'Searching...';
+                loadingSpinner.classList.remove('hidden');
+            } else {
+                joinChatButton.disabled = false;
+                buttonText.textContent = 'Deep Search';
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        // --- Input Validation and Button Enablement for Join Chat ---
+        function updateJoinButtonState() {
+            const chatId = chatIdInput.value.trim();
+            const secretKey = secretKeyInput.value.trim();
+            const displayName = displayNameInput.value.trim();
+            joinChatButton.disabled = !(chatId && secretKey && displayName);
+        }
+
+        // Listen for input changes to enable/disable the Join Chat button
+        chatIdInput.addEventListener('input', updateJoinButtonState);
+        secretKeyInput.addEventListener('input', updateJoinButtonState);
+        displayNameInput.addEventListener('input', updateJoinButtonState);
+
+        // --- Firebase Authentication ---
+        async function authenticateUser() {
+            setButtonLoading(true);
+            hideMessage();
+            try {
+                // Use the __initial_auth_token if available, otherwise sign in anonymously
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                showMessage('Authentication successful!', 'info');
+            } catch (error) {
+                console.error("Authentication error:", error);
+                showMessage(`Authentication failed: ${error.message}`, 'error');
+                setButtonLoading(false);
+                return false;
+            }
+            setButtonLoading(false);
+            return true;
+        }
+
+        // --- Join Chat Logic ---
+        joinChatButton.addEventListener('click', async () => {
+            currentChatId = chatIdInput.value.trim();
+            currentSecretKey = secretKeyInput.value.trim();
+            currentDisplayName = displayNameInput.value.trim();
+
+            if (!currentChatId || !currentSecretKey || !currentDisplayName) {
+                showMessage('Please enter Job Profile, Job ID, and your Subsidiary.', 'error');
+                return;
+            }
+
+            const isAuthenticated = await authenticateUser();
+            if (!isAuthenticated) {
+                return;
+            }
+
+            currentUser = auth.currentUser;
+            currentDisplayNameDisplay.textContent = currentDisplayName;
+            currentChatIdSpan.textContent = currentChatId;
+
+            authSection.classList.add('hidden');
+            chatSection.classList.remove('hidden');
+
+            updateSendMessageButtonState();
+            setupRealtimeMessages();
+        });
+
+        // --- Real-time Message Listener ---
+        function setupRealtimeMessages() {
+            if (unsubscribeFromMessages) {
+                unsubscribeFromMessages();
+            }
+
+            const messagesCollectionRef = collection(db, "artifacts", appId, "public", "data", "chats", currentChatId, "messages");
+            const q = query(messagesCollectionRef, orderBy('timestamp', 'asc'));
+
+            unsubscribeFromMessages = onSnapshot(q, (snapshot) => {
+                chatMessagesDiv.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const messageData = doc.data();
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('chat-message');
+
+                    // Display only the sender's display name
+                    const senderIdentifier = messageData.senderDisplayName || 'Unknown User'; // Fallback for old messages without display name
+                    const timestamp = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleString() : 'Just now';
+
+                    messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
+                    const messageId = doc.id;
+                    messageElement.innerHTML = `
+                        <p class="text-sm">
+                            <span id="message-content-${messageId}" data-encoded-text="${messageData.encryptedText}">${messageData.encryptedText}</span>
+                        </p>
+                        <span class="timestamp">${senderIdentifier} - ${timestamp}</span>
+                    `;
+                    chatMessagesDiv.appendChild(messageElement);
+                });
+
+                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+            }, (error) => {
+                console.error("Error fetching real-time messages:", error);
+                if (error.code === 'permission-denied' || error.message.includes('Missing or insufficient permissions')) {
+                    showMessage(`Error loading messages: Missing or insufficient permissions. Please check your Firebase Firestore Security Rules. Ensure they allow 'read' access for authenticated users to the path: /artifacts/${appId}/public/data/chats/{yourChatId}/messages/{messageId}`, 'error');
+                } else {
+                    showMessage(`Error loading messages: ${error.message}`, 'error');
+                }
+            });
+        }
+
+        // --- Send Message Logic ---
+        async function sendMessage() {
+            const messageText = messageInput.value.trim();
+
+            if (messageText && currentChatId && currentSecretKey && currentUser && currentDisplayName) {
+                const encryptedText = xorEncryptDecrypt(messageText, currentSecretKey);
+                try {
+                    await addDoc(collection(db, "artifacts", appId, "public", "data", "chats", currentChatId, "messages"), {
+                        senderId: currentUser.uid,
+                        senderDisplayName: currentDisplayName,
+                        encryptedText: encryptedText,
+                        timestamp: serverTimestamp()
+                    });
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                    encodedPreview.classList.add('hidden');
+                    encodedTextSpan.textContent = '';
+                    updateSendMessageButtonState();
+                } catch (error) {
+                    console.error("Error sending message:", error);
+                    showMessage(`Failed to send message: ${error.message}`, 'error');
+                }
+            } else {
+                showMessage('Cannot send empty message, Job Profile not entered, or Subsidiary not set.', 'error');
+            }
+        }
+
+        // Event listener for Send Message Button
+        sendMessageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await sendMessage();
+        });
+
+        // Event listener for Enter key in message input
+        messageInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!sendMessageButton.disabled) {
+                    await sendMessage();
+                }
+            }
+        });
+
+        // --- Input Validation and Button Enablement for Send Message ---
+        function updateSendMessageButtonState() {
+            sendMessageButton.disabled = messageInput.value.trim() === '';
+        }
+
+        // Update encoded preview and send button state as user types
+        messageInput.addEventListener('input', () => {
+            const text = messageInput.value.trim();
+            if (text && currentSecretKey) {
+                encodedTextSpan.textContent = xorEncryptDecrypt(text, currentSecretKey);
+                encodedPreview.classList.remove('hidden');
+            } else {
+                encodedPreview.classList.add('hidden');
+                encodedTextSpan.textContent = '';
+            }
+            messageInput.style.height = 'auto';
+            messageInput.style.height = messageInput.scrollHeight + 'px';
+            updateSendMessageButtonState();
+        });
+
+        // --- Event listener for Decode All Messages button ---
+        decodeAllMessagesButton.addEventListener('click', () => {
+            decodeModal.classList.remove('hidden');
+            modalSecretKeyInput.value = '';
+            modalSecretKeyInput.focus();
+        });
+
+        // --- Modal Decode Button Logic ---
+        modalDecodeButton.addEventListener('click', () => {
+            const enteredKey = modalSecretKeyInput.value.trim();
+            if (enteredKey === currentSecretKey) {
+                const messageSpans = document.querySelectorAll('.chat-message span[data-encoded-text]');
+                messageSpans.forEach(span => {
+                    const encryptedText = span.dataset.encodedText;
+                    span.textContent = xorEncryptDecrypt(encryptedText, currentSecretKey);
+                    span.classList.add('decoded-text');
+                });
+                showMessage('All messages decoded successfully!', 'info');
+
+                activeTimeouts.forEach(clearTimeout);
+                activeTimeouts = [];
+
+                const timeoutId = setTimeout(() => {
+                    messageSpans.forEach(span => {
+                        span.textContent = span.dataset.encodedText;
+                        span.classList.remove('decoded-text');
+                    });
+                    showMessage('Messages re-encoded for security.', 'info');
+                }, 5000);
+                activeTimeouts.push(timeoutId);
+
+                decodeModal.classList.add('hidden');
+            } else {
+                showMessage('Incorrect secret key. Messages could not be decoded.', 'error');
+            }
+        });
+
+        // --- Modal Cancel Button Logic ---
+        modalCancelButton.addEventListener('click', () => {
+            decodeModal.classList.add('hidden');
+            modalSecretKeyInput.value = '';
+            hideMessage();
+        });
+
+        // Initial state update when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            updateJoinButtonState();
+            updateSendMessageButtonState();
+        });
+
+        // Handle Firebase Auth state changes (important for reloads/session persistence)
+        onAuthStateChanged(auth, (user) => {
+            if (user && currentChatId && currentSecretKey) {
+                currentUser = user;
+                currentDisplayNameDisplay.textContent = currentDisplayName;
+                currentChatIdSpan.textContent = currentChatId;
+                authSection.classList.add('hidden');
+                chatSection.classList.remove('hidden');
+                setupRealtimeMessages();
+                updateSendMessageButtonState();
+            } else if (!user) {
+                authSection.classList.remove('hidden');
+                chatSection.classList.add('hidden');
+                currentUser = null;
+                currentChatId = '';
+                currentSecretKey = '';
+                currentDisplayName = '';
+                if (unsubscribeFromMessages) {
+                    unsubscribeFromMessages();
+                    unsubscribeFromMessages = null;
+                }
+                updateJoinButtonState();
+                updateSendMessageButtonState();
+            }
+        });
+
+    </script>
 </body>
 </html>
