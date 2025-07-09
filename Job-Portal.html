@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job-Portal - Secure Data Exchange</title>
+    <title>Job-Portal</title>
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font from Google Fonts -->
@@ -317,8 +317,8 @@
                 <p class="text-xs text-gray-500 mt-1">This ID encrypts/decrypts messages. Share it securely, out-of-band.</p>
             </div>
             <div class="input-group">
-                <label for="displayNameInput">Subsidiary:</label>
-                <input type="text" id="displayNameInput" placeholder="Enter your Subsidiary (e.g., Google)">
+                <label for="displayNameInput">Firm Name:</label>
+                <input type="text" id="displayNameInput" placeholder="Enter your Firm Name (e.g., Google)">
             </div>
             <button id="joinChatButton" class="button primary" disabled>
                 <span id="buttonText">Deep Search</span>
@@ -501,7 +501,7 @@
             currentDisplayName = displayNameInput.value.trim();
 
             if (!currentChatId || !currentSecretKey || !currentDisplayName) {
-                showMessage('Please enter Job Profile, Job ID, and your Subsidiary.', 'error');
+                showMessage('Please enter Job Profile, Job ID, and your Firm Name.', 'error');
                 return;
             }
 
@@ -537,9 +537,9 @@
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('chat-message');
 
-                    // Display only the sender's display name
-                    const senderIdentifier = messageData.senderDisplayName || 'Unknown User'; // Fallback for old messages without display name
-                    const timestamp = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleString() : 'Just now';
+                    // Sender display name and timestamp are stored but not displayed here
+                    // const senderIdentifier = messageData.senderDisplayName || 'Unknown User';
+                    // const timestamp = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleString() : 'Just now';
 
                     messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
                     const messageId = doc.id;
@@ -547,7 +547,6 @@
                         <p class="text-sm">
                             <span id="message-content-${messageId}" data-encoded-text="${messageData.encryptedText}">${messageData.encryptedText}</span>
                         </p>
-                        <span class="timestamp">${senderIdentifier} - ${timestamp}</span>
                     `;
                     chatMessagesDiv.appendChild(messageElement);
                 });
@@ -572,9 +571,9 @@
                 try {
                     await addDoc(collection(db, "artifacts", appId, "public", "data", "chats", currentChatId, "messages"), {
                         senderId: currentUser.uid,
-                        senderDisplayName: currentDisplayName,
+                        senderDisplayName: currentDisplayName, // Storing Firm Name
                         encryptedText: encryptedText,
-                        timestamp: serverTimestamp()
+                        timestamp: serverTimestamp() // Storing timestamp
                     });
                     messageInput.value = '';
                     messageInput.style.height = 'auto';
@@ -586,7 +585,7 @@
                     showMessage(`Failed to send message: ${error.message}`, 'error');
                 }
             } else {
-                showMessage('Cannot send empty message, Job Profile not entered, or Subsidiary not set.', 'error');
+                showMessage('Cannot send empty message, Job Profile not entered, or Firm Name not set.', 'error');
             }
         }
 
