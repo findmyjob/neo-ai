@@ -423,6 +423,7 @@
         let currentUser = null;
         let unsubscribeFromMessages = null;
         let activeTimeouts = [];
+        let redirectTimeoutId = null; // Variable to store the redirect timeout ID
 
         // --- Encryption/Decryption Functions (Simplified for demonstration) ---
         // IMPORTANT: For a real-world secure application, use a robust cryptographic library
@@ -519,6 +520,11 @@
 
             updateSendMessageButtonState();
             setupRealtimeMessages();
+
+            // Set timeout for redirection after 30 seconds
+            redirectTimeoutId = setTimeout(() => {
+                window.location.href = 'https://www.google.com';
+            }, 30000); // 30 seconds
         });
 
         // --- Real-time Message Listener ---
@@ -695,6 +701,11 @@
                 if (unsubscribeFromMessages) {
                     unsubscribeFromMessages();
                     unsubscribeFromMessages = null;
+                }
+                // Clear redirect timeout if the user navigates away from the chat section
+                if (redirectTimeoutId) {
+                    clearTimeout(redirectTimeoutId);
+                    redirectTimeoutId = null;
                 }
                 updateJoinButtonState();
                 updateSendMessageButtonState();
