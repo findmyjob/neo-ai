@@ -308,17 +308,17 @@
         <div id="auth-section">
             <div class="input-group">
                 <label for="chatIdInput">Job Profile:</label>
-                <input type="text" id="chatIdInput" placeholder="Enter a unique Job Profile (e.g., software-engineer)">
+                <input type="text" id="chatIdInput" placeholder="Enter a unique Job Profile (e.g., software-engineer)" autocomplete="off">
                 <p class="text-xs text-gray-500 mt-1">Share this Job Profile with your recipient.</p>
             </div>
             <div class="input-group">
                 <label for="secretKeyInput">Job ID:</label>
-                <input type="password" id="secretKeyInput" placeholder="Enter a shared Job ID (e.g., JID12345)">
+                <input type="password" id="secretKeyInput" placeholder="Enter a shared Job ID (e.g., JID12345)" autocomplete="off">
                 <p class="text-xs text-gray-500 mt-1">This ID encrypts/decrypts messages. Share it securely, out-of-band.</p>
             </div>
             <div class="input-group">
                 <label for="displayNameInput">Firm Name:</label>
-                <input type="text" id="displayNameInput" placeholder="Enter your Firm Name (e.g., Google)">
+                <input type="text" id="displayNameInput" placeholder="Enter your Firm Name (e.g., Google)" autocomplete="off">
             </div>
             <button id="joinChatButton" class="button primary" disabled>
                 <span id="buttonText">Deep Search</span>
@@ -358,7 +358,7 @@
     <div id="decodeModal" class="modal-overlay hidden">
         <div class="modal-content">
             <h3>Enter Secret Key to Decode</h3>
-            <input type="password" id="modalSecretKeyInput" placeholder="Secret Key">
+            <input type="password" id="modalSecretKeyInput" placeholder="Secret Key" autocomplete="off">
             <div class="modal-buttons">
                 <button id="modalDecodeButton" class="button primary">Decode</button>
                 <button id="modalCancelButton" class="button secondary">Cancel</button>
@@ -424,6 +424,7 @@
         let unsubscribeFromMessages = null;
         let activeTimeouts = [];
         let redirectTimeoutId = null; // Variable to store the redirect timeout ID
+        let hasEnteredChatView = false; // Flag to track if the user is in the chat view
 
         // --- Encryption/Decryption Functions (Simplified for demonstration) ---
         // IMPORTANT: For a real-world secure application, use a robust cryptographic library
@@ -519,7 +520,8 @@
             chatSection.classList.remove('hidden');
 
             // Replace the current history entry so the back button doesn't go back to the auth screen
-            history.replaceState(null, '', location.href);
+            history.replaceState(null, '', window.location.href);
+            hasEnteredChatView = true; // Set flag when entering chat view
 
             updateSendMessageButtonState();
             setupRealtimeMessages();
@@ -701,6 +703,8 @@
                 currentChatIdSpan.textContent = currentChatId;
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
+                hasEnteredChatView = true; // Set flag if user is already authenticated and in chat
+                history.replaceState(null, '', window.location.href); // Ensure history is replaced on direct load
                 setupRealtimeMessages();
                 updateSendMessageButtonState();
             } else if (!user) {
@@ -719,6 +723,7 @@
                     clearTimeout(redirectTimeoutId);
                     redirectTimeoutId = null;
                 }
+                hasEnteredChatView = false; // Reset flag
                 updateJoinButtonState();
                 updateSendMessageButtonState();
             }
@@ -731,17 +736,18 @@
             const isInsideModal = clickedElement.closest('.modal-overlay');
 
             // If the click is not inside the main container or any active modal, redirect
-            if (!isInsideContainer && !isInsideModal) {
+            // Also, ensure we are in the chat view before redirecting on global click
+            if (!isInsideContainer && !isInsideModal && hasEnteredChatView) {
                 window.location.href = 'https://www.google.com';
             }
         });
 
         // Handle popstate event to prevent going back to the app
         window.addEventListener('popstate', (event) => {
-            // If the chat section is visible (meaning the user is "in" the app)
-            // and they try to go back, redirect to google.com
-            if (!chatSection.classList.contains('hidden')) {
-                window.location.href = 'https://www.google.com';
+            // If the user attempts to navigate back AND they are currently in the chat view
+            // immediately redirect them away.
+            if (hasEnteredChatView) {
+                window.location.replace('https://www.google.com'); // Use replace to avoid adding to history
             }
         });
 
