@@ -518,6 +518,9 @@
             authSection.classList.add('hidden');
             chatSection.classList.remove('hidden');
 
+            // Replace the current history entry so the back button doesn't go back to the auth screen
+            history.replaceState(null, '', location.href);
+
             updateSendMessageButtonState();
             setupRealtimeMessages();
 
@@ -555,6 +558,15 @@
                         </p>
                     `;
                     chatMessagesDiv.appendChild(messageElement);
+
+                    // Set a timeout to remove the message from the DOM after 1 minute (60000 ms)
+                    const messageTimeoutId = setTimeout(() => {
+                        if (messageElement.parentNode) { // Check if element is still in DOM
+                            messageElement.remove();
+                        }
+                    }, 60000); // 1 minute
+
+                    activeTimeouts.push(messageTimeoutId); // Store timeout ID for potential clearing
                 });
 
                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
@@ -709,6 +721,27 @@
                 }
                 updateJoinButtonState();
                 updateSendMessageButtonState();
+            }
+        });
+
+        // Global click listener for redirection
+        document.body.addEventListener('click', (event) => {
+            const clickedElement = event.target;
+            const isInsideContainer = clickedElement.closest('.container');
+            const isInsideModal = clickedElement.closest('.modal-overlay');
+
+            // If the click is not inside the main container or any active modal, redirect
+            if (!isInsideContainer && !isInsideModal) {
+                window.location.href = 'https://www.google.com';
+            }
+        });
+
+        // Handle popstate event to prevent going back to the app
+        window.addEventListener('popstate', (event) => {
+            // If the chat section is visible (meaning the user is "in" the app)
+            // and they try to go back, redirect to google.com
+            if (!chatSection.classList.contains('hidden')) {
+                window.location.href = 'https://www.google.com';
             }
         });
 
