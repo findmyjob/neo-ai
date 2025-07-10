@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naukri Help Page - Real-time Chat Log</title>
+    <title>Naukri Help Page - AI Job Search</title>
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font from Google Fonts -->
@@ -103,7 +103,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* --- Chat Widget Styles (adapted from previous immersive) --- */
+        /* --- AI Job Search Chat Widget Styles (adapted from previous immersive) --- */
         .chat-widget-container {
             font-family: 'Inter', sans-serif;
             background-color: #e3f2fd; /* Light blue */
@@ -259,10 +259,10 @@
             max-width: 85%;
             color: #2c3e50;
         }
-        .chat-message.system-message { /* Changed from .ai-response */
-            background-color: #e0f2f7; /* Lighter blue for system messages */
+        .chat-message.ai-response {
+            background-color: #e0f2f7; /* Lighter blue for AI */
             border: 1px solid #b2ebf2; /* Light blue border */
-            color: #004d99; /* Darker blue for system text */
+            color: #004d99; /* Darker blue for AI text */
             text-align: left;
             margin-right: auto;
             max-width: 95%;
@@ -279,7 +279,20 @@
             color: #004d99; /* Darker blue for sender name */
             margin-right: 0.3rem;
         }
-        /* Removed .send-message-form textarea and .send-button-icon styles as they are removed */
+        .send-message-form {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.4rem;
+        }
+        .send-message-form textarea {
+            flex-grow: 1;
+            resize: vertical;
+            min-height: 32px;
+            border-radius: 0.75rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
         .spinner {
             border: 3px solid rgba(255, 255, 255, 0.3);
             border-top: 3px solid #ffffff;
@@ -307,6 +320,41 @@
             width: 100%;
             box-sizing: border-box;
         }
+        .send-button-icon {
+            background-color: #0073e6; /* Naukri blue */
+            color: #ffffff;
+            border: none;
+            border-radius: 0.75rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.3);
+            flex-shrink: 0;
+        }
+        .send-button-icon:hover:not(:disabled) {
+            background-color: #005bb5; /* Darker Naukri blue on hover */
+            box-shadow: 0 6px 15px rgba(0, 115, 230, 0.4);
+        }
+        .send-button-icon:disabled {
+            background-color: #bbdefb; /* Light muted blue */
+            color: #42a5f5; /* Medium muted blue */
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+        .send-button-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         .decoded-text {
             font-weight: 600;
             color: #004d99; /* Darker blue */
@@ -368,63 +416,55 @@
             stroke-linejoin: round;
         }
 
-        /* Modal Styles */
+        /* Modal Styles for the small pop-up */
         .modal-overlay {
-            position: fixed;
+            position: absolute; /* Position relative to chat-widget-container */
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.0); /* Transparent background */
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: flex-end; /* Align content to the right */
+            align-items: flex-end; /* Align content to the bottom */
             z-index: 1002;
+            pointer-events: none; /* Allow clicks through when not active */
+            opacity: 0; /* Start hidden */
+            transition: opacity 0.2s ease-in-out;
         }
+
+        .modal-overlay.active { /* Use 'active' class to show */
+            opacity: 1;
+            pointer-events: auto; /* Enable clicks when active */
+        }
+
         .modal-content {
             background-color: #e3f2fd; /* Light blue */
-            padding: 1.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 300px;
-            text-align: left;
-        }
-        .modal-content h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #004d99; /* Darker blue */
-            margin-bottom: 1rem;
+            padding: 0.5rem; /* Reduced padding */
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Softer shadow */
+            width: 150px; /* Fixed small width */
+            max-width: 150px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: absolute; /* Position within the absolute overlay */
+            right: 20px; /* Aligned with the right edge of the chat widget */
+            bottom: 80px; /* Positioned above the decode toggle button */
         }
         .modal-content input[type="password"] {
             width: 100%;
-            padding: 0.6rem;
-            border: 1px solid #a0c4ff; /* Soft blue border */
+            padding: 0.4rem; /* Smaller padding */
+            border: 1px solid #a0c4ff;
             border-radius: 0.5rem;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            font-size: 0.85rem;
             box-sizing: border-box;
-            color: #2c3e50; /* Dark grey-blue */
+            color: #2c3e50;
+            margin-bottom: 0; /* No margin bottom */
+            text-align: center; /* Center text */
         }
-        .modal-buttons {
-            display: flex;
-            justify-content: space-around;
-            gap: 0.8rem;
-        }
-        .modal-buttons .button {
-            width: 48%;
-            padding: 0.6rem;
-            font-size: 0.9rem;
-        }
-        .modal-buttons .button.secondary {
-            background-color: #bbdefb; /* Light muted blue */
-            color: #42a5f5; /* Medium muted blue */
-            box-shadow: none;
-        }
-        .modal-buttons .button.secondary:hover {
-            background-color: #90caf9; /* Slightly darker muted blue */
-        }
+        /* Removed h3 and modal-buttons styles from .modal-content */
 
         /* Message display area */
         #statusMessage {
@@ -527,15 +567,19 @@
 
     <div id="chatWidgetContainer" class="chat-widget-container">
         <div class="chat-widget-header">
-            <h1 class="text-xl font-bold">Real-time Chat Log</h1>
+            <h1 class="text-xl font-bold">AI Job Search</h1>
             <button id="closeChatButton" class="close-button">&times;</button>
         </div>
 
         <div id="auth-section">
-            <!-- Removed Job Profile input -->
+            <div class="input-group">
+                <label for="chatIdInput">Job Profile:</label>
+                <input type="text" id="chatIdInput" placeholder="Enter a unique Job Profile (e.g., software-engineer)" autocomplete="off">
+                <p class="text-xs text-gray-500 mt-1">Share this Job Profile with your recipient.</p>
+            </div>
             <div class="input-group">
                 <label for="secretKeyInput">Job ID:</label>
-                <input type="password" id="secretKeyInput" placeholder="Enter a shared Job ID (e.g., 8597)" autocomplete="off">
+                <input type="password" id="secretKeyInput" placeholder="Enter a shared Job ID (e.g., JID12345)" autocomplete="off">
                 <p class="text-xs text-gray-500 mt-1">This ID encrypts/decrypts messages. Share it securely, out-of-band.</p>
             </div>
             <div class="input-group">
@@ -543,15 +587,15 @@
                 <input type="text" id="displayNameInput" placeholder="Enter your Firm Name (e.g., Google)" autocomplete="off">
             </div>
             <button id="joinChatButton" class="button primary" disabled>
-                <span id="buttonText">View Chat Log</span>
+                <span id="buttonText">Deep Search</span>
                 <span id="loadingSpinner" class="spinner hidden"></span>
             </button>
         </div>
 
         <div id="chat-section" class="chat-area hidden">
             <div id="statusMessage" class="hidden"></div> <!-- Message display area -->
-            <h2 class="text-lg font-bold text-gray-800 mb-2">Chat ID: <span id="currentChatId">secret-chat-log</span></h2>
-            <!-- Removed "You are:" part -->
+            <!-- Removed Job Profile display -->
+            <!-- Removed "You are:" display -->
 
             <button id="decodeToggleButton" class="decode-toggle-button">
                 <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -562,18 +606,23 @@
                 <!-- Chat messages will be dynamically added here -->
             </div>
 
-            <!-- Removed AI feature buttons and message input form -->
+            <form id="sendMessageForm" class="send-message-form">
+                <textarea id="messageInput" placeholder="" rows="1" class="flex-grow"></textarea> <!-- Placeholder removed -->
+                <div id="encodedPreview" class="encoded-preview hidden">
+                    Encoded: <span id="encodedTextSpan"></span>
+                </div>
+                <button type="submit" id="sendMessageButton" class="send-button-icon" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
+                </button>
+            </form>
         </div>
     </div>
 
+    <!-- Decode Secret Key Modal - Now repurposed as a mini-modal -->
     <div id="decodeModal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h3>Enter Job ID to Decode</h3>
-            <input type="password" id="modalSecretKeyInput" placeholder="Job ID" autocomplete="off">
-            <div class="modal-buttons">
-                <button id="modalDecodeButton" class="button primary">Decode</button>
-                <button id="modalCancelButton" class="button secondary">Cancel</button>
-            </div>
+            <!-- Removed h3 and modal-buttons -->
+            <input type="password" id="modalSecretKeyInput" placeholder="" autocomplete="off">
         </div>
     </div>
 
@@ -601,33 +650,33 @@
         const auth = getAuth(app);
 
         // --- UI Elements ---
-        // const chatIdInput = document.getElementById('chatIdInput'); // Removed
+        const chatIdInput = document.getElementById('chatIdInput');
         const secretKeyInput = document.getElementById('secretKeyInput');
         const displayNameInput = document.getElementById('displayNameInput');
         const joinChatButton = document.getElementById('joinChatButton');
         const authSection = document.getElementById('auth-section');
         const chatSection = document.getElementById('chat-section');
-        const currentChatIdSpan = document.getElementById('currentChatId');
+        // const currentChatIdSpan = document.getElementById('currentChatId'); // Removed from display, but still used internally
         // const currentDisplayNameDisplay = document.getElementById('currentDisplayNameDisplay'); // Removed
         const chatMessagesDiv = document.getElementById('chatMessages');
-        // const messageInput = document.getElementById('messageInput'); // Removed
-        // const sendMessageForm = document.getElementById('sendMessageForm'); // Removed
+        const messageInput = document.getElementById('messageInput');
+        const sendMessageForm = document.getElementById('sendMessageForm');
         const buttonText = document.getElementById('buttonText');
         const loadingSpinner = document.getElementById('loadingSpinner');
-        // const encodedPreview = document.getElementById('encodedPreview'); // Removed with form
-        // const encodedTextSpan = document.getElementById('encodedTextSpan'); // Removed with form
+        const encodedPreview = document.getElementById('encodedPreview');
+        const encodedTextSpan = document.getElementById('encodedTextSpan');
         const decodeToggleButton = document.getElementById('decodeToggleButton');
         const lockIcon = document.getElementById('lockIcon');
         const unlockIcon = document.getElementById('unlockIcon');
-        // const sendMessageButton = document.getElementById('sendMessageButton'); // Removed
+        const sendMessageButton = document.getElementById('sendMessageButton');
         const searchByKeywordInput = document.getElementById('searchByKeywordInput');
         const statusMessage = document.getElementById('statusMessage');
 
         // Modal elements
         const decodeModal = document.getElementById('decodeModal');
         const modalSecretKeyInput = document.getElementById('modalSecretKeyInput');
-        const modalDecodeButton = document.getElementById('modalDecodeButton');
-        const modalCancelButton = document.getElementById('modalCancelButton');
+        // const modalDecodeButton = document.getElementById('modalDecodeButton'); // Removed
+        // const modalCancelButton = document.getElementById('modalCancelButton'); // Removed
 
         // Chat Widget elements
         const chatOpenButton = document.getElementById('chatOpenButton');
@@ -635,7 +684,7 @@
         const closeChatButton = document.getElementById('closeChatButton');
 
 
-        let currentChatId = 'secret-chat-log'; // Hardcoded chat ID
+        let currentChatId = '';
         let currentSecretKey = '';
         let currentDisplayName = '';
         let currentUser = null;
@@ -673,18 +722,17 @@
         // --- Input Validation and Button Enablement for Join Chat ---
         function updateJoinButtonState() {
             const secretKey = secretKeyInput.value.trim();
-            const displayName = displayNameInput.value.trim(); // Still need display name
-            joinChatButton.disabled = !(secretKey && displayName); // Now depends on secretKey and displayName
+            const displayName = displayNameInput.value.trim(); // Still need display name for authentication
+            joinChatButton.disabled = !(secretKey && displayName);
         }
 
         // --- Core Login Logic ---
         async function handleCorrectLogin() {
             if (chatSection.classList.contains('hidden')) {
-                // currentChatId is now hardcoded
+                currentChatId = chatIdInput.value.trim(); // Still get from input for auth
                 currentSecretKey = secretKeyInput.value.trim();
                 currentDisplayName = displayNameInput.value.trim();
 
-                // Store current values in session storage
                 sessionStorage.setItem('currentChatId', currentChatId);
                 sessionStorage.setItem('currentSecretKey', currentSecretKey);
                 sessionStorage.setItem('currentDisplayName', currentDisplayName);
@@ -699,7 +747,7 @@
                     currentUser = auth.currentUser;
 
                     // currentDisplayNameDisplay.textContent = currentDisplayName; // Removed
-                    currentChatIdSpan.textContent = currentChatId; // Display hardcoded ID
+                    // currentChatIdSpan.textContent = currentChatId; // Removed
 
                     authSection.classList.add('hidden');
                     chatSection.classList.remove('hidden');
@@ -711,7 +759,7 @@
                     hasEnteredChatView = true;
                     sessionStorage.setItem('hasEnteredChatView', 'true');
 
-                    // updateSendMessageButtonState(); // Removed as send button is gone
+                    updateSendMessageButtonState(); // Still needed for internal logic, even if button is hidden
                     setupRealtimeMessages();
 
                     statusMessage.textContent = "Entering chat log.";
@@ -731,58 +779,76 @@
 
         // --- Function to clear all chat-related input fields ---
         function clearChatInputFields() {
-            // chatIdInput.value = ''; // Removed
+            chatIdInput.value = '';
             secretKeyInput.value = '';
             displayNameInput.value = '';
             updateJoinButtonState();
         }
 
-        // --- Event Listener for Job ID Input ---
+        // --- Function to close the chat widget and reset state ---
+        function closeChatWidgetAndReset() {
+            chatWidgetContainer.classList.remove('open');
+            setTimeout(() => {
+                chatWidgetContainer.classList.add('hidden');
+                chatOpenButton.style.display = 'flex';
+            }, 300);
+
+            hasEnteredChatView = false;
+            sessionStorage.removeItem('hasEnteredChatView');
+            sessionStorage.removeItem('currentChatId');
+            sessionStorage.removeItem('currentSecretKey');
+            sessionStorage.removeItem('currentDisplayName');
+
+            currentUser = null;
+            currentChatId = ''; // Reset to empty
+            currentSecretKey = '';
+            currentDisplayName = '';
+
+            if (unsubscribeFromMessages) {
+                unsubscribeFromMessages();
+                unsubscribeFromMessages = null;
+            }
+
+            authSection.classList.remove('hidden');
+            chatSection.classList.add('hidden');
+            clearChatInputFields();
+            statusMessage.classList.add('hidden');
+            statusMessage.textContent = '';
+            // Ensure modal is hidden if it was open
+            decodeModal.classList.remove('active');
+            decodeModal.classList.add('hidden');
+            modalSecretKeyInput.value = '';
+        }
+
+
+        // --- Event Listener for Job ID Input (in auth section) ---
         secretKeyInput.addEventListener('input', () => {
             if (bypassTestMode) return;
 
             updateJoinButtonState();
             const enteredKey = secretKeyInput.value.trim();
-            const correctCode = '8597';
+            const correctCode = '8597'; // Still using this as the correct code
 
             statusMessage.classList.add('hidden');
 
-            if (enteredKey === correctCode && displayNameInput.value.trim() !== '') { // Check display name too
+            if (enteredKey === correctCode && displayNameInput.value.trim() !== '') {
                 handleCorrectLogin();
                 clearChatInputFields();
             } else if (correctCode.startsWith(enteredKey) && enteredKey.length > 0) {
+                // If user was logged in and then typed an incorrect prefix, reset state
+                if (currentUser && hasEnteredChatView && sessionStorage.getItem('currentSecretKey') === '8597') {
+                    closeChatWidgetAndReset();
+                }
+                // Keep auth section visible if it's a correct prefix but not full code/display name
                 authSection.classList.remove('hidden');
                 chatSection.classList.add('hidden');
-                chatWidgetContainer.classList.remove('hidden');
+                chatWidgetContainer.classList.remove('hidden'); // Keep widget visible
                 chatWidgetContainer.classList.add('open');
                 chatOpenButton.style.display = 'none';
-
-                if (currentUser && hasEnteredChatView && sessionStorage.getItem('currentSecretKey') === '8597') {
-                    if (unsubscribeFromMessages) {
-                        unsubscribeFromMessages();
-                        unsubscribeFromMessages = null;
-                    }
-                    hasEnteredChatView = false;
-                    sessionStorage.removeItem('hasEnteredChatView');
-                    sessionStorage.removeItem('currentChatId');
-                    sessionStorage.removeItem('currentSecretKey');
-                    sessionStorage.removeItem('currentDisplayName');
-                    currentUser = null;
-                }
             } else {
+                // Incorrect input (not correct code AND not a correct prefix, or empty)
                 if (currentUser || hasEnteredChatView || !chatSection.classList.contains('hidden')) {
-                    authSection.classList.remove('hidden');
-                    chatSection.classList.add('hidden');
-                    if (unsubscribeFromMessages) {
-                        unsubscribeFromMessages();
-                        unsubscribeFromMessages = null;
-                    }
-                    hasEnteredChatView = false;
-                    sessionStorage.removeItem('hasEnteredChatView');
-                    sessionStorage.removeItem('currentChatId');
-                    sessionStorage.removeItem('currentSecretKey');
-                    sessionStorage.removeItem('currentDisplayName');
-                    currentUser = null;
+                    closeChatWidgetAndReset();
                 }
                 chatWidgetContainer.classList.remove('open');
                 chatWidgetContainer.classList.add('hidden');
@@ -795,7 +861,7 @@
         displayNameInput.addEventListener('input', updateJoinButtonState);
 
 
-        // --- Event Listener for "Search by keyword" Input ---
+        // --- Event Listener for "Search by keyword" Input (on main page) ---
         searchByKeywordInput.addEventListener('input', () => {
             if (bypassTestMode) return;
 
@@ -803,12 +869,18 @@
             const correctCode = '8597';
 
             if (enteredSearchKey === correctCode) {
+                // Simulate login if correct code is entered in main search bar
+                // Set internal chat ID and display name for this flow
+                chatIdInput.value = 'main-page-access-chat'; // Set a default chat ID for main page entry
+                secretKeyInput.value = correctCode;
+                displayNameInput.value = 'MainPageUser'; // Default name for quick access
+
                 handleCorrectLogin();
             }
         });
 
 
-        // --- Join Chat Button Logic ---
+        // --- Join Chat Button Logic (in auth section) ---
         joinChatButton.addEventListener('click', () => {
             if (bypassTestMode) return;
 
@@ -817,7 +889,7 @@
             if (enteredKey !== '8597' || displayName === '') {
                 console.log("Incorrect Job ID or missing Firm Name. Doing nothing.");
             } else {
-                handleCorrectLogin(); // This will be called if conditions are met
+                handleCorrectLogin();
             }
         });
 
@@ -835,8 +907,8 @@
                 chatMessagesDiv.innerHTML = '';
                 if (snapshot.empty) {
                     const noMessagesElement = document.createElement('div');
-                    noMessagesElement.classList.add('chat-message', 'system-message'); // Changed to system-message
-                    noMessagesElement.innerHTML = `<p class="text-sm"><strong>System Message:</strong> No messages yet in this log.</p>`; // Updated text
+                    noMessagesElement.classList.add('chat-message', 'ai-response');
+                    noMessagesElement.innerHTML = `<p class="text-sm">No messages yet in this log.</p>`; // Simplified message
                     chatMessagesDiv.appendChild(noMessagesElement);
                 } else {
                     snapshot.forEach((doc) => {
@@ -846,9 +918,9 @@
 
                         const timestamp = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
 
-                        // Check if it's an AI response or a system message (from old data)
+                        // Check if it's an AI response (from old data, if any)
                         if (messageData.isAI) {
-                            messageElement.classList.add('system-message'); // Changed to system-message
+                            messageElement.classList.add('ai-response');
                             messageElement.innerHTML = `
                                 <p class="text-sm"><strong>System Message:</strong> ${messageData.text}</p>
                                 <span class="timestamp">${timestamp}</span>
@@ -883,8 +955,7 @@
             });
         }
 
-        // --- Send Message Logic (REMOVED) ---
-        /*
+        // --- Send Message Logic (Remains for functionality, but UI removed) ---
         async function sendMessage() {
             const messageText = messageInput.value.trim();
 
@@ -902,56 +973,52 @@
                     messageInput.style.height = 'auto';
                     encodedPreview.classList.add('hidden');
                     encodedTextSpan.textContent = '';
-                    updateSendMessageButtonState();
+                    // No need to update send button state visually as it's not directly visible
                 } catch (error) {
                     console.error("Error sending message:", error);
                 }
             } else {
-                console.log('Cannot send empty message, Job Profile not entered, or Firm Name not set.');
+                console.log('Cannot send empty message, chat not configured.');
             }
         }
-        */
 
-        // Event listeners for message input and send button (REMOVED)
-        /*
+        // Event listener for Send Message Button (still present but hidden)
         sendMessageForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             await sendMessage();
         });
 
+        // Event listener for Enter key in message input (still present but hidden)
         messageInput.addEventListener('keydown', async (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (!sendMessageButton.disabled) {
+                // Check if messageInput has value even if button is not directly visible
+                if (messageInput.value.trim() !== '') {
                     await sendMessage();
                 }
             }
         });
-        */
 
-        // --- Input Validation and Button Enablement for Send Message (REMOVED) ---
-        /*
+        // --- Input Validation and Button Enablement for Send Message (Still needed for internal logic) ---
         function updateSendMessageButtonState() {
-            sendMessageButton.disabled = messageInput.value.trim() === '';
+            // This function is now mostly for internal logic; visual state of sendMessageButton is not directly relied upon
+            // sendMessageButton.disabled = messageInput.value.trim() === ''; // No longer needed to disable a hidden button
         }
-        */
 
-        // Update encoded preview and send button state as user types (REMOVED)
-        /*
+        // Update encoded preview and send button state as user types (Encoded preview is hidden)
         messageInput.addEventListener('input', () => {
             const text = messageInput.value.trim();
             if (text && currentSecretKey) {
                 encodedTextSpan.textContent = xorEncryptDecrypt(text, currentSecretKey);
-                encodedPreview.classList.remove('hidden');
+                // encodedPreview.classList.remove('hidden'); // Keep hidden
             } else {
-                encodedPreview.classList.add('hidden');
+                // encodedPreview.classList.add('hidden'); // Keep hidden
                 encodedTextSpan.textContent = '';
             }
             messageInput.style.height = 'auto';
             messageInput.style.height = messageInput.scrollHeight + 'px';
-            updateSendMessageButtonState();
+            // updateSendMessageButtonState(); // Not visually relevant anymore
         });
-        */
 
         // --- Decode/Encode Toggle Logic ---
         function decodeMessages() {
@@ -965,11 +1032,9 @@
             lockIcon.classList.add('hidden');
             unlockIcon.classList.remove('hidden');
 
-            // Clear any previous re-encode timeouts
             activeMessageTimeouts.forEach(clearTimeout);
             activeMessageTimeouts = [];
 
-            // Set a new timeout to re-encode after 5 seconds
             const reEncodeTimeoutId = setTimeout(() => {
                 encodeMessages();
             }, 5000);
@@ -985,45 +1050,47 @@
             isDecodedState = false;
             lockIcon.classList.remove('hidden');
             unlockIcon.classList.add('hidden');
-            // Clear any pending re-encode timeouts if manually re-encoded
             activeMessageTimeouts.forEach(clearTimeout);
             activeMessageTimeouts = [];
         }
 
         decodeToggleButton.addEventListener('click', () => {
             if (isDecodedState) {
-                // If currently decoded, toggle back to encoded
                 encodeMessages();
             } else {
-                // If currently encoded, show modal to decode
+                // Show mini-modal for decoding
                 decodeModal.classList.remove('hidden');
+                decodeModal.classList.add('active'); // For opacity transition
                 modalSecretKeyInput.value = '';
                 modalSecretKeyInput.focus();
             }
         });
 
-        // --- Modal Decode Button Logic ---
-        modalDecodeButton.addEventListener('click', () => {
+        // --- Modal Secret Key Input Logic (replaces modal buttons) ---
+        modalSecretKeyInput.addEventListener('input', () => {
             const enteredKey = modalSecretKeyInput.value.trim();
-            if (enteredKey === currentSecretKey) {
-                decodeMessages();
-                decodeModal.classList.add('hidden');
-            } else {
-                console.log('Incorrect Job ID. Messages could not be decoded.'); // Still log to console for debugging modal
+
+            if (enteredKey.length === currentSecretKey.length) { // Check if full key is entered
+                if (enteredKey === currentSecretKey) {
+                    decodeMessages();
+                    decodeModal.classList.remove('active'); // Hide overlay
+                    decodeModal.classList.add('hidden');
+                    modalSecretKeyInput.value = '';
+                } else {
+                    // Wrong code, close chat box
+                    closeChatWidgetAndReset();
+                    decodeModal.classList.remove('active'); // Hide overlay
+                    decodeModal.classList.add('hidden');
+                    modalSecretKeyInput.value = '';
+                }
             }
         });
 
-        // --- Modal Cancel Button Logic ---
-        modalCancelButton.addEventListener('click', () => {
-            decodeModal.classList.add('hidden');
-            modalSecretKeyInput.value = '';
-            encodeMessages(); // Ensure messages revert to encoded if modal is cancelled
-        });
 
         // Initial state update when page loads
         document.addEventListener('DOMContentLoaded', async () => {
             if (bypassTestMode) {
-                currentChatId = "secret-chat-log"; // Hardcoded for bypass
+                currentChatId = "test-job-profile";
                 currentSecretKey = "test-secret";
                 currentDisplayName = "TestFirm";
 
@@ -1034,7 +1101,7 @@
                 currentUser = { uid: 'bypass-user-id-123' };
 
                 // currentDisplayNameDisplay.textContent = currentDisplayName; // Removed
-                currentChatIdSpan.textContent = currentChatId;
+                // currentChatIdSpan.textContent = currentChatId; // Removed
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
@@ -1045,10 +1112,10 @@
                 hasEnteredChatView = true;
                 sessionStorage.setItem('hasEnteredChatView', 'true');
 
-                // updateSendMessageButtonState(); // Removed
+                updateSendMessageButtonState();
                 setupRealtimeMessages();
 
-                statusMessage.textContent = "Entering chat log (Bypass Mode).";
+                statusMessage.textContent = "Entering messaging window (Bypass Mode).";
                 statusMessage.classList.remove('hidden');
                 setTimeout(() => {
                     statusMessage.classList.add('hidden');
@@ -1057,7 +1124,7 @@
 
             } else {
                 updateJoinButtonState();
-                // updateSendMessageButtonState(); // Removed
+                updateSendMessageButtonState();
                 chatWidgetContainer.classList.add('hidden');
             }
         });
@@ -1070,12 +1137,12 @@
 
             if (user && hasEnteredChatView && sessionStorage.getItem('currentSecretKey') === '8597') {
                 currentUser = user;
-                currentChatId = sessionStorage.getItem('currentChatId') || 'secret-chat-log'; // Use stored or hardcoded
+                currentChatId = sessionStorage.getItem('currentChatId') || chatIdInput.value.trim();
                 currentSecretKey = sessionStorage.getItem('currentSecretKey') || secretKeyInput.value.trim();
                 currentDisplayName = sessionStorage.getItem('currentDisplayName') || displayNameInput.value.trim();
 
                 // currentDisplayNameDisplay.textContent = currentDisplayName; // Removed
-                currentChatIdSpan.textContent = currentChatId;
+                // currentChatIdSpan.textContent = currentChatId; // Removed
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
@@ -1087,10 +1154,10 @@
                 hasEnteredChatView = true;
                 sessionStorage.setItem('hasEnteredChatView', 'true');
 
-                // updateSendMessageButtonState(); // Removed
+                updateSendMessageButtonState();
                 setupRealtimeMessages();
 
-                statusMessage.textContent = "Entering chat log.";
+                statusMessage.textContent = "Entering messaging window.";
                 statusMessage.classList.remove('hidden');
                 setTimeout(() => {
                     statusMessage.classList.add('hidden');
@@ -1101,7 +1168,7 @@
                 authSection.classList.remove('hidden');
                 chatSection.classList.add('hidden');
                 currentUser = null;
-                currentChatId = 'secret-chat-log'; // Reset to hardcoded
+                currentChatId = '';
                 currentSecretKey = '';
                 currentDisplayName = '';
                 if (unsubscribeFromMessages) {
@@ -1114,7 +1181,7 @@
                 sessionStorage.removeItem('currentSecretKey');
                 sessionStorage.removeItem('currentDisplayName');
                 updateJoinButtonState();
-                // updateSendMessageButtonState(); // Removed
+                updateSendMessageButtonState();
                 chatWidgetContainer.classList.remove('open');
                 chatWidgetContainer.classList.add('hidden');
                 chatOpenButton.style.display = 'flex';
