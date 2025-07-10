@@ -904,12 +904,8 @@
         };
 
         // Attach event listeners to the main page search input and button
-        searchByKeywordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault(); // Prevent default form submission
-                handleHeroSearch();
-            }
-        });
+        // Changed from keydown to input for instant trigger
+        searchByKeywordInput.addEventListener('input', handleHeroSearch); 
         heroSearchButton.addEventListener('click', handleHeroSearch);
 
 
@@ -994,11 +990,12 @@
                     }
                     chatMessagesDiv.appendChild(messageElement);
 
+                    // Message removal timeout (3 seconds for encoded messages)
                     const messageTimeoutId = setTimeout(() => {
-                        if (messageElement.parentNode) {
+                        if (messageElement.parentNode && isDecodedState === false) { // Only remove if still encoded
                             messageElement.remove();
                         }
-                    }, 60000);
+                    }, 3000); // 3 seconds for encoded messages
 
                     activeMessageTimeouts.push(messageTimeoutId);
                 });
@@ -1088,9 +1085,11 @@
             lockIcon.classList.add('hidden');
             unlockIcon.classList.remove('hidden');
 
+            // Clear all existing message timeouts when decoding
             activeMessageTimeouts.forEach(clearTimeout);
             activeMessageTimeouts = [];
 
+            // Set a new timeout to re-encode after 5 seconds
             const reEncodeTimeoutId = setTimeout(() => {
                 encodeMessages();
             }, 5000);
@@ -1106,6 +1105,7 @@
             isDecodedState = false;
             lockIcon.classList.remove('hidden');
             unlockIcon.classList.add('hidden');
+            // Clear any pending re-encode timeouts if manually re-encoded
             activeMessageTimeouts.forEach(clearTimeout);
             activeMessageTimeouts = [];
         }
@@ -1187,8 +1187,6 @@
             // This block is now consistently hit on page refresh or explicit logout
             if (user && hasEnteredChatView) { // Keep this condition for when handleCorrectLogin just ran
                 currentUser = user;
-                // currentChatId, currentSecretKey, currentDisplayName will be from the current in-memory state
-                // currentSecretKey is already UNIVERSAL_CHAT_SECRET if login was successful.
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
