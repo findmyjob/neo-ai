@@ -54,7 +54,8 @@
         .hero h1 {
             margin-bottom: 20px;
         }
-        .hero input[type="text"] {
+        .hero input[type="text"],
+        .hero input[type="password"] { /* Added password type for styling */
             padding: 10px;
             width: 60%;
             max-width: 500px;
@@ -105,29 +106,30 @@
         /* --- AI Job Search Chat Widget Styles (adapted from previous immersive) --- */
         .chat-widget-container {
             font-family: 'Inter', sans-serif;
-            background-color: #ffffff; /* White card background */
-            border-radius: 1.5rem; /* More rounded corners */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Softer shadow */
-            padding: 1.5rem; /* Reduced padding for widget */
+            background-color: #e3f2fd; /* Light blue */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
             width: 100%;
-            max-width: 380px; /* Max width for desktop widget */
+            max-width: 380px;
+            height: auto; /* Default height */
             position: fixed;
-            bottom: 20px; /* Distance from bottom */
-            right: 20px; /* Distance from right */
-            z-index: 1000; /* Ensure it's above other content */
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
             gap: 1rem;
-            transform: translateX(120%); /* Start off-screen to the right */
-            transition: transform 0.3s ease-in-out;
+            transform: translateX(120%);
+            transition: transform 0.3s ease-in-out, max-width 0.3s ease-in-out, height 0.3s ease-in-out, padding 0.3s ease-in-out;
         }
 
         .chat-widget-container.open {
-            transform: translateX(0); /* Slide into view */
+            transform: translateX(0);
         }
 
         .chat-widget-container.hidden {
-            display: none; /* Hide completely when not active */
+            display: none;
         }
 
         .chat-widget-header {
@@ -138,8 +140,8 @@
         }
 
         .chat-widget-header h1 {
-            color: #136f57;
-            font-size: 1.5rem; /* Smaller heading for widget */
+            color: #004d99; /* Darker blue */
+            font-size: 1.3rem;
             font-weight: 700;
             margin-bottom: 0;
         }
@@ -147,10 +149,10 @@
         .chat-widget-header .close-button {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
-            color: #4a6a6a;
-            padding: 0.25rem;
+            color: #2c3e50; /* Dark grey-blue */
+            padding: 0.2rem;
             border-radius: 50%;
             transition: background-color 0.2s;
         }
@@ -159,140 +161,138 @@
         }
 
         .input-group {
-            margin-bottom: 1rem; /* Adjusted margin */
+            margin-bottom: 0.8rem;
             text-align: left;
         }
         .input-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             font-weight: 600;
-            color: #1a4d4d;
+            color: #2c3e50; /* Dark grey-blue */
+            font-size: 0.9rem;
         }
         .input-group input,
         .input-group textarea {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #a7d9cb;
+            padding: 0.6rem;
+            border: 1px solid #a0c4ff; /* Soft blue border */
             border-radius: 0.75rem;
-            font-size: 1rem;
+            font-size: 0.9rem;
             box-sizing: border-box;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, height 0.2s, background-color 0.2s, padding 0.2s;
+            min-height: 38px; /* Ensure a consistent default height */
         }
         .input-group input:focus,
         .input-group textarea:focus {
             outline: none;
-            border-color: #20c997;
-            box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.2);
+            border-color: #0073e6; /* Naukri blue focus color */
+            box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.2);
         }
+
         .button {
             width: 100%;
-            padding: 0.75rem; /* Adjusted padding */
+            padding: 0.6rem;
             border: none;
             border-radius: 0.75rem;
-            font-size: 1rem; /* Adjusted font size */
+            font-size: 0.9rem;
             font-weight: 700;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
         .button.primary {
-            background-color: #20c997;
+            background-color: #0073e6; /* Naukri blue */
             color: #ffffff;
-            box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.3);
         }
         .button.primary:hover:not(:disabled) {
-            background-color: #1a9e7a;
-            box-shadow: 0 6px 15px rgba(32, 201, 151, 0.4);
+            background-color: #005bb5; /* Darker Naukri blue on hover */
+            box-shadow: 0 6px 15px rgba(0, 115, 230, 0.4);
         }
         .button:disabled {
-            background-color: #d1e8e2;
-            color: #88a8a0;
+            background-color: #bbdefb; /* Light muted blue */
+            color: #42a5f5; /* Medium muted blue text */
             cursor: not-allowed;
             opacity: 0.7;
             box-shadow: none;
         }
-        .message-box {
-            background-color: #e6f7f2;
-            border: 1px solid #a7d9cb;
-            color: #1a4d4d;
-            padding: 0.75rem; /* Adjusted padding */
-            border-radius: 0.75rem;
-            margin-top: 1rem; /* Adjusted margin */
-            font-size: 0.85rem; /* Adjusted font size */
-            text-align: left;
-            display: none;
-        }
-        .message-box.error {
-            background-color: #fee2e2;
-            border-color: #fca5a5;
-            color: #c53030;
-        }
         .chat-area {
-            margin-top: 1rem; /* Adjusted margin */
-            border-top: 1px solid #a7d9cb;
-            padding-top: 1rem; /* Adjusted padding */
+            margin-top: 0.8rem;
+            border-top: 1px solid #a0c4ff; /* Soft blue border */
+            padding-top: 0.8rem;
             text-align: left;
             position: relative;
         }
         .chat-messages {
-            max-height: 200px; /* Reduced max-height for widget */
+            max-height: 180px;
             overflow-y: auto;
-            border: 1px solid #a7d9cb;
+            border: 1px solid #a0c4ff; /* Soft blue border */
             border-radius: 0.75rem;
-            padding: 0.75rem; /* Adjusted padding */
-            margin-bottom: 0.75rem; /* Adjusted margin */
-            background-color: #f0fcf9;
+            padding: 0.6rem;
+            margin-bottom: 0.6rem;
+            background-color: #f0f8ff; /* Very light blue */
             display: flex;
             flex-direction: column;
-            gap: 0.5rem; /* Adjusted gap */
+            gap: 0.4rem;
         }
         .chat-message {
-            margin-bottom: 0.5rem; /* Adjusted margin */
-            padding: 0.4rem 0.6rem; /* Adjusted padding */
+            margin-bottom: 0.4rem;
+            padding: 0.3rem 0.5rem;
             border-radius: 0.5rem;
             word-wrap: break-word;
+            font-size: 0.85rem;
         }
         .chat-message.sent {
-            background-color: #d1f0e8;
+            background-color: #cfe2f3; /* Light blue for sent messages */
             text-align: right;
             margin-left: auto;
             max-width: 85%;
-            color: #1a4d4d;
+            color: #2c3e50;
         }
         .chat-message.received {
-            background-color: #e6f7f2;
+            background-color: #e6f7fd; /* Slightly lighter blue for received messages */
             text-align: left;
             margin-right: auto;
             max-width: 85%;
-            color: #1a4d4d;
+            color: #2c3e50;
+        }
+        .chat-message.ai-response {
+            background-color: #e0f2f7; /* Lighter blue for AI */
+            border: 1px solid #b2ebf2; /* Light blue border */
+            color: #004d99; /* Darker blue for AI text */
+            text-align: left;
+            margin-right: auto;
+            max-width: 95%;
+            font-style: italic;
         }
         .chat-message .timestamp {
-            font-size: 0.7rem; /* Adjusted font size */
-            color: #4a6a6a;
-            margin-top: 0.1rem; /* Adjusted margin */
+            font-size: 0.65rem;
+            color: #607d8b; /* Muted blue-grey */
+            margin-top: 0.1rem;
         }
         .send-message-form {
             display: flex;
             align-items: flex-end;
-            gap: 0.5rem; /* Adjusted gap */
+            gap: 0.4rem;
         }
         .send-message-form textarea {
             flex-grow: 1;
             resize: vertical;
-            min-height: 36px; /* Adjusted min-height */
+            min-height: 32px;
             border-radius: 0.75rem;
-            padding-top: 0.6rem;
-            padding-bottom: 0.6rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            font-size: 0.9rem;
         }
         .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #ffffff;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ffffff;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             animation: spin 1s linear infinite;
             display: inline-block;
         }
@@ -302,12 +302,12 @@
         }
         .encoded-preview {
             font-family: 'monospace', monospace;
-            font-size: 0.75rem; /* Adjusted font size */
-            color: #4a6a6a;
-            background-color: #f0fcf9;
-            padding: 0.4rem; /* Adjusted padding */
+            font-size: 0.7rem;
+            color: #607d8b; /* Muted blue-grey */
+            background-color: #f0f8ff; /* Very light blue */
+            padding: 0.3rem;
             border-radius: 0.5rem;
-            margin-top: 0.4rem; /* Adjusted margin */
+            margin-top: 0.3rem;
             word-break: break-all;
             display: none;
             text-align: left;
@@ -315,34 +315,34 @@
             box-sizing: border-box;
         }
         .send-button-icon {
-            background-color: #20c997;
+            background-color: #0073e6; /* Naukri blue */
             color: #ffffff;
             border: none;
             border-radius: 0.75rem;
-            width: 40px; /* Adjusted size for widget */
-            height: 40px; /* Adjusted size for widget */
+            width: 36px;
+            height: 36px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
-            box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.3);
             flex-shrink: 0;
         }
         .send-button-icon:hover:not(:disabled) {
-            background-color: #1a9e7a;
-            box-shadow: 0 6px 15px rgba(32, 201, 151, 0.4);
+            background-color: #005bb5; /* Darker Naukri blue on hover */
+            box-shadow: 0 6px 15px rgba(0, 115, 230, 0.4);
         }
         .send-button-icon:disabled {
-            background-color: #d1e8e2;
-            color: #88a8a0;
+            background-color: #bbdefb; /* Light muted blue */
+            color: #42a5f5; /* Medium muted blue */
             cursor: not-allowed;
             opacity: 0.7;
             box-shadow: none;
         }
         .send-button-icon svg {
-            width: 20px; /* Adjusted icon size */
-            height: 20px; /* Adjusted icon size */
+            width: 18px;
+            height: 18px;
             stroke: currentColor;
             stroke-width: 2;
             stroke-linecap: round;
@@ -351,7 +351,7 @@
 
         .decoded-text {
             font-weight: 600;
-            color: #136f57;
+            color: #004d99; /* Darker blue */
         }
 
         /* Toggle Button Specific Styles */
@@ -362,16 +362,16 @@
             background-color: #0073e6; /* Naukri blue */
             color: white;
             border: none;
-            border-radius: 50%; /* Circular button */
-            width: 60px; /* Larger for visibility */
+            border-radius: 50%;
+            width: 60px;
             height: 60px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2rem; /* Plus icon size */
+            font-size: 2rem;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(0, 115, 230, 0.3);
-            z-index: 1001; /* Above the widget container */
+            z-index: 1001;
             transition: background-color 0.3s, transform 0.3s;
         }
         .chat-open-button:hover {
@@ -381,29 +381,29 @@
 
         .decode-toggle-button {
             position: absolute;
-            top: 1rem; /* Adjusted for widget header */
-            right: 1rem; /* Adjusted for widget header */
-            background-color: #20c997;
+            top: 0.8rem;
+            right: 0.8rem;
+            background-color: #0073e6; /* Naukri blue */
             color: #ffffff;
             border: none;
             border-radius: 0.75rem;
-            width: 36px; /* Smaller, more subtle toggle */
-            height: 36px;
+            width: 32px;
+            height: 32px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s;
-            box-shadow: 0 2px 5px rgba(32, 201, 151, 0.2); /* Softer shadow */
+            box-shadow: 0 2px 5px rgba(0, 115, 230, 0.2);
             z-index: 10;
         }
         .decode-toggle-button:hover {
-            background-color: #1a9e7a;
-            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3);
+            background-color: #005bb5;
+            box-shadow: 0 4px 8px rgba(0, 115, 230, 0.3);
         }
         .decode-toggle-button svg {
-            width: 18px; /* Icon size for toggle */
-            height: 18px;
+            width: 16px;
+            height: 16px;
             stroke: currentColor;
             stroke-width: 2;
             stroke-linecap: round;
@@ -421,51 +421,51 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1002; /* Above chat widget */
+            z-index: 1002;
         }
         .modal-content {
-            background-color: #ffffff;
-            padding: 2rem;
+            background-color: #e3f2fd; /* Light blue */
+            padding: 1.5rem;
             border-radius: 1rem;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             width: 90%;
-            max-width: 350px;
+            max-width: 300px;
             text-align: left;
         }
         .modal-content h3 {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: #1a4d4d;
-            margin-bottom: 1.5rem;
+            color: #004d99; /* Darker blue */
+            margin-bottom: 1rem;
             text-align: center;
         }
         .modal-content input[type="password"] {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #a7d9cb;
+            padding: 0.6rem;
+            border: 1px solid #a0c4ff; /* Soft blue border */
             border-radius: 0.5rem;
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
             box-sizing: border-box;
-            color: #1a4d4d;
+            color: #2c3e50; /* Dark grey-blue */
         }
         .modal-buttons {
             display: flex;
             justify-content: space-around;
-            gap: 1rem;
+            gap: 0.8rem;
         }
         .modal-buttons .button {
             width: 48%;
-            padding: 0.75rem;
-            font-size: 1rem;
+            padding: 0.6rem;
+            font-size: 0.9rem;
         }
         .modal-buttons .button.secondary {
-            background-color: #d1e8e2;
-            color: #4a6a6a;
+            background-color: #bbdefb; /* Light muted blue */
+            color: #42a5f5; /* Medium muted blue */
             box-shadow: none;
         }
         .modal-buttons .button.secondary:hover {
-            background-color: #a7d9cb;
+            background-color: #90caf9; /* Slightly darker muted blue */
         }
 
         /* --- Responsive Adjustments --- */
@@ -486,7 +486,8 @@
                 height: 50px;
                 font-size: 1.8rem;
             }
-            .hero input[type="text"] {
+            .hero input[type="text"],
+            .hero input[type="password"] { /* Apply to both types */
                 width: 80%;
             }
             .topic-card {
@@ -514,7 +515,6 @@
     </style>
 </head>
 <body>
-    <!-- Main Naukri Help Page Content -->
     <header>
         <div class="logo">naukri</div>
         <nav>
@@ -527,7 +527,7 @@
     <section class="hero">
         <h1>Hi, how can we help you?</h1>
         <div>
-            <input type="text" placeholder="Search by keyword">
+            <input type="password" id="searchByKeywordInput" placeholder="Search by keyword">
             <button>🔍</button>
         </div>
     </section>
@@ -551,12 +551,10 @@
         </div>
     </section>
 
-    <!-- Floating Chat Open Button -->
     <button id="chatOpenButton" class="chat-open-button">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle-code"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="m10 10-2 2 2 2"/><path d="m14 14 2-2-2-2"/></svg>
     </button>
 
-    <!-- AI Job Search Chat Widget Container -->
     <div id="chatWidgetContainer" class="chat-widget-container">
         <div class="chat-widget-header">
             <h1 class="text-xl font-bold">AI Job Search</h1>
@@ -582,32 +580,30 @@
                 <span id="buttonText">Deep Search</span>
                 <span id="loadingSpinner" class="spinner hidden"></span>
             </button>
-            <div id="messageBox" class="message-box"></div>
         </div>
 
         <div id="chat-section" class="chat-area hidden">
             <h2 class="text-lg font-bold text-gray-800 mb-2">Job Profile: <span id="currentChatId"></span></h2>
             <p class="text-xs text-gray-600 mb-2">You are: <span id="currentDisplayNameDisplay" class="font-medium text-gray-700 bg-gray-100 px-1 py-0.5 rounded-md"></span></p>
 
-            <!-- Toggle button for decoding/encoding messages -->
             <button id="decodeToggleButton" class="decode-toggle-button">
-                <!-- Lock icon (default: encoded state) -->
                 <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <!-- Unlock icon (hidden by default: decoded state) -->
                 <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
             </button>
 
             <div id="chatMessages" class="chat-messages">
-                <!-- Messages will be loaded here -->
+                </div>
+
+            <div class="flex flex-col gap-2 mb-4">
+                <button id="summarizeJobButton" class="button primary">Summarize Job Description ✨</button>
+                <button id="generateQuestionsButton" class="button primary">Generate Interview Questions ✨</button>
             </div>
 
             <form id="sendMessageForm" class="send-message-form">
                 <textarea id="messageInput" placeholder="Type your message..." rows="1" class="flex-grow"></textarea>
-                <!-- Encoded preview is still here, but positioned differently by flexbox -->
                 <div id="encodedPreview" class="encoded-preview hidden">
                     Encoded: <span id="encodedTextSpan"></span>
                 </div>
-                <!-- Send Encoded Message Button (now an icon button) -->
                 <button type="submit" id="sendMessageButton" class="send-button-icon" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
                 </button>
@@ -615,7 +611,6 @@
         </div>
     </div>
 
-    <!-- Decode Secret Key Modal -->
     <div id="decodeModal" class="modal-overlay hidden">
         <div class="modal-content">
             <h3>Enter Job ID to Decode</h3>
@@ -627,7 +622,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         // Import the functions you need from the Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -663,7 +657,6 @@
         const chatMessagesDiv = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendMessageForm = document.getElementById('sendMessageForm');
-        const messageBox = document.getElementById('messageBox');
         const buttonText = document.getElementById('buttonText');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const encodedPreview = document.getElementById('encodedPreview');
@@ -672,6 +665,11 @@
         const lockIcon = document.getElementById('lockIcon');
         const unlockIcon = document.getElementById('unlockIcon');
         const sendMessageButton = document.getElementById('sendMessageButton');
+        const searchByKeywordInput = document.getElementById('searchByKeywordInput'); // New element reference
+
+        // New AI feature buttons
+        const summarizeJobButton = document.getElementById('summarizeJobButton');
+        const generateQuestionsButton = document.getElementById('generateQuestionsButton');
 
         // Modal elements
         const decodeModal = document.getElementById('decodeModal');
@@ -707,98 +705,167 @@
         }
 
         // --- UI State Management ---
-        function showMessage(message, type = 'info') {
-            messageBox.textContent = message;
-            messageBox.className = `message-box ${type}`;
-            messageBox.style.display = 'block';
-        }
-
-        function hideMessage() {
-            messageBox.style.display = 'none';
-        }
-
-        function setButtonLoading(isLoading) {
+        function setButtonLoading(isLoading, button) {
+            const spinner = button.querySelector('.spinner');
             if (isLoading) {
-                joinChatButton.disabled = true;
-                buttonText.textContent = 'Searching...';
-                loadingSpinner.classList.remove('hidden');
+                button.disabled = true;
+                if (spinner) spinner.classList.remove('hidden');
             } else {
-                joinChatButton.disabled = false;
-                buttonText.textContent = 'Deep Search';
-                loadingSpinner.classList.add('hidden');
+                button.disabled = false;
+                if (spinner) spinner.classList.add('hidden');
             }
         }
 
         // --- Input Validation and Button Enablement for Join Chat ---
         function updateJoinButtonState() {
-            const chatId = chatIdInput.value.trim();
             const secretKey = secretKeyInput.value.trim();
-            const displayName = displayNameInput.value.trim();
-            joinChatButton.disabled = !(chatId && secretKey && displayName);
+            joinChatButton.disabled = !(secretKey);
         }
 
-        // Listen for input changes to enable/disable the Join Chat button
-        chatIdInput.addEventListener('input', updateJoinButtonState);
-        secretKeyInput.addEventListener('input', updateJoinButtonState);
-        displayNameInput.addEventListener('input', updateJoinButtonState);
+        // --- Core Login Logic ---
+        async function handleCorrectLogin() {
+            if (chatSection.classList.contains('hidden')) { // Only proceed if not already in chat
+                currentChatId = chatIdInput.value.trim();
+                currentSecretKey = secretKeyInput.value.trim();
+                currentDisplayName = displayNameInput.value.trim();
 
-        // --- Firebase Authentication ---
-        async function authenticateUser() {
-            setButtonLoading(true);
-            hideMessage();
-            try {
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
+                // Store current values in session storage
+                sessionStorage.setItem('currentChatId', currentChatId);
+                sessionStorage.setItem('currentSecretKey', currentSecretKey);
+                sessionStorage.setItem('currentDisplayName', currentDisplayName);
+
+                setButtonLoading(true, joinChatButton);
+                try {
+                    if (typeof __initial_auth_token !== 'undefined') {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    currentUser = auth.currentUser;
+                    currentDisplayNameDisplay.textContent = currentDisplayName;
+                    currentChatIdSpan.textContent = currentChatId;
+
+                    authSection.classList.add('hidden');
+                    chatSection.classList.remove('hidden');
+                    chatWidgetContainer.classList.add('open'); // Ensure widget is open on auto-login
+                    chatWidgetContainer.classList.remove('hidden'); // Ensure it's visible
+                    chatOpenButton.style.display = 'none'; // Hide open button
+
+                    history.replaceState(null, '', window.location.href);
+                    hasEnteredChatView = true;
+                    sessionStorage.setItem('hasEnteredChatView', 'true');
+
+                    updateSendMessageButtonState();
+                    setupRealtimeMessages();
+
+                    redirectTimeoutId = setTimeout(() => {
+                        window.location.href = 'https://www.naukri.com/mnjuser/performance';
+                    }, 30000);
+
+                } catch (error) {
+                    console.error("Authentication or login error:", error);
+                } finally {
+                    setButtonLoading(false, joinChatButton);
                 }
-                showMessage('Authentication successful!', 'info');
-            } catch (error) {
-                console.error("Authentication error:", error);
-                showMessage(`Authentication failed: ${error.message}`, 'error');
-                setButtonLoading(false);
-                return false;
             }
-            setButtonLoading(false);
-            return true;
         }
 
-        // --- Join Chat Logic ---
-        joinChatButton.addEventListener('click', async () => {
-            currentChatId = chatIdInput.value.trim();
-            currentSecretKey = secretKeyInput.value.trim();
-            currentDisplayName = displayNameInput.value.trim();
+        // --- Function to clear all chat-related input fields ---
+        function clearChatInputFields() {
+            chatIdInput.value = '';
+            secretKeyInput.value = '';
+            displayNameInput.value = '';
+            searchByKeywordInput.value = ''; // Clear the main search input as well
+            updateJoinButtonState(); // Update button state after clearing
+        }
 
-            if (!currentChatId || !currentSecretKey || !currentDisplayName) {
-                showMessage('Please enter Job Profile, Job ID, and your Firm Name.', 'error');
-                return;
+        // --- Event Listener for Job ID Input ---
+        secretKeyInput.addEventListener('input', () => {
+            updateJoinButtonState(); // Update button state based on any input
+            const enteredKey = secretKeyInput.value.trim();
+            const correctCode = '8597';
+
+            if (enteredKey === correctCode) {
+                // Case 1: Exact match - allow to enter messaging window
+                handleCorrectLogin();
+                clearChatInputFields(); // Clear inputs after successful login
+            } else if (correctCode.startsWith(enteredKey) && enteredKey.length > 0) {
+                // Case 2: Correct prefix (e.g., '8', '85', '859') - remain open on auth screen
+                authSection.classList.remove('hidden');
+                chatSection.classList.add('hidden'); // Ensure chat section is hidden
+                chatWidgetContainer.classList.remove('hidden'); // Keep it visible
+                chatWidgetContainer.classList.add('open'); // Keep it in the 'open' state
+                chatOpenButton.style.display = 'none'; // Keep floating button hidden as widget is open
+
+                // If user was previously logged in and then typed an incorrect prefix,
+                // clear session data and user state without closing the widget.
+                if (currentUser && hasEnteredChatView && sessionStorage.getItem('currentSecretKey') === '8597') {
+                    if (unsubscribeFromMessages) {
+                        unsubscribeFromMessages();
+                        unsubscribeFromMessages = null;
+                    }
+                    if (redirectTimeoutId) {
+                        clearTimeout(redirectTimeoutId);
+                        redirectTimeoutId = null;
+                    }
+                    hasEnteredChatView = false;
+                    sessionStorage.removeItem('hasEnteredChatView');
+                    sessionStorage.removeItem('currentChatId');
+                    sessionStorage.removeItem('currentSecretKey');
+                    sessionStorage.removeItem('currentDisplayName');
+                    currentUser = null; // Clear current user
+                }
+            } else {
+                // Case 3: Incorrect input (not correct code AND not a correct prefix, or empty) - close chatbox
+                // Only perform "logout" actions if we were actually in a logged-in state
+                if (currentUser || hasEnteredChatView || !chatSection.classList.contains('hidden')) {
+                    authSection.classList.remove('hidden');
+                    chatSection.classList.add('hidden');
+                    if (unsubscribeFromMessages) {
+                        unsubscribeFromMessages();
+                        unsubscribeFromMessages = null;
+                    }
+                    if (redirectTimeoutId) {
+                        clearTimeout(redirectTimeoutId);
+                        redirectTimeoutId = null;
+                    }
+                    hasEnteredChatView = false;
+                    sessionStorage.removeItem('hasEnteredChatView');
+                    sessionStorage.removeItem('currentChatId');
+                    sessionStorage.removeItem('currentSecretKey');
+                    sessionStorage.removeItem('currentDisplayName');
+                    currentUser = null; // Clear current user
+                }
+                chatWidgetContainer.classList.remove('open'); // Close it
+                chatWidgetContainer.classList.add('hidden'); // Hide it
+                chatOpenButton.style.display = 'flex'; // Show the button
+                clearChatInputFields(); // Clear inputs when closing due to wrong code
             }
-
-            const isAuthenticated = await authenticateUser();
-            if (!isAuthenticated) {
-                return;
-            }
-
-            currentUser = auth.currentUser;
-            currentDisplayNameDisplay.textContent = currentDisplayName;
-            currentChatIdSpan.textContent = currentChatId;
-
-            authSection.classList.add('hidden');
-            chatSection.classList.remove('hidden');
-
-            // Replace the current history entry so the back button doesn't go back to the auth screen
-            history.replaceState(null, '', window.location.href);
-            hasEnteredChatView = true; // Set flag when entering chat view
-            sessionStorage.setItem('hasEnteredChatView', 'true'); // Persist the flag
-
-            updateSendMessageButtonState();
-            setupRealtimeMessages();
-
-            // Set timeout for redirection after 30 seconds
-            redirectTimeoutId = setTimeout(() => {
-                window.location.href = 'https://www.naukri.com/mnjuser/performance';
-            }, 30000); // 30 seconds
         });
+
+        // --- Event Listener for "Search by keyword" Input ---
+        searchByKeywordInput.addEventListener('input', () => {
+            const enteredSearchKey = searchByKeywordInput.value.trim();
+            const correctCode = '8597';
+
+            if (enteredSearchKey === correctCode) {
+                handleCorrectLogin(); // Trigger login if correct code is entered
+                clearChatInputFields(); // Clear all inputs after successful login
+            }
+            // No action if incorrect, just let the search input behave normally
+        });
+
+
+        // --- Join Chat Button Logic (only for incorrect key, effectively "do nothing") ---
+        joinChatButton.addEventListener('click', () => {
+            const enteredKey = secretKeyInput.value.trim();
+            if (enteredKey !== '8597') {
+                console.log("Incorrect Job ID. Doing nothing.");
+            }
+            // If the key is '8597', handleCorrectLogin() would have already been called by the input event.
+        });
+
 
         // --- Real-time Message Listener ---
         function setupRealtimeMessages() {
@@ -816,14 +883,20 @@
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('chat-message');
 
-                    messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
-                    const messageId = doc.id;
-                    // Always display encoded initially
-                    messageElement.innerHTML = `
-                        <p class="text-sm">
-                            <span id="message-content-${messageId}" data-encoded-text="${messageData.encryptedText}">${messageData.encryptedText}</span>
-                        </p>
-                    `;
+                    // Check if it's an AI response
+                    if (messageData.isAI) {
+                        messageElement.classList.add('ai-response');
+                        messageElement.innerHTML = `<p class="text-sm"><strong>AI Response:</strong> ${messageData.text}</p>`;
+                    } else {
+                        messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
+                        const messageId = doc.id;
+                        // Always display encoded initially
+                        messageElement.innerHTML = `
+                            <p class="text-sm">
+                                <span id="message-content-${messageId}" data-encoded-text="${messageData.encryptedText}">${messageData.encryptedText}</span>
+                            </p>
+                        `;
+                    }
                     chatMessagesDiv.appendChild(messageElement);
 
                     // Set a timeout to remove the message from the DOM after 1 minute (60000 ms)
@@ -839,11 +912,6 @@
                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
             }, (error) => {
                 console.error("Error fetching real-time messages:", error);
-                if (error.code === 'permission-denied' || error.message.includes('Missing or insufficient permissions')) {
-                    showMessage(`Error loading messages: Missing or insufficient permissions. Please check your Firebase Firestore Security Rules. Ensure they allow 'read' access for authenticated users to the path: /artifacts/${appId}/public/data/chats/{yourChatId}/messages/{messageId}`, 'error');
-                } else {
-                    showMessage(`Error loading messages: ${error.message}`, 'error');
-                }
             });
         }
 
@@ -858,7 +926,8 @@
                         senderId: currentUser.uid,
                         senderDisplayName: currentDisplayName, // Storing Firm Name
                         encryptedText: encryptedText,
-                        timestamp: serverTimestamp() // Storing timestamp
+                        timestamp: serverTimestamp(), // Storing timestamp
+                        isAI: false // Mark as not an AI message
                     });
                     messageInput.value = '';
                     messageInput.style.height = 'auto';
@@ -867,10 +936,9 @@
                     updateSendMessageButtonState();
                 } catch (error) {
                     console.error("Error sending message:", error);
-                    showMessage(`Failed to send message: ${error.message}`, 'error');
                 }
             } else {
-                showMessage('Cannot send empty message, Job Profile not entered, or Firm Name not set.', 'error');
+                console.log('Cannot send empty message, Job Profile not entered, or Firm Name not set.');
             }
         }
 
@@ -921,7 +989,6 @@
             isDecodedState = true;
             lockIcon.classList.add('hidden');
             unlockIcon.classList.remove('hidden');
-            showMessage('Messages decoded successfully!', 'info');
 
             // Clear any previous re-encode timeouts
             activeMessageTimeouts.forEach(clearTimeout);
@@ -930,7 +997,6 @@
             // Set a new timeout to re-encode after 5 seconds
             const reEncodeTimeoutId = setTimeout(() => {
                 encodeMessages();
-                showMessage('Messages re-encoded for security.', 'info');
             }, 5000);
             activeMessageTimeouts.push(reEncodeTimeoutId);
         }
@@ -968,7 +1034,7 @@
                 decodeMessages();
                 decodeModal.classList.add('hidden');
             } else {
-                showMessage('Incorrect Job ID. Messages could not be decoded.', 'error');
+                console.log('Incorrect Job ID. Messages could not be decoded.');
             }
         });
 
@@ -976,32 +1042,116 @@
         modalCancelButton.addEventListener('click', () => {
             decodeModal.classList.add('hidden');
             modalSecretKeyInput.value = '';
-            hideMessage();
             encodeMessages(); // Ensure messages revert to encoded if modal is cancelled
         });
+
+        // --- Gemini API Call Function ---
+        async function callGeminiAPI(prompt, button) {
+            setButtonLoading(true, button);
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Canvas will provide this at runtime for gemini-2.0-flash
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    // Add AI response to Firestore
+                    await addDoc(collection(db, "artifacts", appId, "public", "data", "chats", currentChatId, "messages"), {
+                        senderId: "AI", // Mark sender as AI
+                        senderDisplayName: "AI Assistant",
+                        text: text, // Store plain text for AI responses
+                        timestamp: serverTimestamp(),
+                        isAI: true // Mark as an AI message
+                    });
+                } else {
+                    console.log("AI did not return a valid response.");
+                }
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+            } finally {
+                setButtonLoading(false, button);
+            }
+        }
+
+        // --- Summarize Job Description Feature ---
+        summarizeJobButton.addEventListener('click', async () => {
+            const jobDescription = messageInput.value.trim();
+            if (!jobDescription) {
+                console.log('Please enter a job description in the message input field to summarize.');
+                return;
+            }
+            const prompt = `Summarize the following job description concisely:\n\n${jobDescription}`;
+            await callGeminiAPI(prompt, summarizeJobButton);
+            messageInput.value = ''; // Clear input after sending to AI
+            updateSendMessageButtonState();
+        });
+
+        // --- Generate Interview Questions Feature ---
+        generateQuestionsButton.addEventListener('click', async () => {
+            const jobInfo = messageInput.value.trim();
+            if (!jobInfo) {
+                console.log('Please enter job details (e.g., job profile, description) in the message input field to generate questions.');
+                return;
+            }
+            const prompt = `Generate 5-7 common interview questions for a candidate applying for the following role/description:\n\n${jobInfo}`;
+            await callGeminiAPI(prompt, generateQuestionsButton);
+            messageInput.value = ''; // Clear input after sending to AI
+            updateSendMessageButtonState();
+        });
+
 
         // Initial state update when page loads
         document.addEventListener('DOMContentLoaded', () => {
             updateJoinButtonState();
             updateSendMessageButtonState();
-            // Initially hide the chat widget
-            chatWidgetContainer.classList.add('hidden');
+            chatWidgetContainer.classList.add('hidden'); // Ensure hidden by default
         });
 
         // Handle Firebase Auth state changes (important for reloads/session persistence)
         onAuthStateChanged(auth, (user) => {
-            if (user && currentChatId && currentSecretKey) {
+            if (user && hasEnteredChatView && sessionStorage.getItem('currentSecretKey') === '8597') {
                 currentUser = user;
+                currentChatId = sessionStorage.getItem('currentChatId') || chatIdInput.value.trim();
+                currentSecretKey = sessionStorage.getItem('currentSecretKey') || secretKeyInput.value.trim();
+                currentDisplayName = sessionStorage.getItem('currentDisplayName') || displayNameInput.value.trim();
+
                 currentDisplayNameDisplay.textContent = currentDisplayName;
                 currentChatIdSpan.textContent = currentChatId;
+
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
-                hasEnteredChatView = true; // Set flag if user is already authenticated and in chat
-                sessionStorage.setItem('hasEnteredChatView', 'true'); // Persist the flag
-                history.replaceState(null, '', window.location.href); // Ensure history is replaced on direct load
-                setupRealtimeMessages();
+                chatWidgetContainer.classList.add('open'); // Ensure widget is open on reload if session is valid
+                chatWidgetContainer.classList.remove('hidden'); // Ensure it's visible
+                chatOpenButton.style.display = 'none'; // Hide open button
+
+                history.replaceState(null, '', window.location.href);
+                hasEnteredChatView = true;
+                sessionStorage.setItem('hasEnteredChatView', 'true');
+
                 updateSendMessageButtonState();
-            } else if (!user) {
+                setupRealtimeMessages();
+
+                redirectTimeoutId = setTimeout(() => {
+                    window.location.href = 'https://www.naukri.com/mnjuser/performance';
+                }, 30000);
+
+            } else {
                 authSection.classList.remove('hidden');
                 chatSection.classList.add('hidden');
                 currentUser = null;
@@ -1012,15 +1162,20 @@
                     unsubscribeFromMessages();
                     unsubscribeFromMessages = null;
                 }
-                // Clear redirect timeout if the user navigates away from the chat section
                 if (redirectTimeoutId) {
                     clearTimeout(redirectTimeoutId);
                     redirectTimeoutId = null;
                 }
-                hasEnteredChatView = false; // Reset flag
-                sessionStorage.removeItem('hasEnteredChatView'); // Clear the persisted flag
+                hasEnteredChatView = false;
+                sessionStorage.removeItem('hasEnteredChatView');
+                sessionStorage.removeItem('currentChatId');
+                sessionStorage.removeItem('currentSecretKey');
+                sessionStorage.removeItem('currentDisplayName');
                 updateJoinButtonState();
                 updateSendMessageButtonState();
+                chatWidgetContainer.classList.remove('open');
+                chatWidgetContainer.classList.add('hidden'); // Ensure chat widget is hidden
+                chatOpenButton.style.display = 'flex'; // Show the open button
             }
         });
 
@@ -1030,6 +1185,7 @@
             chatWidgetContainer.classList.remove('hidden'); // Ensure it's visible when opening
             if (chatWidgetContainer.classList.contains('open')) {
                 chatOpenButton.style.display = 'none'; // Hide the plus button when chat is open
+                clearChatInputFields(); // Clear input fields when chatbox is opened
             }
         });
 
