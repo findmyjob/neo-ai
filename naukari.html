@@ -538,7 +538,7 @@
         <h1>Hi, how can we help you?</h1>
         <div>
             <input type="password" id="searchByKeywordInput" placeholder="Search by keyword">
-            <button>🔍</button>
+            <button id="heroSearchButton">🔍</button> <!-- Added ID to the search button -->
         </div>
     </section>
 
@@ -593,22 +593,16 @@
         </div>
 
         <div id="chat-section" class="chat-area hidden">
-            <div id="statusMessage" class="hidden"></div> <!-- Message display area -->
-            <!-- Removed Job Profile display -->
-            <!-- Removed "You are:" display -->
-
-            <button id="decodeToggleButton" class="decode-toggle-button">
+            <div id="statusMessage" class="hidden"></div> <button id="decodeToggleButton" class="decode-toggle-button">
                 <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
             </button>
 
             <div id="chatMessages" class="chat-messages">
-                <!-- Chat messages will be dynamically added here -->
-            </div>
+                </div>
 
             <form id="sendMessageForm" class="send-message-form">
-                <textarea id="messageInput" placeholder="" rows="1" class="flex-grow"></textarea> <!-- Placeholder removed -->
-                <div id="encodedPreview" class="encoded-preview hidden">
+                <textarea id="messageInput" placeholder="" rows="1" class="flex-grow"></textarea> <div id="encodedPreview" class="encoded-preview hidden">
                     Encoded: <span id="encodedTextSpan"></span>
                 </div>
                 <button type="submit" id="sendMessageButton" class="send-button-icon" disabled>
@@ -618,10 +612,8 @@
         </div>
     </div>
 
-    <!-- Decode Secret Key Modal - Now repurposed as a mini-modal -->
     <div id="decodeModal" class="modal-overlay hidden">
         <div class="modal-content">
-            <!-- Removed h3 and modal-buttons -->
             <input type="password" id="modalSecretKeyInput" placeholder="" autocomplete="off">
         </div>
     </div>
@@ -656,8 +648,6 @@
         const joinChatButton = document.getElementById('joinChatButton');
         const authSection = document.getElementById('auth-section');
         const chatSection = document.getElementById('chat-section');
-        // const currentChatIdSpan = document.getElementById('currentChatId'); // Removed from display, but still used internally
-        // const currentDisplayNameDisplay = document.getElementById('currentDisplayNameDisplay'); // Removed
         const chatMessagesDiv = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendMessageForm = document.getElementById('sendMessageForm');
@@ -670,13 +660,12 @@
         const unlockIcon = document.getElementById('unlockIcon');
         const sendMessageButton = document.getElementById('sendMessageButton');
         const searchByKeywordInput = document.getElementById('searchByKeywordInput');
+        const heroSearchButton = document.getElementById('heroSearchButton'); // Get reference to the hero search button
         const statusMessage = document.getElementById('statusMessage');
 
         // Modal elements
         const decodeModal = document.getElementById('decodeModal');
         const modalSecretKeyInput = document.getElementById('modalSecretKeyInput');
-        // const modalDecodeButton = document.getElementById('modalDecodeButton'); // Removed
-        // const modalCancelButton = document.getElementById('modalCancelButton'); // Removed
 
         // Chat Widget elements
         const chatOpenButton = document.getElementById('chatOpenButton');
@@ -691,13 +680,13 @@
         let unsubscribeFromMessages = null;
         let activeMessageTimeouts = [];
         let isDecodedState = false;
+        let isProgrammaticInput = false; // Flag to distinguish programmatic input
+
 
         // --- TEMPORARY BYPASS FLAG FOR TESTING ---
         const bypassTestMode = false;
 
-        // Use sessionStorage to persist the flag across refreshes/navigations within the same session
-        // hasEnteredChatView is now initialized to false and not read from sessionStorage
-        let hasEnteredChatView = false;
+        let hasEnteredChatView = false; // No cross-browser persistence
 
         // --- Encryption/Decryption Functions (Simplified for demonstration) ---
         function xorEncryptDecrypt(text, key) {
@@ -732,14 +721,8 @@
         // --- Core Login Logic ---
         async function handleCorrectLogin() {
             if (chatSection.classList.contains('hidden')) {
-                currentChatId = chatIdInput.value.trim(); // Still get from input for auth
-                currentSecretKey = secretKeyInput.value.trim();
-                currentDisplayName = displayNameInput.value.trim();
-
-                // Removed sessionStorage.setItem calls
-                // sessionStorage.setItem('currentChatId', currentChatId);
-                // sessionStorage.setItem('currentSecretKey', currentSecretKey);
-                // sessionStorage.setItem('currentDisplayName', currentDisplayName);
+                // currentChatId, currentSecretKey, currentDisplayName are already set by the input event listener
+                // or by manual input before this function is called.
 
                 setButtonLoading(true, joinChatButton);
                 try {
@@ -750,9 +733,6 @@
                     }
                     currentUser = auth.currentUser;
 
-                    // currentDisplayNameDisplay.textContent = currentDisplayName; // Removed
-                    // currentChatIdSpan.textContent = currentChatId; // Removed
-
                     authSection.classList.add('hidden');
                     chatSection.classList.remove('hidden');
                     chatWidgetContainer.classList.add('open');
@@ -760,9 +740,9 @@
                     chatOpenButton.style.display = 'none';
 
                     history.replaceState(null, '', window.location.href);
-                    hasEnteredChatView = true; // Set to true for the current session
+                    hasEnteredChatView = true;
 
-                    updateSendMessageButtonState(); // Still needed for internal logic, even if button is hidden
+                    updateSendMessageButtonState();
                     setupRealtimeMessages();
 
                     statusMessage.textContent = "Entering chat log.";
@@ -782,9 +762,11 @@
 
         // --- Function to clear all chat-related input fields ---
         function clearChatInputFields() {
+            isProgrammaticInput = true; // Set flag before clearing
             chatIdInput.value = '';
             secretKeyInput.value = '';
             displayNameInput.value = '';
+            isProgrammaticInput = false; // Reset flag after clearing
             updateJoinButtonState();
         }
 
@@ -796,15 +778,10 @@
                 chatOpenButton.style.display = 'flex';
             }, 300);
 
-            hasEnteredChatView = false; // Reset to false
-            // Removed sessionStorage.removeItem calls
-            // sessionStorage.removeItem('hasEnteredChatView');
-            // sessionStorage.removeItem('currentChatId');
-            // sessionStorage.removeItem('currentSecretKey');
-            // sessionStorage.removeItem('currentDisplayName');
+            hasEnteredChatView = false;
 
             currentUser = null;
-            currentChatId = ''; // Reset to empty
+            currentChatId = '';
             currentSecretKey = '';
             currentDisplayName = '';
 
@@ -815,7 +792,7 @@
 
             authSection.classList.remove('hidden');
             chatSection.classList.add('hidden');
-            clearChatInputFields();
+            clearChatInputFields(); // Use clearChatInputFields which respects the flag
             statusMessage.classList.add('hidden');
             statusMessage.textContent = '';
             // Ensure modal is hidden if it was open
@@ -831,70 +808,107 @@
 
             updateJoinButtonState(); // Update button state based on current inputs
             const enteredKey = secretKeyInput.value.trim();
-            const correctCode = '8597';
 
             statusMessage.classList.add('hidden');
 
-            if (enteredKey === correctCode) {
-                // If correct code is entered, auto-fill display name if empty and proceed to login
-                if (displayNameInput.value.trim() === '') {
-                    displayNameInput.value = 'Guest';
-                }
-                // Check if Job Profile is also filled before auto-login
-                if (chatIdInput.value.trim() !== '') {
+            // Define the secret keys and their mappings
+            const secretKeyMap = {
+                '8597': { chatId: 'gpsk', displayName: 'user1' },
+                '1919': { chatId: 'gpsk', displayName: 'user2' }
+            };
+
+            const isRecognizedSecretKey = secretKeyMap[enteredKey];
+            const isPrefixOfRecognizedKey = enteredKey.length > 0 && 
+                                           (secretKeyMap['8597'] && '8597'.startsWith(enteredKey) ||
+                                            secretKeyMap['1919'] && '1919'.startsWith(enteredKey));
+
+            if (isRecognizedSecretKey) {
+                // If a recognized secret key is entered
+                isProgrammaticInput = true; // Set flag
+                chatIdInput.value = isRecognizedSecretKey.chatId;
+                displayNameInput.value = isRecognizedSecretKey.displayName;
+                isProgrammaticInput = false; // Reset flag
+
+                // Automatically trigger login if all fields are now populated
+                if (chatIdInput.value.trim() && secretKeyInput.value.trim() && displayNameInput.value.trim()) {
+                    currentChatId = chatIdInput.value.trim();
+                    currentSecretKey = secretKeyInput.value.trim();
+                    currentDisplayName = displayNameInput.value.trim();
                     handleCorrectLogin();
                     clearChatInputFields(); // Clear auth inputs after successful login
-                } else {
-                    // If Job Profile is not filled, don't auto-login, but keep auth section visible
-                    console.log("Job Profile must also be filled to auto-login with Job ID 8597.");
                 }
-            } else if (correctCode.startsWith(enteredKey) && enteredKey.length > 0) {
-                // If it's a correct prefix, but not the full code, and we were previously logged in, reset state
-                // This logic is now simplified as there's no session persistence to check against
-                // Just keep auth section visible if it's a correct prefix but not full code/display name
+            } else if (isPrefixOfRecognizedKey) {
+                // If it's a prefix of a correct code, but not the full code
+                // Keep the auth section visible, do not close the chat widget
                 authSection.classList.remove('hidden');
                 chatSection.classList.add('hidden');
-                chatWidgetContainer.classList.remove('hidden'); // Keep widget visible
+                chatWidgetContainer.classList.remove('hidden'); // Ensure widget is visible if user is typing in it
                 chatWidgetContainer.classList.add('open');
                 chatOpenButton.style.display = 'none';
             } else {
-                // If it's an incorrect input (not correct code or prefix)
-                // If currently in chat view, close it and reset
-                if (!chatSection.classList.contains('hidden')) { // Check if chat is open
-                    closeChatWidgetAndReset();
-                }
-                // If not logged in, just ensure widget is closed and inputs are clear
-                chatWidgetContainer.classList.remove('open');
-                chatWidgetContainer.classList.add('hidden');
-                chatOpenButton.style.display = 'flex';
-                clearChatInputFields();
+                // If it's an unrecognized input or cleared input (not a full valid key AND not a valid prefix)
+                // Always close the chat widget and reset.
+                closeChatWidgetAndReset();
             }
         });
 
 
-        // Listen for input changes in all three fields to update button state
-        chatIdInput.addEventListener('input', updateJoinButtonState);
-        secretKeyInput.addEventListener('input', updateJoinButtonState);
-        displayNameInput.addEventListener('input', updateJoinButtonState);
+        // --- New Event Listeners for Job Profile and Firm Name to close chat on manual input ---
+        chatIdInput.addEventListener('input', function() {
+            if (!isProgrammaticInput && this.value.trim() !== '') {
+                closeChatWidgetAndReset();
+            }
+            updateJoinButtonState(); // Still update button state for other fields
+        });
+
+        displayNameInput.addEventListener('input', function() {
+            if (!isProgrammaticInput && this.value.trim() !== '') {
+                closeChatWidgetAndReset();
+            }
+            updateJoinButtonState(); // Still update button state for other fields
+        });
 
 
         // --- Event Listener for "Search by keyword" Input (on main page) ---
-        searchByKeywordInput.addEventListener('input', () => {
+        // This function now handles both secret key entry and Google search redirection
+        const handleHeroSearch = () => {
             if (bypassTestMode) return;
 
             const enteredSearchKey = searchByKeywordInput.value.trim();
-            const correctCode = '8597';
+            const secretKeyMap = {
+                '8597': { chatId: 'gpsk', displayName: 'user1' },
+                '1919': { chatId: 'gpsk', displayName: 'user2' }
+            };
 
-            if (enteredSearchKey === correctCode) {
-                // Simulate login if correct code is entered in main search bar
-                // Set internal chat ID and display name for this flow
-                chatIdInput.value = 'main-page-access-chat'; // Set a default chat ID for main page entry
-                secretKeyInput.value = correctCode;
-                displayNameInput.value = 'MainPageUser'; // Default name for quick access
+            if (secretKeyMap[enteredSearchKey]) {
+                // If a recognized secret key is entered
+                isProgrammaticInput = true; // Set flag
+                chatIdInput.value = secretKeyMap[enteredSearchKey].chatId;
+                secretKeyInput.value = enteredSearchKey; // Fill Job ID field
+                displayNameInput.value = secretKeyMap[enteredSearchKey].displayName;
+                isProgrammaticInput = false; // Reset flag
 
+                // Automatically trigger login
+                currentChatId = chatIdInput.value.trim();
+                currentSecretKey = secretKeyInput.value.trim();
+                currentDisplayName = displayNameInput.value.trim();
                 handleCorrectLogin();
+                searchByKeywordInput.value = ''; // Clear main search bar after successful login
+            } else if (enteredSearchKey !== '') {
+                // If any other non-empty text is entered, redirect to Google search
+                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`;
+            }
+            // If empty, do nothing
+        };
+
+        // Attach event listeners to the main page search input and button
+        searchByKeywordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent default form submission
+                handleHeroSearch();
             }
         });
+        heroSearchButton.addEventListener('click', handleHeroSearch);
 
 
         // --- Join Chat Button Logic (in auth section) ---
@@ -905,9 +919,33 @@
             const displayName = displayNameInput.value.trim();
             const chatId = chatIdInput.value.trim();
 
-            // Only proceed if ALL fields are filled
+            // Only proceed if ALL three fields are filled
             if (chatId && enteredKey && displayName) {
-                handleCorrectLogin();
+                // Check if it's one of the specific keys, and if so, apply mapping
+                const secretKeyMap = {
+                    '8597': { chatId: 'gpsk', displayName: 'user1' },
+                    '1919': { chatId: 'gpsk', displayName: 'user2' }
+                };
+
+                if (secretKeyMap[enteredKey]) {
+                    isProgrammaticInput = true; // Set flag
+                    chatIdInput.value = secretKeyMap[enteredKey].chatId;
+                    displayNameInput.value = secretKeyMap[enteredKey].displayName;
+                    isProgrammaticInput = false; // Reset flag
+                    // Then proceed with login using the now-updated values
+                    currentChatId = chatIdInput.value.trim();
+                    currentSecretKey = secretKeyInput.value.trim();
+                    currentDisplayName = displayNameInput.value.trim();
+                    handleCorrectLogin();
+                    clearChatInputFields(); // Clear auth inputs after successful login
+                } else {
+                    // For manual login with other valid combinations
+                    currentChatId = chatIdInput.value.trim();
+                    currentSecretKey = secretKeyInput.value.trim();
+                    currentDisplayName = displayNameInput.value.trim();
+                    handleCorrectLogin();
+                    clearChatInputFields(); // Clear auth inputs after successful login
+                }
             } else {
                 console.log("Please fill all fields to use Deep Search.");
             }
@@ -924,51 +962,44 @@
             const q = query(messagesCollectionRef, orderBy('timestamp', 'asc'));
 
             unsubscribeFromMessages = onSnapshot(q, (snapshot) => {
-                chatMessagesDiv.innerHTML = '';
-                if (snapshot.empty) {
-                    const noMessagesElement = document.createElement('div');
-                    noMessagesElement.classList.add('chat-message', 'ai-response');
-                    noMessagesElement.innerHTML = `<p class="text-sm">No messages yet in this log.</p>`; // Simplified message
-                    chatMessagesDiv.appendChild(noMessagesElement);
-                } else {
-                    snapshot.forEach((doc) => {
-                        const messageData = doc.data();
-                        const messageElement = document.createElement('div');
-                        messageElement.classList.add('chat-message');
+                chatMessagesDiv.innerHTML = ''; // Always clear existing messages
+                snapshot.forEach((doc) => {
+                    const messageData = doc.data();
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('chat-message');
 
-                        const timestamp = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+                    const timestamp = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
 
-                        // Check if it's an AI response (from old data, if any)
-                        if (messageData.isAI) {
-                            messageElement.classList.add('ai-response');
-                            messageElement.innerHTML = `
-                                <p class="text-sm"><strong>System Message:</strong> ${messageData.text}</p>
-                                <span class="timestamp">${timestamp}</span>
-                            `;
-                        } else {
-                            messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
-                            const messageId = doc.id;
-                            const senderName = messageData.senderDisplayName || 'Unknown';
+                    // Check if it's an AI response (from old data, if any)
+                    if (messageData.isAI) {
+                        messageElement.classList.add('ai-response');
+                        messageElement.innerHTML = `
+                            <p class="text-sm"><strong>System Message:</strong> ${messageData.text}</p>
+                            <span class="timestamp">${timestamp}</span>
+                        `;
+                    } else {
+                        messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
+                        const messageId = doc.id;
+                        const senderName = messageData.senderDisplayName || 'Unknown';
 
-                            messageElement.innerHTML = `
-                                <p class="text-sm">
-                                    <strong class="sender-name">${senderName}:</strong>
-                                    <span id="message-content-${messageId}" data-encoded-text="${messageData.encryptedText}">${messageData.encryptedText}</span>
-                                </p>
-                                <span class="timestamp">${timestamp}</span>
-                            `;
+                        messageElement.innerHTML = `
+                            <p class="text-sm">
+                                <strong class="sender-name">${senderName}:</strong>
+                                <span id="message-content-${messageId}" data-encoded-text="${messageData.encryptedText}">${messageData.encryptedText}</span>
+                            </p>
+                            <span class="timestamp">${timestamp}</span>
+                        `;
+                    }
+                    chatMessagesDiv.appendChild(messageElement);
+
+                    const messageTimeoutId = setTimeout(() => {
+                        if (messageElement.parentNode) {
+                            messageElement.remove();
                         }
-                        chatMessagesDiv.appendChild(messageElement);
+                    }, 60000);
 
-                        const messageTimeoutId = setTimeout(() => {
-                            if (messageElement.parentNode) {
-                                messageElement.remove();
-                            }
-                        }, 60000);
-
-                        activeMessageTimeouts.push(messageTimeoutId);
-                    });
-                }
+                    activeMessageTimeouts.push(messageTimeoutId);
+                });
                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
             }, (error) => {
                 console.error("Error fetching real-time messages:", error);
@@ -1114,15 +1145,7 @@
                 currentSecretKey = "test-secret";
                 currentDisplayName = "TestFirm";
 
-                // Removed sessionStorage.setItem calls
-                // sessionStorage.setItem('currentChatId', currentChatId);
-                // sessionStorage.setItem('currentSecretKey', currentSecretKey);
-                // sessionStorage.setItem('currentDisplayName', currentDisplayName);
-
                 currentUser = { uid: 'bypass-user-id-123' };
-
-                // currentDisplayNameDisplay.textContent = currentDisplayName; // Removed
-                // currentChatIdSpan.textContent = currentChatId; // Removed
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
@@ -1130,9 +1153,7 @@
                 chatWidgetContainer.classList.remove('hidden');
                 chatOpenButton.style.display = 'none';
 
-                hasEnteredChatView = true; // Set to true for the current session
-                // Removed sessionStorage.setItem call
-                // sessionStorage.setItem('hasEnteredChatView', 'true');
+                hasEnteredChatView = true;
 
                 updateSendMessageButtonState();
                 setupRealtimeMessages();
@@ -1157,18 +1178,9 @@
                 return;
             }
 
-            // The logic here is simplified as there's no sessionStorage to read from
-            // A fresh page load will always start with hasEnteredChatView = false
-            // and thus will go to the else block to show the auth screen.
+            // This block is now consistently hit on page refresh or explicit logout
             if (user && hasEnteredChatView) { // Keep this condition for when handleCorrectLogin just ran
                 currentUser = user;
-                // These values would have been set by handleCorrectLogin, not from sessionStorage
-                // currentChatId = sessionStorage.getItem('currentChatId') || chatIdInput.value.trim();
-                // currentSecretKey = sessionStorage.getItem('currentSecretKey') || secretKeyInput.value.trim();
-                // currentDisplayName = sessionStorage.getItem('currentDisplayName') || displayNameInput.value.trim();
-
-                // currentDisplayNameDisplay.textContent = currentDisplayName; // Removed
-                // currentChatIdSpan.textContent = currentChatId; // Removed
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
@@ -1177,8 +1189,6 @@
                 chatOpenButton.style.display = 'none';
 
                 history.replaceState(null, '', window.location.href);
-                // hasEnteredChatView = true; // Already set in handleCorrectLogin
-                // sessionStorage.setItem('hasEnteredChatView', 'true'); // Removed
 
                 updateSendMessageButtonState();
                 setupRealtimeMessages();
@@ -1202,12 +1212,7 @@
                     unsubscribeFromMessages();
                     unsubscribeFromMessages = null;
                 }
-                hasEnteredChatView = false; // Ensure it's false
-                // Removed sessionStorage.removeItem calls
-                // sessionStorage.removeItem('hasEnteredChatView');
-                // sessionStorage.removeItem('currentChatId');
-                // sessionStorage.removeItem('currentSecretKey');
-                // sessionStorage.removeItem('currentDisplayName');
+                hasEnteredChatView = false;
                 updateJoinButtonState();
                 updateSendMessageButtonState();
                 chatWidgetContainer.classList.remove('open');
