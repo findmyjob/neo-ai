@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naukri Help Page - AI Job Search</title>
-    <!-- Tailwind CSS CDN for modern styling (for chat widget) -->
+    <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from Google Fonts (for chat widget) -->
+    <!-- Inter font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* --- Existing Naukri Help Page Styles --- */
@@ -685,10 +685,10 @@
         const lockIcon = document.getElementById('lockIcon');
         const unlockIcon = document.getElementById('unlockIcon');
         const sendMessageButton = document.getElementById('sendMessageButton');
-        const searchByKeywordInput = document.getElementById('searchByKeywordInput'); // New element reference
-        const statusMessage = document.getElementById('statusMessage'); // New element for status message
+        const searchByKeywordInput = document.getElementById('searchByKeywordInput');
+        const statusMessage = document.getElementById('statusMessage');
 
-        // New AI feature buttons
+        // AI feature buttons
         const summarizeJobButton = document.getElementById('summarizeJobButton');
         const generateQuestionsButton = document.getElementById('generateQuestionsButton');
 
@@ -807,7 +807,7 @@
             chatIdInput.value = '';
             secretKeyInput.value = '';
             displayNameInput.value = '';
-            searchByKeywordInput.value = ''; // Clear the main search input as well
+            // searchByKeywordInput.value = ''; // Do not clear the main search input as it's part of the main page
             updateJoinButtonState(); // Update button state after clearing
         }
 
@@ -880,7 +880,7 @@
 
             if (enteredSearchKey === correctCode) {
                 handleCorrectLogin(); // Trigger login if correct code is entered
-                clearChatInputFields(); // Clear all inputs after successful login
+                // Do NOT clear the main search input here, as it's part of the main page
             }
             // No action if incorrect, just let the search input behave normally
         });
@@ -1132,11 +1132,11 @@
                         thinkingMessageElement.remove();
                     }
                     await addDoc(collection(db, "artifacts", appId, "public", "data", "chats", currentChatId, "messages"), {
-                        senderId: "AI",
+                        senderId: "AI", // Mark sender as AI
                         senderDisplayName: "AI Assistant",
-                        text: text,
+                        text: text, // Store plain text for AI responses
                         timestamp: serverTimestamp(),
-                        isAI: true
+                        isAI: true // Mark as an AI message
                     });
                 } else {
                     console.log("AI did not return a valid response.");
