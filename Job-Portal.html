@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job-Portal</title>
+    <title>AI Job Search</title>
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font from Google Fonts -->
@@ -119,6 +119,7 @@
             border-top: 1px solid #a7d9cb; /* Light turquoise border */
             padding-top: 1.5rem;
             text-align: left;
+            position: relative; /* Needed for absolute positioning of toggle button */
         }
         .chat-messages {
             max-height: 300px;
@@ -197,7 +198,6 @@
             width: 100%; /* Ensure it spans full width */
             box-sizing: border-box; /* Include padding in width */
         }
-        .decode-button-icon,
         .send-button-icon {
             background-color: #20c997; /* Primary turquoise */
             color: #ffffff;
@@ -213,12 +213,10 @@
             box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
             flex-shrink: 0;
         }
-        .decode-button-icon:hover:not(:disabled),
         .send-button-icon:hover:not(:disabled) {
             background-color: #1a9e7a; /* Darker turquoise on hover */
             box-shadow: 0 6px 15px rgba(32, 201, 151, 0.4);
         }
-        .decode-button-icon:disabled,
         .send-button-icon:disabled {
             background-color: #d1e8e2;
             color: #88a8a0;
@@ -226,7 +224,6 @@
             opacity: 0.7;
             box-shadow: none;
         }
-        .decode-button-icon svg,
         .send-button-icon svg {
             width: 24px;
             height: 24px;
@@ -240,6 +237,39 @@
             font-weight: 600;
             color: #136f57; /* Darkest turquoise for decoded message */
         }
+
+        /* Toggle Button Specific Styles */
+        .decode-toggle-button {
+            position: absolute;
+            top: 1.5rem; /* Adjust as needed for spacing */
+            right: 1.5rem; /* Adjust as needed for spacing */
+            background-color: #20c997;
+            color: #ffffff;
+            border: none;
+            border-radius: 0.75rem;
+            width: 40px; /* Smaller, more subtle toggle */
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
+            z-index: 10; /* Ensure it's above other elements */
+        }
+        .decode-toggle-button:hover {
+            background-color: #1a9e7a;
+            box-shadow: 0 6px 15px rgba(32, 201, 151, 0.4);
+        }
+        .decode-toggle-button svg {
+            width: 20px; /* Icon size for toggle */
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
 
         /* Modal Styles */
         .modal-overlay {
@@ -302,7 +332,7 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Job-Portal</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">AI Job Search</h1>
         <!-- Removed the descriptive paragraph below the heading -->
 
         <div id="auth-section">
@@ -331,14 +361,17 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Job Profile: <span id="currentChatId"></span></h2>
             <p class="text-sm text-gray-600 mb-4">You are: <span id="currentDisplayNameDisplay" class="font-medium text-gray-700 bg-gray-100 px-2 py-1 rounded-md"></span></p>
 
+            <!-- Toggle button for decoding/encoding messages -->
+            <button id="decodeToggleButton" class="decode-toggle-button">
+                <!-- Lock icon (default: encoded state) -->
+                <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <!-- Unlock icon (hidden by default: decoded state) -->
+                <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-unlock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+            </button>
+
             <div id="chatMessages" class="chat-messages">
                 <!-- Messages will be loaded here -->
             </div>
-
-            <!-- Decode All Messages Button (now an icon button) -->
-            <button id="decodeAllMessagesButton" class="decode-button-icon w-full mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
 
             <form id="sendMessageForm" class="send-message-form">
                 <textarea id="messageInput" placeholder="Type your message..." rows="1" class="flex-grow"></textarea>
@@ -357,8 +390,8 @@
     <!-- Decode Secret Key Modal -->
     <div id="decodeModal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h3>Enter Secret Key to Decode</h3>
-            <input type="password" id="modalSecretKeyInput" placeholder="Secret Key" autocomplete="off">
+            <h3>Enter Job ID to Decode</h3>
+            <input type="password" id="modalSecretKeyInput" placeholder="Job ID" autocomplete="off">
             <div class="modal-buttons">
                 <button id="modalDecodeButton" class="button primary">Decode</button>
                 <button id="modalCancelButton" class="button secondary">Cancel</button>
@@ -408,7 +441,10 @@
         const encodedPreview = document.getElementById('encodedPreview');
         const encodedTextSpan = document.getElementById('encodedTextSpan');
         const sendMessageButton = document.getElementById('sendMessageButton');
-        const decodeAllMessagesButton = document.getElementById('decodeAllMessagesButton');
+        const decodeToggleButton = document.getElementById('decodeToggleButton'); // New toggle button
+        const lockIcon = document.getElementById('lockIcon');
+        const unlockIcon = document.getElementById('unlockIcon');
+
 
         // Modal elements
         const decodeModal = document.getElementById('decodeModal');
@@ -422,8 +458,10 @@
         let currentDisplayName = '';
         let currentUser = null;
         let unsubscribeFromMessages = null;
-        let activeTimeouts = [];
+        let activeMessageTimeouts = []; // Renamed for clarity
         let redirectTimeoutId = null; // Variable to store the redirect timeout ID
+        let isDecodedState = false; // Track the current state of messages (encoded/decoded)
+
         // Use sessionStorage to persist the flag across refreshes/navigations within the same session
         let hasEnteredChatView = sessionStorage.getItem('hasEnteredChatView') === 'true';
 
@@ -431,8 +469,8 @@
         // This is the most aggressive measure to prevent the app from being accessed via back button
         // or direct URL if the user was previously in the chat view.
         if (hasEnteredChatView && !window.location.search.includes('initial_load_bypass')) {
-            // Add a query parameter to prevent infinite redirects if google.com redirects back
-            window.location.replace('https://www.google.com');
+            // Add a query parameter to prevent infinite redirects if naukri.com redirects back
+            window.location.replace('https://www.naukri.com/mnjuser/performance');
         }
 
 
@@ -539,7 +577,7 @@
 
             // Set timeout for redirection after 30 seconds
             redirectTimeoutId = setTimeout(() => {
-                window.location.href = 'https://www.google.com';
+                window.location.href = 'https://www.naukri.com/mnjuser/performance';
             }, 30000); // 30 seconds
         });
 
@@ -559,12 +597,9 @@
                     const messageElement = document.createElement('div');
                     messageElement.classList.add('chat-message');
 
-                    // Sender display name and timestamp are stored but not displayed here
-                    // const senderIdentifier = messageData.senderDisplayName || 'Unknown User';
-                    // const timestamp = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleString() : 'Just now';
-
                     messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
                     const messageId = doc.id;
+                    // Always display encoded initially
                     messageElement.innerHTML = `
                         <p class="text-sm">
                             <span id="message-content-${messageId}" data-encoded-text="${messageData.encryptedText}">${messageData.encryptedText}</span>
@@ -579,7 +614,7 @@
                         }
                     }, 60000); // 1 minute
 
-                    activeTimeouts.push(messageTimeoutId); // Store timeout ID for potential clearing
+                    activeMessageTimeouts.push(messageTimeoutId); // Store timeout ID for potential clearing
                 });
 
                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
@@ -656,40 +691,65 @@
             updateSendMessageButtonState();
         });
 
-        // --- Event listener for Decode All Messages button ---
-        decodeAllMessagesButton.addEventListener('click', () => {
-            decodeModal.classList.remove('hidden');
-            modalSecretKeyInput.value = '';
-            modalSecretKeyInput.focus();
+        // --- Decode/Encode Toggle Logic ---
+        function decodeMessages() {
+            const messageSpans = document.querySelectorAll('.chat-message span[data-encoded-text]');
+            messageSpans.forEach(span => {
+                const encryptedText = span.dataset.encodedText;
+                span.textContent = xorEncryptDecrypt(encryptedText, currentSecretKey);
+                span.classList.add('decoded-text');
+            });
+            isDecodedState = true;
+            lockIcon.classList.add('hidden');
+            unlockIcon.classList.remove('hidden');
+            showMessage('Messages decoded successfully!', 'info');
+
+            // Clear any previous re-encode timeouts
+            activeMessageTimeouts.forEach(clearTimeout);
+            activeMessageTimeouts = [];
+
+            // Set a new timeout to re-encode after 5 seconds
+            const reEncodeTimeoutId = setTimeout(() => {
+                encodeMessages();
+                showMessage('Messages re-encoded for security.', 'info');
+            }, 5000);
+            activeMessageTimeouts.push(reEncodeTimeoutId);
+        }
+
+        function encodeMessages() {
+            const messageSpans = document.querySelectorAll('.chat-message span[data-encoded-text]');
+            messageSpans.forEach(span => {
+                span.textContent = span.dataset.encodedText;
+                span.classList.remove('decoded-text');
+            });
+            isDecodedState = false;
+            lockIcon.classList.remove('hidden');
+            unlockIcon.classList.add('hidden');
+            // Clear any pending re-encode timeouts if manually re-encoded
+            activeMessageTimeouts.forEach(clearTimeout);
+            activeMessageTimeouts = [];
+        }
+
+        decodeToggleButton.addEventListener('click', () => {
+            if (isDecodedState) {
+                // If currently decoded, toggle back to encoded
+                encodeMessages();
+            } else {
+                // If currently encoded, show modal to decode
+                decodeModal.classList.remove('hidden');
+                modalSecretKeyInput.value = '';
+                modalSecretKeyInput.focus();
+            }
         });
 
         // --- Modal Decode Button Logic ---
         modalDecodeButton.addEventListener('click', () => {
             const enteredKey = modalSecretKeyInput.value.trim();
             if (enteredKey === currentSecretKey) {
-                const messageSpans = document.querySelectorAll('.chat-message span[data-encoded-text]');
-                messageSpans.forEach(span => {
-                    const encryptedText = span.dataset.encodedText;
-                    span.textContent = xorEncryptDecrypt(encryptedText, currentSecretKey);
-                    span.classList.add('decoded-text');
-                });
-                showMessage('All messages decoded successfully!', 'info');
-
-                activeTimeouts.forEach(clearTimeout);
-                activeTimeouts = [];
-
-                const timeoutId = setTimeout(() => {
-                    messageSpans.forEach(span => {
-                        span.textContent = span.dataset.encodedText;
-                        span.classList.remove('decoded-text');
-                    });
-                    showMessage('Messages re-encoded for security.', 'info');
-                }, 5000);
-                activeTimeouts.push(timeoutId);
-
+                decodeMessages();
                 decodeModal.classList.add('hidden');
             } else {
-                showMessage('Incorrect secret key. Messages could not be decoded.', 'error');
+                showMessage('Incorrect Job ID. Messages could not be decoded.', 'error');
             }
         });
 
@@ -698,6 +758,7 @@
             decodeModal.classList.add('hidden');
             modalSecretKeyInput.value = '';
             hideMessage();
+            encodeMessages(); // Ensure messages revert to encoded if modal is cancelled
         });
 
         // Initial state update when page loads
@@ -747,11 +808,13 @@
             const clickedElement = event.target;
             const isInsideContainer = clickedElement.closest('.container');
             const isInsideModal = clickedElement.closest('.modal-overlay');
+            const isDecodeToggleButton = clickedElement.closest('#decodeToggleButton');
+            const isSendMessageButton = clickedElement.closest('#sendMessageButton');
 
-            // If the click is not inside the main container or any active modal, redirect
-            // Also, ensure we are in the chat view before redirecting on global click
-            if (!isInsideContainer && !isInsideModal && hasEnteredChatView) {
-                window.location.href = 'https://www.google.com';
+            // If the click is not inside the main container, any active modal,
+            // the decode toggle button, or the send message button, redirect.
+            if (!isInsideContainer && !isInsideModal && !isDecodeToggleButton && !isSendMessageButton && hasEnteredChatView) {
+                window.location.href = 'https://www.naukri.com/mnjuser/performance';
             }
         });
 
@@ -760,7 +823,7 @@
             // If the user attempts to navigate back AND they are currently in the chat view
             // immediately redirect them away.
             if (hasEnteredChatView) {
-                window.location.replace('https://www.google.com'); // Use replace to avoid adding to history
+                window.location.replace('https://www.naukri.com/mnjuser/performance'); // Use replace to avoid adding to history
             }
         });
 
