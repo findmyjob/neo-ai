@@ -163,6 +163,7 @@
         .input-group {
             margin-bottom: 0.8rem;
             text-align: left;
+            position: relative; /* Added for positioning the lock button */
         }
         .input-group label {
             display: block;
@@ -283,6 +284,7 @@
             display: flex;
             align-items: flex-end;
             gap: 0.4rem;
+            position: relative; /* Make it a positioning context for the lock button */
         }
         .send-message-form textarea {
             flex-grow: 1;
@@ -292,6 +294,7 @@
             padding-top: 0.5rem;
             padding-bottom: 0.5rem;
             font-size: 0.9rem;
+            /* padding-left: 38px; Removed as lock button is now in chatIdInput */
         }
         .spinner {
             border: 3px solid rgba(255, 255, 255, 0.3);
@@ -359,10 +362,23 @@
             font-weight: 600;
             color: #004d99; /* Darker blue */
         }
-        /* New class for hiding encoded text */
-        .chat-message .hidden-encoded-content {
-            color: transparent; /* Makes text invisible */
+        /* New class for hiding encoded content (applies to wrapper) */
+        .chat-message .message-content-wrapper {
             transition: color 0.3s ease-in-out; /* Smooth transition for visibility */
+        }
+        .chat-message .message-content-wrapper.hidden-encoded-content * { /* Apply to all children */
+            color: transparent !important; /* Makes text invisible */
+        }
+        .chat-message .lock-icon-in-message { /* Style for lock icon within messages */
+            width: 14px;
+            height: 14px;
+            stroke: #004d99; /* Darker blue */
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            margin-left: 5px; /* Spacing from text */
+            vertical-align: middle; /* Align with text baseline */
+            display: inline-block; /* Ensure it respects margin/padding */
         }
 
 
@@ -392,35 +408,41 @@
         }
 
         .decode-toggle-button {
-            position: absolute; /* Position relative to chat-area */
-            top: 4rem; /* Adjusted to be below the header */
-            right: 0.8rem;
+            position: absolute; /* Position relative to .input-group */
+            left: 8px; /* Position from the left edge of the input */
+            top: 50%; /* Center vertically within the input */
+            transform: translateY(-50%); /* Adjust for vertical centering */
             background-color: #0073e6; /* Naukri blue */
             color: #ffffff;
             border: none;
             border-radius: 0.75rem;
-            width: 32px;
-            height: 32px;
+            width: 28px; /* Slightly smaller */
+            height: 28px; /* Slightly smaller */
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s;
             box-shadow: 0 2px 5px rgba(0, 115, 230, 0.2);
-            z-index: 10;
+            z-index: 11; /* Above input */
         }
         .decode-toggle-button:hover {
             background-color: #005bb5;
             box-shadow: 0 4px 8px rgba(0, 115, 230, 0.3);
         }
         .decode-toggle-button svg {
-            width: 16px;
-            height: 16px;
+            width: 14px; /* Icon size for toggle */
+            height: 14px;
             stroke: currentColor;
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
         }
+        /* Adjust input padding to make space for the icon */
+        #chatIdInput {
+            padding-left: 40px; /* Make space for the lock icon */
+        }
+
 
         /* Modal Styles for the small pop-up */
         .modal-overlay {
@@ -579,6 +601,11 @@
                 <label for="chatIdInput">Job Profile:</label>
                 <input type="text" id="chatIdInput" placeholder="Enter a unique Job Profile (e.g., software-engineer)" autocomplete="off">
                 <p class="text-xs text-gray-500 mt-1">Share this Job Profile with your recipient.</p>
+                <!-- Moved decodeToggleButton inside this input-group -->
+                <button id="decodeToggleButton" class="decode-toggle-button">
+                    <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                </button>
             </div>
             <div class="input-group">
                 <label for="secretKeyInput">Job ID:</label>
@@ -597,12 +624,7 @@
 
         <div id="chat-section" class="chat-area hidden">
             <div id="statusMessage" class="hidden"></div> 
-            <!-- Moved decodeToggleButton outside chat-messages for better positioning -->
-            <button id="decodeToggleButton" class="decode-toggle-button">
-                <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-            </button>
-
+            
             <div id="chatMessages" class="chat-messages">
                 </div>
 
@@ -1011,6 +1033,12 @@
                             </p>
                             <span class="timestamp">${timestamp}</span>
                         `;
+                        // Add the internal lock icon if it's a sent message and not decoded
+                        if (messageData.senderId === currentUser.uid && !isDecodedState) {
+                             contentWrapper.querySelector('span[data-encoded-text]').insertAdjacentHTML('afterend', `
+                                <svg class="lock-icon-in-message" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            `);
+                        }
                     }
                     messageElement.appendChild(contentWrapper); // Append the wrapper to the message element
                     chatMessagesDiv.appendChild(messageElement);
