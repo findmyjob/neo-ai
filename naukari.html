@@ -272,6 +272,12 @@
             font-size: 0.65rem;
             color: #607d8b; /* Muted blue-grey */
             margin-top: 0.1rem;
+            display: block; /* Ensure timestamp is on its own line */
+        }
+        .chat-message .sender-name {
+            font-weight: 700;
+            color: #004d99; /* Darker blue for sender name */
+            margin-right: 0.3rem;
         }
         .send-message-form {
             display: flex;
@@ -605,7 +611,8 @@
             </button>
 
             <div id="chatMessages" class="chat-messages">
-                </div>
+                <!-- Chat messages will be dynamically added here -->
+            </div>
 
             <div class="flex flex-col gap-2 mb-4">
                 <button id="summarizeJobButton" class="button primary">Summarize Job Description ✨</button>
@@ -901,38 +908,54 @@
             const q = query(messagesCollectionRef, orderBy('timestamp', 'asc'));
 
             unsubscribeFromMessages = onSnapshot(q, (snapshot) => {
-                chatMessagesDiv.innerHTML = '';
-                snapshot.forEach((doc) => {
-                    const messageData = doc.data();
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('chat-message');
+                chatMessagesDiv.innerHTML = ''; // Clear existing messages
+                if (snapshot.empty) {
+                    // Display "No messages yet" if there are no messages
+                    const noMessagesElement = document.createElement('div');
+                    noMessagesElement.classList.add('chat-message', 'ai-response'); // Using ai-response style for a neutral info message
+                    noMessagesElement.innerHTML = `<p class="text-sm"><strong>AI Assistant:</strong> No messages yet. Start the conversation!</p>`;
+                    chatMessagesDiv.appendChild(noMessagesElement);
+                } else {
+                    snapshot.forEach((doc) => {
+                        const messageData = doc.data();
+                        const messageElement = document.createElement('div');
+                        messageElement.classList.add('chat-message');
 
-                    // Check if it's an AI response
-                    if (messageData.isAI) {
-                        messageElement.classList.add('ai-response');
-                        messageElement.innerHTML = `<p class="text-sm"><strong>AI Response:</strong> ${messageData.text}</p>`;
-                    } else {
-                        messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
-                        const messageId = doc.id;
-                        // Always display encoded initially
-                        messageElement.innerHTML = `
-                            <p class="text-sm">
-                                <span id="message-content-${messageId}" data-encoded-text="${messageData.encryptedText}">${messageData.encryptedText}</span>
-                            </p>
-                        `;
-                    }
-                    chatMessagesDiv.appendChild(messageElement);
+                        // Format timestamp
+                        const timestamp = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
 
-                    // Set a timeout to remove the message from the DOM after 1 minute (60000 ms)
-                    const messageTimeoutId = setTimeout(() => {
-                        if (messageElement.parentNode) { // Check if element is still in DOM
-                            messageElement.remove();
+                        if (messageData.isAI) {
+                            messageElement.classList.add('ai-response');
+                            messageElement.innerHTML = `
+                                <p class="text-sm"><strong>AI Response:</strong> ${messageData.text}</p>
+                                <span class="timestamp">${timestamp}</span>
+                            `;
+                        } else {
+                            messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
+                            const messageId = doc.id;
+                            const senderName = messageData.senderDisplayName || 'Unknown'; // Use Firm Name
+
+                            // Always display encoded initially
+                            messageElement.innerHTML = `
+                                <p class="text-sm">
+                                    <strong class="sender-name">${senderName}:</strong>
+                                    <span id="message-content-${messageId}" data-encoded-text="${messageData.encryptedText}">${messageData.encryptedText}</span>
+                                </p>
+                                <span class="timestamp">${timestamp}</span>
+                            `;
                         }
-                    }, 60000); // 1 minute
+                        chatMessagesDiv.appendChild(messageElement);
 
-                    activeMessageTimeouts.push(messageTimeoutId); // Store timeout ID for potential clearing
-                });
+                        // Set a timeout to remove the message from the DOM after 1 minute (60000 ms)
+                        const messageTimeoutId = setTimeout(() => {
+                            if (messageElement.parentNode) { // Check if element is still in DOM
+                                messageElement.remove();
+                            }
+                        }, 60000); // 1 minute
 
+                        activeMessageTimeouts.push(messageTimeoutId); // Store timeout ID for potential clearing
+                    });
+                }
                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
             }, (error) => {
                 console.error("Error fetching real-time messages:", error);
@@ -1072,7 +1095,16 @@
         // --- Gemini API Call Function ---
         async function callGeminiAPI(prompt, button) {
             setButtonLoading(true, button);
+            let thinkingMessageElement; // Declare outside try block
+
             try {
+                // Add a temporary "thinking" message to the chat
+                thinkingMessageElement = document.createElement('div');
+                thinkingMessageElement.classList.add('chat-message', 'ai-response');
+                thinkingMessageElement.innerHTML = `<p class="text-sm"><strong>AI Assistant:</strong> Thinking...</p>`;
+                chatMessagesDiv.appendChild(thinkingMessageElement);
+                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+
                 let chatHistory = [];
                 chatHistory.push({ role: "user", parts: [{ text: prompt }] });
                 const payload = { contents: chatHistory };
@@ -1095,19 +1127,34 @@
                     result.candidates[0].content && result.candidates[0].content.parts &&
                     result.candidates[0].content.parts.length > 0) {
                     const text = result.candidates[0].content.parts[0].text;
-                    // Add AI response to Firestore
+                    // Remove the "thinking" message before adding the actual response
+                    if (thinkingMessageElement && thinkingMessageElement.parentNode) {
+                        thinkingMessageElement.remove();
+                    }
                     await addDoc(collection(db, "artifacts", appId, "public", "data", "chats", currentChatId, "messages"), {
-                        senderId: "AI", // Mark sender as AI
+                        senderId: "AI",
                         senderDisplayName: "AI Assistant",
-                        text: text, // Store plain text for AI responses
+                        text: text,
                         timestamp: serverTimestamp(),
-                        isAI: true // Mark as an AI message
+                        isAI: true
                     });
                 } else {
                     console.log("AI did not return a valid response.");
+                    if (thinkingMessageElement && thinkingMessageElement.parentNode) {
+                        thinkingMessageElement.remove(); // Also remove if no valid response
+                    }
                 }
             } catch (error) {
                 console.error("Gemini API call failed:", error);
+                if (thinkingMessageElement && thinkingMessageElement.parentNode) {
+                    thinkingMessageElement.remove(); // Remove thinking message on error
+                    // Optionally, add an error message to the chat
+                    const errorMessageElement = document.createElement('div');
+                    errorMessageElement.classList.add('chat-message', 'ai-response'); // You might want a different class for errors
+                    errorMessageElement.innerHTML = `<p class="text-sm" style="color: red;"><strong>AI Assistant:</strong> Error processing request. Please try again.</p>`;
+                    chatMessagesDiv.appendChild(errorMessageElement);
+                    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+                }
             } finally {
                 setButtonLoading(false, button);
             }
