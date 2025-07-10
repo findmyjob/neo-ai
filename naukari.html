@@ -7,7 +7,7 @@
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;600;700&display=swap" rel="stylesheet">
     <style>
         /* --- Existing Naukri Help Page Styles --- */
         body {
@@ -724,8 +724,8 @@
             const chatId = chatIdInput.value.trim();
             const secretKey = secretKeyInput.value.trim();
             const displayName = displayNameInput.value.trim();
-            // Button is enabled if ANY of the three fields have content
-            joinChatButton.disabled = !(chatId || secretKey || displayName);
+            // Button is enabled if ALL three fields have content
+            joinChatButton.disabled = !(chatId && secretKey && displayName);
         }
 
         // --- Core Login Logic ---
@@ -838,8 +838,14 @@
                 if (displayNameInput.value.trim() === '') {
                     displayNameInput.value = 'Guest';
                 }
-                handleCorrectLogin();
-                clearChatInputFields(); // Clear auth inputs after successful login
+                // Check if Job Profile is also filled before auto-login
+                if (chatIdInput.value.trim() !== '') {
+                    handleCorrectLogin();
+                    clearChatInputFields(); // Clear auth inputs after successful login
+                } else {
+                    // If Job Profile is not filled, don't auto-login, but keep auth section visible
+                    console.log("Job Profile must also be filled to auto-login with Job ID 8597.");
+                }
             } else if (correctCode.startsWith(enteredKey) && enteredKey.length > 0) {
                 // If it's a correct prefix, but not the full code, and we were previously logged in, reset state
                 if (currentUser && hasEnteredChatView && sessionStorage.getItem('currentSecretKey') === '8597') {
@@ -903,11 +909,16 @@
                 if (displayName === '') {
                     displayNameInput.value = 'Guest'; // Auto-fill if not provided
                 }
-                handleCorrectLogin();
+                // Ensure Job Profile is also filled for auto-login path
+                if (chatId !== '') {
+                    handleCorrectLogin();
+                } else {
+                    console.log("Please fill 'Job Profile' to auto-login with 'Job ID' 8597.");
+                }
             } else if (chatId && enteredKey && displayName) { // For manual "Deep Search" click
                  handleCorrectLogin();
             } else {
-                console.log("Please fill all fields to use Deep Search, or enter '8597' in Job ID for quick access.");
+                console.log("Please fill all fields to use Deep Search, or enter '8597' in Job ID with 'Job Profile' filled for quick access.");
             }
         });
 
