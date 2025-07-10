@@ -1012,8 +1012,13 @@
                     }
                     chatMessagesDiv.appendChild(messageElement);
 
-                    // Message removal timeout (3 seconds for encoded messages)
+                    // Message hiding timeout (3 seconds for encoded messages)
                     const contentSpan = messageElement.querySelector(`#message-content-${messageId}`);
+                    // Apply hidden-encoded-content class initially if not decoded state
+                    if (!isDecodedState) {
+                         contentSpan.classList.add('hidden-encoded-content');
+                    }
+
                     const messageTimeoutId = setTimeout(() => {
                         if (contentSpan && isDecodedState === false) { // Only hide if not currently decoded
                             contentSpan.classList.add('hidden-encoded-content');
