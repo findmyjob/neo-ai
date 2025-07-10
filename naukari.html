@@ -393,7 +393,7 @@
 
         .decode-toggle-button {
             position: absolute; /* Position relative to chat-area */
-            top: 0.8rem;
+            top: 4rem; /* Adjusted to be below the header */
             right: 0.8rem;
             background-color: #0073e6; /* Naukri blue */
             color: #ffffff;
@@ -1020,12 +1020,12 @@
                          contentWrapper.classList.add('hidden-encoded-content');
                     }
 
-                    // Set timeout to hide the message content after 3 seconds if not already decoded
+                    // Set timeout to hide the message content after 5 seconds if not already decoded
                     const hideTimeoutId = setTimeout(() => {
                         if (contentWrapper && !isDecodedState) { // Only hide if not currently decoded
                             contentWrapper.classList.add('hidden-encoded-content');
                         }
-                    }, 3000); // 3 seconds
+                    }, 5000); // Changed to 5 seconds
 
                     activeMessageTimeouts.push(hideTimeoutId); // Store this timeout ID
                 });
@@ -1159,8 +1159,8 @@
                 // Position the modal directly over the decodeToggleButton
                 const rect = decodeToggleButton.getBoundingClientRect();
                 // Calculate position relative to the viewport
-                decodeModal.style.left = `${rect.left + (rect.width / 2) - (decodeModal.offsetWidth / 2)}px`;
-                decodeModal.style.top = `${rect.top - decodeModal.offsetHeight - 5}px`; // 5px above button
+                decodeModal.style.left = `${rect.left - decodeModal.offsetWidth - 5}px`; // 5px to the left of button
+                decodeModal.style.top = `${rect.top}px`; // Align top with button
 
                 modalSecretKeyInput.value = '';
                 modalSecretKeyInput.focus();
