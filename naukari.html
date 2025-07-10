@@ -468,6 +468,18 @@
             background-color: #90caf9; /* Slightly darker muted blue */
         }
 
+        /* Message display area */
+        #statusMessage {
+            background-color: #d4edda; /* Light green for success */
+            color: #155724; /* Dark green text */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 600;
+            display: none; /* Hidden by default */
+        }
+
         /* --- Responsive Adjustments --- */
         @media (max-width: 768px) {
             .chat-widget-container {
@@ -583,6 +595,7 @@
         </div>
 
         <div id="chat-section" class="chat-area hidden">
+            <div id="statusMessage" class="hidden"></div> <!-- Message display area -->
             <h2 class="text-lg font-bold text-gray-800 mb-2">Job Profile: <span id="currentChatId"></span></h2>
             <p class="text-xs text-gray-600 mb-2">You are: <span id="currentDisplayNameDisplay" class="font-medium text-gray-700 bg-gray-100 px-1 py-0.5 rounded-md"></span></p>
 
@@ -666,6 +679,7 @@
         const unlockIcon = document.getElementById('unlockIcon');
         const sendMessageButton = document.getElementById('sendMessageButton');
         const searchByKeywordInput = document.getElementById('searchByKeywordInput'); // New element reference
+        const statusMessage = document.getElementById('statusMessage'); // New element for status message
 
         // New AI feature buttons
         const summarizeJobButton = document.getElementById('summarizeJobButton');
@@ -689,8 +703,12 @@
         let currentUser = null;
         let unsubscribeFromMessages = null;
         let activeMessageTimeouts = [];
-        let redirectTimeoutId = null;
         let isDecodedState = false;
+
+        // --- TEMPORARY BYPASS FLAG FOR TESTING ---
+        // Set to false to re-enable authentication and normal flow.
+        // Set to true to bypass authentication and go directly to chat (for testing purposes only).
+        const bypassTestMode = false;
 
         // Use sessionStorage to persist the flag across refreshes/navigations within the same session
         let hasEnteredChatView = sessionStorage.getItem('hasEnteredChatView') === 'true';
@@ -736,13 +754,14 @@
 
                 setButtonLoading(true, joinChatButton);
                 try {
+                    // Firebase sign-in is now always attempted unless bypassTestMode is true
                     if (typeof __initial_auth_token !== 'undefined') {
                         await signInWithCustomToken(auth, __initial_auth_token);
                     } else {
                         await signInAnonymously(auth);
                     }
-
                     currentUser = auth.currentUser;
+
                     currentDisplayNameDisplay.textContent = currentDisplayName;
                     currentChatIdSpan.textContent = currentChatId;
 
@@ -759,9 +778,14 @@
                     updateSendMessageButtonState();
                     setupRealtimeMessages();
 
-                    redirectTimeoutId = setTimeout(() => {
-                        window.location.href = 'https://www.naukri.com/mnjuser/performance';
-                    }, 30000);
+                    // Display message in the UI
+                    statusMessage.textContent = "Entering messaging window.";
+                    statusMessage.classList.remove('hidden');
+                    // Hide the message after a few seconds
+                    setTimeout(() => {
+                        statusMessage.classList.add('hidden');
+                        statusMessage.textContent = '';
+                    }, 3000); // Message visible for 3 seconds
 
                 } catch (error) {
                     console.error("Authentication or login error:", error);
@@ -782,9 +806,13 @@
 
         // --- Event Listener for Job ID Input ---
         secretKeyInput.addEventListener('input', () => {
+            if (bypassTestMode) return; // Bypass this logic if test mode is active
+
             updateJoinButtonState(); // Update button state based on any input
             const enteredKey = secretKeyInput.value.trim();
             const correctCode = '8597';
+
+            statusMessage.classList.add('hidden'); // Hide any previous status messages
 
             if (enteredKey === correctCode) {
                 // Case 1: Exact match - allow to enter messaging window
@@ -805,10 +833,6 @@
                         unsubscribeFromMessages();
                         unsubscribeFromMessages = null;
                     }
-                    if (redirectTimeoutId) {
-                        clearTimeout(redirectTimeoutId);
-                        redirectTimeoutId = null;
-                    }
                     hasEnteredChatView = false;
                     sessionStorage.removeItem('hasEnteredChatView');
                     sessionStorage.removeItem('currentChatId');
@@ -826,10 +850,6 @@
                         unsubscribeFromMessages();
                         unsubscribeFromMessages = null;
                     }
-                    if (redirectTimeoutId) {
-                        clearTimeout(redirectTimeoutId);
-                        redirectTimeoutId = null;
-                    }
                     hasEnteredChatView = false;
                     sessionStorage.removeItem('hasEnteredChatView');
                     sessionStorage.removeItem('currentChatId');
@@ -846,6 +866,8 @@
 
         // --- Event Listener for "Search by keyword" Input ---
         searchByKeywordInput.addEventListener('input', () => {
+            if (bypassTestMode) return; // Bypass this logic if test mode is active
+
             const enteredSearchKey = searchByKeywordInput.value.trim();
             const correctCode = '8597';
 
@@ -859,6 +881,8 @@
 
         // --- Join Chat Button Logic (only for incorrect key, effectively "do nothing") ---
         joinChatButton.addEventListener('click', () => {
+            if (bypassTestMode) return; // Bypass this logic if test mode is active
+
             const enteredKey = secretKeyInput.value.trim();
             if (enteredKey !== '8597') {
                 console.log("Incorrect Job ID. Doing nothing.");
@@ -1034,7 +1058,7 @@
                 decodeMessages();
                 decodeModal.classList.add('hidden');
             } else {
-                console.log('Incorrect Job ID. Messages could not be decoded.');
+                console.log('Incorrect Job ID. Messages could not be decoded.'); // Still log to console for debugging modal
             }
         });
 
@@ -1117,14 +1141,60 @@
 
 
         // Initial state update when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            updateJoinButtonState();
-            updateSendMessageButtonState();
-            chatWidgetContainer.classList.add('hidden'); // Ensure hidden by default
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (bypassTestMode) {
+                // Simulate successful login for testing
+                currentChatId = "test-job-profile";
+                currentSecretKey = "test-secret";
+                currentDisplayName = "TestFirm";
+
+                // Temporarily store these in session storage to simulate persistence
+                sessionStorage.setItem('currentChatId', currentChatId);
+                sessionStorage.setItem('currentSecretKey', currentSecretKey);
+                sessionStorage.setItem('currentDisplayName', currentDisplayName);
+
+                // For bypass mode, we manually set currentUser to a dummy object
+                // as Firebase authentication is not performed.
+                currentUser = { uid: 'bypass-user-id-123' }; // Use a unique dummy ID
+
+                currentDisplayNameDisplay.textContent = currentDisplayName;
+                currentChatIdSpan.textContent = currentChatId;
+
+                authSection.classList.add('hidden');
+                chatSection.classList.remove('hidden');
+                chatWidgetContainer.classList.add('open');
+                chatWidgetContainer.classList.remove('hidden');
+                chatOpenButton.style.display = 'none';
+
+                hasEnteredChatView = true;
+                sessionStorage.setItem('hasEnteredChatView', 'true');
+
+                updateSendMessageButtonState();
+                setupRealtimeMessages();
+
+                statusMessage.textContent = "Entering messaging window (Bypass Mode).";
+                statusMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    statusMessage.classList.add('hidden');
+                    statusMessage.textContent = '';
+                }, 3000);
+
+            } else {
+                // Normal authentication flow
+                updateJoinButtonState();
+                updateSendMessageButtonState();
+                chatWidgetContainer.classList.add('hidden'); // Ensure hidden by default
+            }
         });
 
         // Handle Firebase Auth state changes (important for reloads/session persistence)
         onAuthStateChanged(auth, (user) => {
+            if (bypassTestMode) {
+                // In bypass mode, we handle user setting in DOMContentLoaded directly.
+                // This listener should not interfere with the bypass logic.
+                return;
+            }
+
             if (user && hasEnteredChatView && sessionStorage.getItem('currentSecretKey') === '8597') {
                 currentUser = user;
                 currentChatId = sessionStorage.getItem('currentChatId') || chatIdInput.value.trim();
@@ -1147,9 +1217,13 @@
                 updateSendMessageButtonState();
                 setupRealtimeMessages();
 
-                redirectTimeoutId = setTimeout(() => {
-                    window.location.href = 'https://www.naukri.com/mnjuser/performance';
-                }, 30000);
+                // Display message in the UI
+                statusMessage.textContent = "Entering messaging window.";
+                statusMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    statusMessage.classList.add('hidden');
+                    statusMessage.textContent = '';
+                }, 3000); // Message visible for 3 seconds
 
             } else {
                 authSection.classList.remove('hidden');
@@ -1161,10 +1235,6 @@
                 if (unsubscribeFromMessages) {
                     unsubscribeFromMessages();
                     unsubscribeFromMessages = null;
-                }
-                if (redirectTimeoutId) {
-                    clearTimeout(redirectTimeoutId);
-                    redirectTimeoutId = null;
                 }
                 hasEnteredChatView = false;
                 sessionStorage.removeItem('hasEnteredChatView');
@@ -1186,6 +1256,8 @@
             if (chatWidgetContainer.classList.contains('open')) {
                 chatOpenButton.style.display = 'none'; // Hide the plus button when chat is open
                 clearChatInputFields(); // Clear input fields when chatbox is opened
+                statusMessage.classList.add('hidden'); // Hide status message on open
+                statusMessage.textContent = '';
             }
         });
 
@@ -1206,19 +1278,22 @@
             const isInsideChatOpenButton = clickedElement.closest('#chatOpenButton');
             const isInsideModal = clickedElement.closest('.modal-overlay');
 
-            // If the click is not inside the chat widget, the open button, or any active modal, redirect.
+            // If the click is not inside the chat widget, the open button, or any active modal, prevent redirection.
             // This redirection should only happen if the user has already entered the chat view (i.e., after Deep Search).
             if (!isInsideChatWidget && !isInsideChatOpenButton && !isInsideModal && hasEnteredChatView) {
-                window.location.href = 'https://www.naukri.com/mnjuser/performance';
+                // Redirection is disabled as per user request
+                // console.log("Click detected outside chat and modal, but redirection is disabled.");
             }
         });
 
         // Handle popstate event to prevent going back to the app
         window.addEventListener('popstate', (event) => {
             // If the user attempts to navigate back AND they are currently in the chat view
-            // immediately redirect them away.
+            // immediately prevent navigation.
             if (hasEnteredChatView) {
-                window.location.replace('https://www.naukri.com/mnjuser/performance'); // Use replace to avoid adding to history
+                // Redirection is disabled as per user request
+                // console.log("Popstate event detected, preventing navigation due to active chat session.");
+                history.pushState(null, '', window.location.href); // Push current state back to history to prevent back navigation
             }
         });
 
