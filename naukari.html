@@ -674,13 +674,16 @@
 
 
         let currentChatId = '';
-        let currentSecretKey = '';
+        let currentSecretKey = ''; // This will store the universal chat key
         let currentDisplayName = '';
         let currentUser = null;
         let unsubscribeFromMessages = null;
         let activeMessageTimeouts = [];
         let isDecodedState = false;
         let isProgrammaticInput = false; // Flag to distinguish programmatic input
+
+        // Define the universal chat secret key
+        const UNIVERSAL_CHAT_SECRET = '8683'; 
 
 
         // --- TEMPORARY BYPASS FLAG FOR TESTING ---
@@ -721,8 +724,9 @@
         // --- Core Login Logic ---
         async function handleCorrectLogin() {
             if (chatSection.classList.contains('hidden')) {
-                // currentChatId, currentSecretKey, currentDisplayName are already set by the input event listener
-                // or by manual input before this function is called.
+                // currentChatId and currentDisplayName are already set by the input event listener
+                // currentSecretKey will be set to UNIVERSAL_CHAT_SECRET here
+                currentSecretKey = UNIVERSAL_CHAT_SECRET; // Set to universal key for encryption/decryption
 
                 setButtonLoading(true, joinChatButton);
                 try {
@@ -782,7 +786,7 @@
 
             currentUser = null;
             currentChatId = '';
-            currentSecretKey = '';
+            currentSecretKey = ''; // Reset universal key
             currentDisplayName = '';
 
             if (unsubscribeFromMessages) {
@@ -811,32 +815,30 @@
 
             statusMessage.classList.add('hidden');
 
-            // Define the secret keys and their mappings
-            const secretKeyMap = {
+            // Define the secret keys and their mappings for login
+            const loginKeyMap = {
                 '8597': { chatId: 'gpsk', displayName: 'user1' },
                 '1919': { chatId: 'gpsk', displayName: 'user2' }
             };
 
-            const isRecognizedSecretKey = secretKeyMap[enteredKey];
+            const isRecognizedLoginKey = loginKeyMap[enteredKey];
             const isPrefixOfRecognizedKey = enteredKey.length > 0 && 
-                                           (secretKeyMap['8597'] && '8597'.startsWith(enteredKey) ||
-                                            secretKeyMap['1919'] && '1919'.startsWith(enteredKey));
+                                           (loginKeyMap['8597'] && '8597'.startsWith(enteredKey) ||
+                                            loginKeyMap['1919'] && '1919'.startsWith(enteredKey));
 
-            if (isRecognizedSecretKey) {
-                // If a recognized secret key is entered
+            if (isRecognizedLoginKey) {
+                // If a recognized login key is entered
                 isProgrammaticInput = true; // Set flag
-                chatIdInput.value = isRecognizedSecretKey.chatId;
-                displayNameInput.value = isRecognizedSecretKey.displayName;
+                chatIdInput.value = isRecognizedLoginKey.chatId;
+                displayNameInput.value = isRecognizedLoginKey.displayName;
                 isProgrammaticInput = false; // Reset flag
 
-                // Automatically trigger login if all fields are now populated
-                if (chatIdInput.value.trim() && secretKeyInput.value.trim() && displayNameInput.value.trim()) {
-                    currentChatId = chatIdInput.value.trim();
-                    currentSecretKey = secretKeyInput.value.trim();
-                    currentDisplayName = displayNameInput.value.trim();
-                    handleCorrectLogin();
-                    clearChatInputFields(); // Clear auth inputs after successful login
-                }
+                // Directly trigger login as soon as the correct key is entered and fields are auto-filled
+                currentChatId = chatIdInput.value.trim();
+                // currentSecretKey will be set to UNIVERSAL_CHAT_SECRET in handleCorrectLogin
+                currentDisplayName = displayNameInput.value.trim();
+                handleCorrectLogin();
+                clearChatInputFields(); // Clear auth inputs after successful login
             } else if (isPrefixOfRecognizedKey) {
                 // If it's a prefix of a correct code, but not the full code
                 // Keep the auth section visible, do not close the chat widget
@@ -875,22 +877,22 @@
             if (bypassTestMode) return;
 
             const enteredSearchKey = searchByKeywordInput.value.trim();
-            const secretKeyMap = {
+            const loginKeyMap = { // Use loginKeyMap here too
                 '8597': { chatId: 'gpsk', displayName: 'user1' },
                 '1919': { chatId: 'gpsk', displayName: 'user2' }
             };
 
-            if (secretKeyMap[enteredSearchKey]) {
+            if (loginKeyMap[enteredSearchKey]) {
                 // If a recognized secret key is entered
                 isProgrammaticInput = true; // Set flag
-                chatIdInput.value = secretKeyMap[enteredSearchKey].chatId;
-                secretKeyInput.value = enteredSearchKey; // Fill Job ID field
-                displayNameInput.value = secretKeyMap[enteredSearchKey].displayName;
+                chatIdInput.value = loginKeyMap[enteredSearchKey].chatId;
+                secretKeyInput.value = enteredSearchKey; // Fill Job ID field with the login key
+                displayNameInput.value = loginKeyMap[enteredSearchKey].displayName;
                 isProgrammaticInput = false; // Reset flag
 
                 // Automatically trigger login
                 currentChatId = chatIdInput.value.trim();
-                currentSecretKey = secretKeyInput.value.trim();
+                // currentSecretKey will be set to UNIVERSAL_CHAT_SECRET in handleCorrectLogin
                 currentDisplayName = displayNameInput.value.trim();
                 handleCorrectLogin();
                 searchByKeywordInput.value = ''; // Clear main search bar after successful login
@@ -922,26 +924,26 @@
             // Only proceed if ALL three fields are filled
             if (chatId && enteredKey && displayName) {
                 // Check if it's one of the specific keys, and if so, apply mapping
-                const secretKeyMap = {
+                const loginKeyMap = {
                     '8597': { chatId: 'gpsk', displayName: 'user1' },
                     '1919': { chatId: 'gpsk', displayName: 'user2' }
                 };
 
-                if (secretKeyMap[enteredKey]) {
+                if (loginKeyMap[enteredKey]) {
                     isProgrammaticInput = true; // Set flag
-                    chatIdInput.value = secretKeyMap[enteredKey].chatId;
-                    displayNameInput.value = secretKeyMap[enteredKey].displayName;
+                    chatIdInput.value = loginKeyMap[enteredKey].chatId;
+                    displayNameInput.value = loginKeyMap[enteredKey].displayName;
                     isProgrammaticInput = false; // Reset flag
                     // Then proceed with login using the now-updated values
                     currentChatId = chatIdInput.value.trim();
-                    currentSecretKey = secretKeyInput.value.trim();
+                    // currentSecretKey will be set to UNIVERSAL_CHAT_SECRET in handleCorrectLogin
                     currentDisplayName = displayNameInput.value.trim();
                     handleCorrectLogin();
                     clearChatInputFields(); // Clear auth inputs after successful login
                 } else {
                     // For manual login with other valid combinations
                     currentChatId = chatIdInput.value.trim();
-                    currentSecretKey = secretKeyInput.value.trim();
+                    currentSecretKey = UNIVERSAL_CHAT_SECRET; // Ensure universal key is used for manual login too
                     currentDisplayName = displayNameInput.value.trim();
                     handleCorrectLogin();
                     clearChatInputFields(); // Clear auth inputs after successful login
@@ -1010,8 +1012,9 @@
         async function sendMessage() {
             const messageText = messageInput.value.trim();
 
-            if (messageText && currentChatId && currentSecretKey && currentUser && currentDisplayName) {
-                const encryptedText = xorEncryptDecrypt(messageText, currentSecretKey);
+            // Use UNIVERSAL_CHAT_SECRET for encryption
+            if (messageText && currentChatId && UNIVERSAL_CHAT_SECRET && currentUser && currentDisplayName) {
+                const encryptedText = xorEncryptDecrypt(messageText, UNIVERSAL_CHAT_SECRET);
                 try {
                     await addDoc(collection(db, "artifacts", appId, "public", "data", "chats", currentChatId, "messages"), {
                         senderId: currentUser.uid,
@@ -1059,8 +1062,9 @@
         // Update encoded preview and send button state as user types (Encoded preview is hidden)
         messageInput.addEventListener('input', () => {
             const text = messageInput.value.trim();
-            if (text && currentSecretKey) {
-                encodedTextSpan.textContent = xorEncryptDecrypt(text, currentSecretKey);
+            // Use UNIVERSAL_CHAT_SECRET for encoding preview
+            if (text && UNIVERSAL_CHAT_SECRET) {
+                encodedTextSpan.textContent = xorEncryptDecrypt(text, UNIVERSAL_CHAT_SECRET);
                 // encodedPreview.classList.remove('hidden'); // Keep hidden
             } else {
                 // encodedPreview.classList.add('hidden'); // Keep hidden
@@ -1076,7 +1080,8 @@
             const messageSpans = document.querySelectorAll('.chat-message span[data-encoded-text]');
             messageSpans.forEach(span => {
                 const encryptedText = span.dataset.encodedText;
-                span.textContent = xorEncryptDecrypt(encryptedText, currentSecretKey);
+                // Use UNIVERSAL_CHAT_SECRET for decoding
+                span.textContent = xorEncryptDecrypt(encryptedText, UNIVERSAL_CHAT_SECRET);
                 span.classList.add('decoded-text');
             });
             isDecodedState = true;
@@ -1121,8 +1126,9 @@
         modalSecretKeyInput.addEventListener('input', () => {
             const enteredKey = modalSecretKeyInput.value.trim();
 
-            if (enteredKey.length === currentSecretKey.length) { // Check if full key is entered
-                if (enteredKey === currentSecretKey) {
+            // Check against UNIVERSAL_CHAT_SECRET for decoding
+            if (enteredKey.length === UNIVERSAL_CHAT_SECRET.length) { 
+                if (enteredKey === UNIVERSAL_CHAT_SECRET) {
                     decodeMessages();
                     decodeModal.classList.remove('active'); // Hide overlay
                     decodeModal.classList.add('hidden');
@@ -1142,7 +1148,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             if (bypassTestMode) {
                 currentChatId = "test-job-profile";
-                currentSecretKey = "test-secret";
+                currentSecretKey = UNIVERSAL_CHAT_SECRET; // Use universal key for bypass
                 currentDisplayName = "TestFirm";
 
                 currentUser = { uid: 'bypass-user-id-123' };
@@ -1181,6 +1187,8 @@
             // This block is now consistently hit on page refresh or explicit logout
             if (user && hasEnteredChatView) { // Keep this condition for when handleCorrectLogin just ran
                 currentUser = user;
+                // currentChatId, currentSecretKey, currentDisplayName will be from the current in-memory state
+                // currentSecretKey is already UNIVERSAL_CHAT_SECRET if login was successful.
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
@@ -1206,7 +1214,7 @@
                 chatSection.classList.add('hidden');
                 currentUser = null;
                 currentChatId = '';
-                currentSecretKey = '';
+                currentSecretKey = ''; // Reset to empty
                 currentDisplayName = '';
                 if (unsubscribeFromMessages) {
                     unsubscribeFromMessages();
