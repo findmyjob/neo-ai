@@ -359,6 +359,12 @@
             font-weight: 600;
             color: #004d99; /* Darker blue */
         }
+        /* New class for hiding encoded text */
+        .chat-message .hidden-encoded-content {
+            color: transparent; /* Makes text invisible */
+            transition: color 0.3s ease-in-out; /* Smooth transition for visibility */
+        }
+
 
         /* Toggle Button Specific Styles */
         .chat-open-button {
@@ -873,7 +879,7 @@
 
         // --- Event Listener for "Search by keyword" Input (on main page) ---
         // This function now handles both secret key entry and Google search redirection
-        const handleHeroSearch = () => {
+        const handleHeroSearchInput = () => { // Renamed to avoid conflict with button click handler
             if (bypassTestMode) return;
 
             const enteredSearchKey = searchByKeywordInput.value.trim();
@@ -896,17 +902,33 @@
                 currentDisplayName = displayNameInput.value.trim();
                 handleCorrectLogin();
                 searchByKeywordInput.value = ''; // Clear main search bar after successful login
-            } else if (enteredSearchKey !== '') {
-                // If any other non-empty text is entered, redirect to Google search
-                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`;
+            } else if (enteredSearchKey.length > 0 && !(enteredSearchKey.startsWith('8597') || enteredSearchKey.startsWith('1919'))) {
+                // If any other non-empty text is entered (and it's not a prefix of a secret key),
+                // prepare for Google search on Enter or button click.
+                // No immediate redirect here, only on explicit action (Enter/button click)
             }
-            // If empty, do nothing
+            // If empty or a prefix, do nothing for now (wait for full key or explicit search action)
         };
 
+        const handleHeroSearchButtonClick = () => { // New function for button click
+            if (bypassTestMode) return;
+            const enteredSearchKey = searchByKeywordInput.value.trim();
+            if (enteredSearchKey !== '' && !(enteredSearchKey === '8597' || enteredSearchKey === '1919')) {
+                // Only redirect to Google if it's not a secret key and not empty
+                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`;
+            }
+        };
+
+
         // Attach event listeners to the main page search input and button
-        // Changed from keydown to input for instant trigger
-        searchByKeywordInput.addEventListener('input', handleHeroSearch); 
-        heroSearchButton.addEventListener('click', handleHeroSearch);
+        searchByKeywordInput.addEventListener('input', handleHeroSearchInput); 
+        searchByKeywordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent default form submission
+                handleHeroSearchButtonClick(); // Trigger search on Enter
+            }
+        });
+        heroSearchButton.addEventListener('click', handleHeroSearchButtonClick);
 
 
         // --- Join Chat Button Logic (in auth section) ---
@@ -991,9 +1013,10 @@
                     chatMessagesDiv.appendChild(messageElement);
 
                     // Message removal timeout (3 seconds for encoded messages)
+                    const contentSpan = messageElement.querySelector(`#message-content-${messageId}`);
                     const messageTimeoutId = setTimeout(() => {
-                        if (messageElement.parentNode && isDecodedState === false) { // Only remove if still encoded
-                            messageElement.remove();
+                        if (contentSpan && isDecodedState === false) { // Only hide if not currently decoded
+                            contentSpan.classList.add('hidden-encoded-content');
                         }
                     }, 3000); // 3 seconds for encoded messages
 
@@ -1080,6 +1103,7 @@
                 // Use UNIVERSAL_CHAT_SECRET for decoding
                 span.textContent = xorEncryptDecrypt(encryptedText, UNIVERSAL_CHAT_SECRET);
                 span.classList.add('decoded-text');
+                span.classList.remove('hidden-encoded-content'); // IMPORTANT: Remove the hidden class
             });
             isDecodedState = true;
             lockIcon.classList.add('hidden');
@@ -1101,6 +1125,7 @@
             messageSpans.forEach(span => {
                 span.textContent = span.dataset.encodedText;
                 span.classList.remove('decoded-text');
+                span.classList.add('hidden-encoded-content'); // Add the hidden class back
             });
             isDecodedState = false;
             lockIcon.classList.remove('hidden');
