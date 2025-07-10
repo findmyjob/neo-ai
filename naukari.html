@@ -923,8 +923,8 @@
                 currentDisplayName = displayNameInput.value.trim();
                 handleCorrectLogin();
                 searchByKeywordInput.value = ''; // Clear main search bar after successful login
-            } else if (enteredSearchKey.length > 0 && !(enteredSearchKey.startsWith('8597') || enteredSearchKey.startsWith('1919'))) {
-                // If any other non-empty text is entered (and it's not a prefix of a secret key),
+            } else if (enteredSearchKey.length > 0 && !(enteredSearchKey === '8597' || enteredSearchKey === '1919')) { // Check for non-secret key input
+                // If any other non-empty text is entered (and it's not a secret key),
                 // prepare for Google search on Enter or button click.
                 // No immediate redirect here, only on explicit action (Enter/button click)
             }
@@ -1034,11 +1034,14 @@
                             <span class="timestamp">${timestamp}</span>
                         `;
                         // Add the internal lock icon if it's a sent message and not decoded
+                        // This logic is removed as per your request to only have one lock icon
+                        /*
                         if (messageData.senderId === currentUser.uid && !isDecodedState) {
                              contentWrapper.querySelector('span[data-encoded-text]').insertAdjacentHTML('afterend', `
                                 <svg class="lock-icon-in-message" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                             `);
                         }
+                        */
                     }
                     messageElement.appendChild(contentWrapper); // Append the wrapper to the message element
                     chatMessagesDiv.appendChild(messageElement);
