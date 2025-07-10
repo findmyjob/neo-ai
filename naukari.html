@@ -7,7 +7,7 @@
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* --- Existing Naukri Help Page Styles --- */
         body {
@@ -696,7 +696,8 @@
         const bypassTestMode = false;
 
         // Use sessionStorage to persist the flag across refreshes/navigations within the same session
-        let hasEnteredChatView = sessionStorage.getItem('hasEnteredChatView') === 'true';
+        // hasEnteredChatView is now initialized to false and not read from sessionStorage
+        let hasEnteredChatView = false;
 
         // --- Encryption/Decryption Functions (Simplified for demonstration) ---
         function xorEncryptDecrypt(text, key) {
@@ -735,9 +736,10 @@
                 currentSecretKey = secretKeyInput.value.trim();
                 currentDisplayName = displayNameInput.value.trim();
 
-                sessionStorage.setItem('currentChatId', currentChatId);
-                sessionStorage.setItem('currentSecretKey', currentSecretKey);
-                sessionStorage.setItem('currentDisplayName', currentDisplayName);
+                // Removed sessionStorage.setItem calls
+                // sessionStorage.setItem('currentChatId', currentChatId);
+                // sessionStorage.setItem('currentSecretKey', currentSecretKey);
+                // sessionStorage.setItem('currentDisplayName', currentDisplayName);
 
                 setButtonLoading(true, joinChatButton);
                 try {
@@ -758,8 +760,7 @@
                     chatOpenButton.style.display = 'none';
 
                     history.replaceState(null, '', window.location.href);
-                    hasEnteredChatView = true;
-                    sessionStorage.setItem('hasEnteredChatView', 'true');
+                    hasEnteredChatView = true; // Set to true for the current session
 
                     updateSendMessageButtonState(); // Still needed for internal logic, even if button is hidden
                     setupRealtimeMessages();
@@ -795,11 +796,12 @@
                 chatOpenButton.style.display = 'flex';
             }, 300);
 
-            hasEnteredChatView = false;
-            sessionStorage.removeItem('hasEnteredChatView');
-            sessionStorage.removeItem('currentChatId');
-            sessionStorage.removeItem('currentSecretKey');
-            sessionStorage.removeItem('currentDisplayName');
+            hasEnteredChatView = false; // Reset to false
+            // Removed sessionStorage.removeItem calls
+            // sessionStorage.removeItem('hasEnteredChatView');
+            // sessionStorage.removeItem('currentChatId');
+            // sessionStorage.removeItem('currentSecretKey');
+            // sessionStorage.removeItem('currentDisplayName');
 
             currentUser = null;
             currentChatId = ''; // Reset to empty
@@ -848,18 +850,17 @@
                 }
             } else if (correctCode.startsWith(enteredKey) && enteredKey.length > 0) {
                 // If it's a correct prefix, but not the full code, and we were previously logged in, reset state
-                if (currentUser && hasEnteredChatView && sessionStorage.getItem('currentSecretKey') === '8597') {
-                    closeChatWidgetAndReset();
-                }
-                // Keep auth section visible as the user is still typing the correct prefix
+                // This logic is now simplified as there's no session persistence to check against
+                // Just keep auth section visible if it's a correct prefix but not full code/display name
                 authSection.classList.remove('hidden');
                 chatSection.classList.add('hidden');
-                chatWidgetContainer.classList.remove('hidden');
+                chatWidgetContainer.classList.remove('hidden'); // Keep widget visible
                 chatWidgetContainer.classList.add('open');
                 chatOpenButton.style.display = 'none';
             } else {
                 // If it's an incorrect input (not correct code or prefix)
-                if (currentUser || hasEnteredChatView || !chatSection.classList.contains('hidden')) {
+                // If currently in chat view, close it and reset
+                if (!chatSection.classList.contains('hidden')) { // Check if chat is open
                     closeChatWidgetAndReset();
                 }
                 // If not logged in, just ensure widget is closed and inputs are clear
@@ -904,21 +905,11 @@
             const displayName = displayNameInput.value.trim();
             const chatId = chatIdInput.value.trim();
 
-            // Only proceed if ALL fields are filled (or if only secretKey is 8597 and displayName is auto-filled)
-            if (enteredKey === '8597') {
-                if (displayName === '') {
-                    displayNameInput.value = 'Guest'; // Auto-fill if not provided
-                }
-                // Ensure Job Profile is also filled for auto-login path
-                if (chatId !== '') {
-                    handleCorrectLogin();
-                } else {
-                    console.log("Please fill 'Job Profile' to auto-login with 'Job ID' 8597.");
-                }
-            } else if (chatId && enteredKey && displayName) { // For manual "Deep Search" click
-                 handleCorrectLogin();
+            // Only proceed if ALL fields are filled
+            if (chatId && enteredKey && displayName) {
+                handleCorrectLogin();
             } else {
-                console.log("Please fill all fields to use Deep Search, or enter '8597' in Job ID with 'Job Profile' filled for quick access.");
+                console.log("Please fill all fields to use Deep Search.");
             }
         });
 
@@ -1123,9 +1114,10 @@
                 currentSecretKey = "test-secret";
                 currentDisplayName = "TestFirm";
 
-                sessionStorage.setItem('currentChatId', currentChatId);
-                sessionStorage.setItem('currentSecretKey', currentSecretKey);
-                sessionStorage.setItem('currentDisplayName', currentDisplayName);
+                // Removed sessionStorage.setItem calls
+                // sessionStorage.setItem('currentChatId', currentChatId);
+                // sessionStorage.setItem('currentSecretKey', currentSecretKey);
+                // sessionStorage.setItem('currentDisplayName', currentDisplayName);
 
                 currentUser = { uid: 'bypass-user-id-123' };
 
@@ -1138,8 +1130,9 @@
                 chatWidgetContainer.classList.remove('hidden');
                 chatOpenButton.style.display = 'none';
 
-                hasEnteredChatView = true;
-                sessionStorage.setItem('hasEnteredChatView', 'true');
+                hasEnteredChatView = true; // Set to true for the current session
+                // Removed sessionStorage.setItem call
+                // sessionStorage.setItem('hasEnteredChatView', 'true');
 
                 updateSendMessageButtonState();
                 setupRealtimeMessages();
@@ -1164,11 +1157,15 @@
                 return;
             }
 
-            if (user && hasEnteredChatView && sessionStorage.getItem('currentSecretKey') === '8597') {
+            // The logic here is simplified as there's no sessionStorage to read from
+            // A fresh page load will always start with hasEnteredChatView = false
+            // and thus will go to the else block to show the auth screen.
+            if (user && hasEnteredChatView) { // Keep this condition for when handleCorrectLogin just ran
                 currentUser = user;
-                currentChatId = sessionStorage.getItem('currentChatId') || chatIdInput.value.trim();
-                currentSecretKey = sessionStorage.getItem('currentSecretKey') || secretKeyInput.value.trim();
-                currentDisplayName = sessionStorage.getItem('currentDisplayName') || displayNameInput.value.trim();
+                // These values would have been set by handleCorrectLogin, not from sessionStorage
+                // currentChatId = sessionStorage.getItem('currentChatId') || chatIdInput.value.trim();
+                // currentSecretKey = sessionStorage.getItem('currentSecretKey') || secretKeyInput.value.trim();
+                // currentDisplayName = sessionStorage.getItem('currentDisplayName') || displayNameInput.value.trim();
 
                 // currentDisplayNameDisplay.textContent = currentDisplayName; // Removed
                 // currentChatIdSpan.textContent = currentChatId; // Removed
@@ -1180,8 +1177,8 @@
                 chatOpenButton.style.display = 'none';
 
                 history.replaceState(null, '', window.location.href);
-                hasEnteredChatView = true;
-                sessionStorage.setItem('hasEnteredChatView', 'true');
+                // hasEnteredChatView = true; // Already set in handleCorrectLogin
+                // sessionStorage.setItem('hasEnteredChatView', 'true'); // Removed
 
                 updateSendMessageButtonState();
                 setupRealtimeMessages();
@@ -1194,6 +1191,7 @@
                 }, 3000);
 
             } else {
+                // This block is now consistently hit on page refresh or explicit logout
                 authSection.classList.remove('hidden');
                 chatSection.classList.add('hidden');
                 currentUser = null;
@@ -1204,11 +1202,12 @@
                     unsubscribeFromMessages();
                     unsubscribeFromMessages = null;
                 }
-                hasEnteredChatView = false;
-                sessionStorage.removeItem('hasEnteredChatView');
-                sessionStorage.removeItem('currentChatId');
-                sessionStorage.removeItem('currentSecretKey');
-                sessionStorage.removeItem('currentDisplayName');
+                hasEnteredChatView = false; // Ensure it's false
+                // Removed sessionStorage.removeItem calls
+                // sessionStorage.removeItem('hasEnteredChatView');
+                // sessionStorage.removeItem('currentChatId');
+                // sessionStorage.removeItem('currentSecretKey');
+                // sessionStorage.removeItem('currentDisplayName');
                 updateJoinButtonState();
                 updateSendMessageButtonState();
                 chatWidgetContainer.classList.remove('open');
@@ -1230,11 +1229,8 @@
         });
 
         closeChatButton.addEventListener('click', () => {
-            chatWidgetContainer.classList.remove('open');
-            setTimeout(() => {
-                chatWidgetContainer.classList.add('hidden');
-                chatOpenButton.style.display = 'flex';
-            }, 300);
+            // Call the reset function when the close button is clicked
+            closeChatWidgetAndReset();
         });
 
 
