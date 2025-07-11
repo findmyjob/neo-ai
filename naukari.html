@@ -1169,8 +1169,7 @@
                 }
             });
             isDecodedState = false;
-            lockIcon.classList.remove('hidden');
-            unlockIcon.classList.add('hidden');
+            
             // Clear any pending re-encode timeouts if manually re-encoded
             activeMessageTimeouts.forEach(clearTimeout);
             activeMessageTimeouts = [];
