@@ -364,21 +364,19 @@
         }
         /* New class for hiding encoded content (applies to wrapper) */
         .chat-message .message-content-wrapper {
-            transition: color 0.3s ease-in-out; /* Smooth transition for visibility */
+            transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out; /* Smooth transition for visibility and background */
         }
-        .chat-message .message-content-wrapper.hidden-encoded-content * { /* Apply to all children */
+        .chat-message.sent .message-content-wrapper.hidden-encoded-content * { /* Apply to all children of sent messages */
             color: transparent !important; /* Makes text invisible */
         }
-        .chat-message .lock-icon-in-message { /* Style for lock icon within messages */
-            width: 14px;
-            height: 14px;
-            stroke: #004d99; /* Darker blue */
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            margin-left: 5px; /* Spacing from text */
-            vertical-align: middle; /* Align with text baseline */
-            display: inline-block; /* Ensure it respects margin/padding */
+        .chat-message.received .message-content-wrapper.hidden-encoded-content * { /* Apply to all children of received messages */
+            color: transparent !important; /* Makes text invisible */
+        }
+        .chat-message.sent .message-content-wrapper.hidden-encoded-content {
+            background-color: transparent !important; /* Make background transparent for sent messages */
+        }
+        .chat-message.received .message-content-wrapper.hidden-encoded-content {
+            background-color: transparent !important; /* Make background transparent for received messages */
         }
 
 
@@ -408,9 +406,9 @@
         }
 
         .decode-toggle-button {
-            position: absolute; /* Position relative to chat-widget-container */
-            left: 1.5rem; /* Left corner, matching padding */
-            top: 4.5rem; /* Below header, matching padding */
+            position: absolute; /* Position relative to chat-section */
+            left: 0.8rem; /* Left corner, matching padding */
+            top: 0.8rem; /* Aligned with chat-section padding */
             background-color: #0073e6; /* Naukri blue */
             color: #ffffff;
             border: none;
@@ -487,8 +485,17 @@
             color: #2c3e50;
             margin-bottom: 0; /* No margin bottom */
             text-align: center; /* Center text */
+            /* Remove caret and blue highlight */
+            caret-color: transparent;
+            outline: none;
+            box-shadow: none;
         }
-        /* Removed h3 and modal-buttons styles from .modal-content */
+        .modal-content input[type="password"]:focus {
+            outline: none;
+            box-shadow: none;
+            border-color: #a0c4ff; /* Keep original border color on focus */
+        }
+
 
         /* Message display area */
         #statusMessage {
@@ -778,13 +785,7 @@
                     updateSendMessageButtonState();
                     setupRealtimeMessages();
 
-                    statusMessage.textContent = "Entering chat log.";
-                    statusMessage.classList.remove('hidden');
-                    setTimeout(() => {
-                        statusMessage.classList.add('hidden');
-                        statusMessage.textContent = '';
-                    }, 3000);
-
+                    // Removed statusMessage related code here
                     resetInactivityTimer(); // Start inactivity timer on login
 
                 } catch (error) {
@@ -834,8 +835,7 @@
             authSection.classList.remove('hidden');
             chatSection.classList.add('hidden');
             clearChatInputFields(); // Use clearChatInputFields which respects the flag
-            statusMessage.classList.add('hidden');
-            statusMessage.textContent = '';
+            // Removed statusMessage related code here
             // Ensure modal is hidden if it was open
             decodeModal.classList.remove('active');
             decodeModal.classList.add('hidden');
@@ -868,7 +868,7 @@
             updateJoinButtonState(); // Update button state based on current inputs
             const enteredKey = secretKeyInput.value.trim();
 
-            statusMessage.classList.add('hidden');
+            // Removed statusMessage related code here
 
             // Define the secret keys and their mappings for login
             const loginKeyMap = {
