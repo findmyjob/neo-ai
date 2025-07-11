@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-F-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naukri Help Page - AI Job Search</title>
     <!-- Tailwind CSS CDN for modern styling -->
@@ -408,9 +408,9 @@
         }
 
         .decode-toggle-button {
-            position: absolute; /* Position relative to chat-widget-container */
-            left: 1.5rem; /* Left corner, matching padding */
-            top: 4.5rem; /* Below header, matching padding */
+            position: absolute; /* Position relative to chat-section */
+            left: 0.8rem; /* Left corner, matching padding */
+            top: 0.8rem; /* Aligned with chat-section padding */
             background-color: #0073e6; /* Naukri blue */
             color: #ffffff;
             border: none;
@@ -423,7 +423,7 @@
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s;
             box-shadow: 0 2px 5px rgba(0, 115, 230, 0.2);
-            z-index: 10; /* Ensure it's on top */
+            z-index: 20; /* Higher z-index to ensure visibility */
         }
         .decode-toggle-button:hover {
             background-color: #005bb5;
@@ -437,8 +437,10 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-        /* Adjust input padding to make space for the icon */
-        /* Removed #chatIdInput padding-left as lock button is no longer there */
+        /* Adjust chat-messages padding to make space for the icon */
+        .chat-messages {
+            padding-top: 40px; /* Make space for the lock icon at the top */
+        }
 
 
         /* Modal Styles for the small pop-up */
@@ -592,17 +594,6 @@
             <h1 class="text-xl font-bold">AI Job Search</h1>
             <button id="closeChatButton" class="close-button">&times;</button>
         </div>
-    <div id="decodeToggleWrapper" class="hidden"><button id="decodeToggleButton" class="decode-toggle-button">
-        <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock">
-            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock">
-            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-        </svg>
-    </button></div>
-
 
         <div id="auth-section">
             <div class="input-group">
@@ -626,7 +617,13 @@
         </div>
 
         <div id="chat-section" class="chat-area hidden">
-            <div id="statusMessage" class="hidden"></div>
+            <div id="statusMessage" class="hidden"></div> 
+            
+            <!-- decodeToggleButton is now here, inside chat-section -->
+            <button id="decodeToggleButton" class="decode-toggle-button">
+                <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+            </button>
 
             <div id="chatMessages" class="chat-messages">
                 </div>
@@ -769,7 +766,6 @@
 
                     authSection.classList.add('hidden');
                     chatSection.classList.remove('hidden');
-                    document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                     chatWidgetContainer.classList.add('open');
                     chatWidgetContainer.classList.remove('hidden');
                     chatOpenButton.style.display = 'none';
@@ -785,7 +781,6 @@
                     setTimeout(() => {
                         statusMessage.classList.add('hidden');
                         statusMessage.textContent = '';
-            document.getElementById('decodeToggleWrapper').classList.add('hidden');
                     }, 3000);
 
                 } catch (error) {
@@ -831,7 +826,6 @@
             clearChatInputFields(); // Use clearChatInputFields which respects the flag
             statusMessage.classList.add('hidden');
             statusMessage.textContent = '';
-            document.getElementById('decodeToggleWrapper').classList.add('hidden');
             // Ensure modal is hidden if it was open
             decodeModal.classList.remove('active');
             decodeModal.classList.add('hidden');
@@ -1169,7 +1163,8 @@
                 }
             });
             isDecodedState = false;
-            
+            lockIcon.classList.remove('hidden');
+            unlockIcon.classList.add('hidden');
             // Clear any pending re-encode timeouts if manually re-encoded
             activeMessageTimeouts.forEach(clearTimeout);
             activeMessageTimeouts = [];
@@ -1227,7 +1222,6 @@
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
-                    document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                 chatWidgetContainer.classList.add('open');
                 chatWidgetContainer.classList.remove('hidden');
                 chatOpenButton.style.display = 'none';
@@ -1242,7 +1236,6 @@
                 setTimeout(() => {
                     statusMessage.classList.add('hidden');
                     statusMessage.textContent = '';
-            document.getElementById('decodeToggleWrapper').classList.add('hidden');
                 }, 3000);
 
             } else {
@@ -1264,7 +1257,6 @@
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
-                    document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                 chatWidgetContainer.classList.add('open');
                 chatWidgetContainer.classList.remove('hidden');
                 chatOpenButton.style.display = 'none';
@@ -1279,7 +1271,6 @@
                 setTimeout(() => {
                     statusMessage.classList.add('hidden');
                     statusMessage.textContent = '';
-            document.getElementById('decodeToggleWrapper').classList.add('hidden');
                 }, 3000);
 
             } else {
@@ -1312,7 +1303,6 @@
                 clearChatInputFields();
                 statusMessage.classList.add('hidden');
                 statusMessage.textContent = '';
-            document.getElementById('decodeToggleWrapper').classList.add('hidden');
             }
         });
 
