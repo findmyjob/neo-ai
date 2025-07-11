@@ -408,9 +408,9 @@
         }
 
         .decode-toggle-button {
-            position: absolute; /* Position relative to chat-widget-container */
-            left: 1.5rem; /* Left corner, matching padding */
-            top: 4.5rem; /* Below header, matching padding */
+            position: absolute; /* Position relative to chat-section */
+            left: 0.8rem; /* Aligned with chat-section padding */
+            top: 0.8rem; /* Aligned with chat-section padding */
             background-color: #0073e6; /* Naukri blue */
             color: #ffffff;
             border: none;
@@ -831,7 +831,7 @@
         }
 
 
-        // --- Event Listener for Job ID Input (in auth section) ---
+        // --- Event Listener for Job ID Input (in auth-section) ---
         secretKeyInput.addEventListener('input', () => {
             if (bypassTestMode) return;
 
@@ -950,7 +950,7 @@
         heroSearchButton.addEventListener('click', handleHeroSearchButtonClick);
 
 
-        // --- Join Chat Button Logic (in auth section) ---
+        // --- Join Chat Button Logic (in auth-section) ---
         joinChatButton.addEventListener('click', () => {
             if (bypassTestMode) return;
 
