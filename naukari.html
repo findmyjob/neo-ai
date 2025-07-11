@@ -408,6 +408,10 @@
         }
 
         .decode-toggle-button {
+    position: fixed;
+    bottom: 100px;
+    right: 420px;
+    z-index: 1002;
             position: absolute; /* Position relative to chat-widget-container */
             left: 1.5rem; /* Left corner, matching padding */
             top: 4.5rem; /* Below header, matching padding */
@@ -423,7 +427,7 @@
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s;
             box-shadow: 0 2px 5px rgba(0, 115, 230, 0.2);
-            z-index: 20; /* Higher z-index to ensure visibility */
+            z-index: 10; /* Ensure it's on top */
         }
         .decode-toggle-button:hover {
             background-color: #005bb5;
@@ -437,10 +441,8 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-        /* Adjust chat-messages padding to make space for the icon */
-        .chat-messages {
-            padding-top: 40px; /* Make space for the lock icon at the top */
-        }
+        /* Adjust input padding to make space for the icon */
+        /* Removed #chatIdInput padding-left as lock button is no longer there */
 
 
         /* Modal Styles for the small pop-up */
@@ -465,6 +467,9 @@
         }
 
         .modal-content {
+    height: 100%;
+    align-items: center;
+    justify-content: center;
             background-color: #e3f2fd; /* Light blue */
             padding: 0.5rem; /* Reduced padding */
             border-radius: 0.75rem; /* Rounded corners */
@@ -594,6 +599,17 @@
             <h1 class="text-xl font-bold">AI Job Search</h1>
             <button id="closeChatButton" class="close-button">&times;</button>
         </div>
+    <div id="decodeToggleWrapper" class="hidden"><button id="decodeToggleButton" class="decode-toggle-button">
+        <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+        </svg>
+    </button></div>
+
 
         <div id="auth-section">
             <div class="input-group">
@@ -617,13 +633,7 @@
         </div>
 
         <div id="chat-section" class="chat-area hidden">
-            <div id="statusMessage" class="hidden"></div> 
-            
-            <!-- decodeToggleButton is now here, inside chat-section -->
-            <button id="decodeToggleButton" class="decode-toggle-button">
-                <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-            </button>
+            <div id="statusMessage" class="hidden"></div>
 
             <div id="chatMessages" class="chat-messages">
                 </div>
@@ -708,8 +718,6 @@
         let activeMessageTimeouts = [];
         let isDecodedState = false;
         let isProgrammaticInput = false; // Flag to distinguish programmatic input
-        let inactivityTimeoutId = null; // Timeout for auto-closing chat
-
 
         // Define the universal chat secret key
         const UNIVERSAL_CHAT_SECRET = '8683'; 
@@ -768,6 +776,7 @@
 
                     authSection.classList.add('hidden');
                     chatSection.classList.remove('hidden');
+                    document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                     chatWidgetContainer.classList.add('open');
                     chatWidgetContainer.classList.remove('hidden');
                     chatOpenButton.style.display = 'none';
@@ -783,9 +792,8 @@
                     setTimeout(() => {
                         statusMessage.classList.add('hidden');
                         statusMessage.textContent = '';
+            // Removed hiding of decodeToggleWrapper after timeout
                     }, 3000);
-
-                    resetInactivityTimer(); // Start inactivity timer on login
 
                 } catch (error) {
                     console.error("Authentication or login error:", error);
@@ -825,40 +833,17 @@
                 unsubscribeFromMessages = null;
             }
 
-            // Clear inactivity timer
-            if (inactivityTimeoutId) {
-                clearTimeout(inactivityTimeoutId);
-                inactivityTimeoutId = null;
-            }
-
             authSection.classList.remove('hidden');
             chatSection.classList.add('hidden');
             clearChatInputFields(); // Use clearChatInputFields which respects the flag
             statusMessage.classList.add('hidden');
             statusMessage.textContent = '';
+            // Removed hiding of decodeToggleWrapper after timeout
             // Ensure modal is hidden if it was open
             decodeModal.classList.remove('active');
             decodeModal.classList.add('hidden');
             modalSecretKeyInput.value = '';
         }
-
-        // --- Inactivity Timer ---
-        function resetInactivityTimer() {
-            if (inactivityTimeoutId) {
-                clearTimeout(inactivityTimeoutId);
-            }
-            inactivityTimeoutId = setTimeout(() => {
-                closeChatWidgetAndReset();
-            }, 10000); // 10 seconds of inactivity
-        }
-
-        // Add event listeners for user activity to reset the timer
-        chatWidgetContainer.addEventListener('mousemove', resetInactivityTimer);
-        chatWidgetContainer.addEventListener('keydown', resetInactivityTimer);
-        chatWidgetContainer.addEventListener('click', resetInactivityTimer);
-        modalSecretKeyInput.addEventListener('input', resetInactivityTimer);
-        messageInput.addEventListener('input', resetInactivityTimer);
-        sendMessageForm.addEventListener('submit', resetInactivityTimer);
 
 
         // --- Event Listener for Job ID Input (in auth-section) ---
@@ -1117,7 +1102,6 @@
         sendMessageForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             await sendMessage();
-            resetInactivityTimer(); // Reset timer on message sent
         });
 
         // Event listener for Enter key in message input (still present but hidden)
@@ -1127,7 +1111,6 @@
                 // Check if messageInput has value even if button is not directly visible
                 if (messageInput.value.trim() !== '') {
                     await sendMessage();
-                    resetInactivityTimer(); // Reset timer on message sent
                 }
             }
         });
@@ -1152,7 +1135,6 @@
             messageInput.style.height = 'auto';
             messageInput.style.height = messageInput.scrollHeight + 'px';
             updateSendMessageButtonState(); // Now visually relevant
-            resetInactivityTimer(); // Reset timer on input
         });
 
         // --- Decode/Encode Toggle Logic ---
@@ -1181,7 +1163,6 @@
                 encodeMessages();
             }, 5000);
             activeMessageTimeouts.push(reEncodeTimeoutId);
-            resetInactivityTimer(); // Reset timer on decode action
         }
 
         function encodeMessages() {
@@ -1195,12 +1176,10 @@
                 }
             });
             isDecodedState = false;
-            lockIcon.classList.remove('hidden');
-            unlockIcon.classList.add('hidden');
+            
             // Clear any pending re-encode timeouts if manually re-encoded
             activeMessageTimeouts.forEach(clearTimeout);
             activeMessageTimeouts = [];
-            resetInactivityTimer(); // Reset timer on encode action
         }
 
         decodeToggleButton.addEventListener('click', () => {
@@ -1211,16 +1190,15 @@
                 decodeModal.classList.remove('hidden');
                 decodeModal.classList.add('active'); // For opacity transition
 
-                // Position the modal directly over the decodeToggleButton
+                // Position the modal to the right of the decodeToggleButton
                 const rect = decodeToggleButton.getBoundingClientRect();
-                // Calculate position relative to the viewport
-                decodeModal.style.left = `${rect.left - decodeModal.offsetWidth - 5}px`; // 5px to the left of button
-                decodeModal.style.top = `${rect.top}px`; // Align top with button
+                decodeModal.style.left = `${rect.right + 10}px`;  // to the right of the lock
+                decodeModal.style.top = `${rect.top}px`;
+                decodeModal.style.height = `${rect.height}px`;  // match lock height
 
                 modalSecretKeyInput.value = '';
                 modalSecretKeyInput.focus();
             }
-            resetInactivityTimer(); // Reset timer on lock button click
         });
 
         // --- Modal Secret Key Input Logic (replaces modal buttons) ---
@@ -1242,7 +1220,6 @@
                     modalSecretKeyInput.value = '';
                 }
             }
-            resetInactivityTimer(); // Reset timer on modal input
         });
 
 
@@ -1257,6 +1234,7 @@
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
+                    document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                 chatWidgetContainer.classList.add('open');
                 chatWidgetContainer.classList.remove('hidden');
                 chatOpenButton.style.display = 'none';
@@ -1271,9 +1249,8 @@
                 setTimeout(() => {
                     statusMessage.classList.add('hidden');
                     statusMessage.textContent = '';
+            // Removed hiding of decodeToggleWrapper after timeout
                 }, 3000);
-
-                resetInactivityTimer(); // Start inactivity timer on initial load if bypassed
 
             } else {
                 updateJoinButtonState();
@@ -1294,6 +1271,7 @@
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
+                    document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                 chatWidgetContainer.classList.add('open');
                 chatWidgetContainer.classList.remove('hidden');
                 chatOpenButton.style.display = 'none';
@@ -1308,9 +1286,8 @@
                 setTimeout(() => {
                     statusMessage.classList.add('hidden');
                     statusMessage.textContent = '';
+            // Removed hiding of decodeToggleWrapper after timeout
                 }, 3000);
-
-                resetInactivityTimer(); // Start inactivity timer on auth state change if logged in
 
             } else {
                 // This block is now consistently hit on page refresh or explicit logout
@@ -1342,7 +1319,7 @@
                 clearChatInputFields();
                 statusMessage.classList.add('hidden');
                 statusMessage.textContent = '';
-                resetInactivityTimer(); // Reset timer on chat open
+            // Removed hiding of decodeToggleWrapper after timeout
             }
         });
 
@@ -1362,7 +1339,6 @@
             if (!isInsideChatWidget && !isInsideChatOpenButton && !isInsideModal && hasEnteredChatView) {
                 // Redirection is disabled as per user request
             }
-            resetInactivityTimer(); // Reset timer on any body click
         });
 
         // Handle popstate event to prevent going back to the app
@@ -1370,7 +1346,6 @@
             if (hasEnteredChatView) {
                 history.pushState(null, '', window.location.href);
             }
-            resetInactivityTimer(); // Reset timer on popstate
         });
 
     </script>
