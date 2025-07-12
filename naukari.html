@@ -1344,16 +1344,11 @@
         });
 
         // --- Chat Widget Toggle Functionality ---
+        // This button will no longer open the chat widget directly.
         chatOpenButton.addEventListener('click', () => {
-            chatWidgetContainer.classList.toggle('open');
-            chatWidgetContainer.classList.remove('hidden');
-            if (chatWidgetContainer.classList.contains('open')) {
-                chatOpenButton.style.display = 'none';
-                clearChatInputFields();
-                statusMessage.classList.add('hidden');
-                statusMessage.textContent = '';
-                resetActivityTimer(); // Start inactivity timer when opening chat
-            }
+            // Do nothing, or provide a hint to use the hero search bar.
+            // For now, it simply won't open the chat widget.
+            console.log("Chat can only be opened via a valid Job ID in the main search bar.");
         });
 
         closeChatButton.addEventListener('click', () => {
