@@ -305,7 +305,7 @@
             display: flex;
             align-items: flex-end;
             gap: 0.4rem;
-            position: relative; /* Make it a positioning context for the lock button */
+            position: relative; /* Make it a positioning context for the lock button and emoji picker */
         }
         .send-message-form textarea {
             flex-grow: 1;
@@ -573,6 +573,62 @@
                 width: 100%;
             }
         }
+
+        /* Emoji Picker Styles */
+        .emoji-picker-container {
+            position: absolute;
+            bottom: 45px; /* Adjust based on textarea height and button height */
+            right: 0; /* Align with send button */
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(24px, 1fr));
+            gap: 0.5rem;
+            z-index: 10;
+            visibility: hidden; /* Controlled by JS */
+            opacity: 0; /* For transition */
+            transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+            max-width: 100%; /* Ensure it doesn't overflow on small screens */
+        }
+
+        .emoji-picker-container.open {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .emoji-button-trigger {
+            background-color: #f0f8ff; /* Light blue background */
+            color: #004d99; /* Darker blue emoji color */
+            border: 1px solid #a0c4ff;
+            border-radius: 0.75rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            flex-shrink: 0;
+        }
+        .emoji-button-trigger:hover {
+            background-color: #e6f7fd;
+            border-color: #0073e6;
+        }
+
+        .emoji-item {
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.2rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            text-align: center;
+        }
+        .emoji-item:hover {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -590,7 +646,7 @@
         <h1>Hi, how can we help you?</h1>
         <div>
             <input type="password" id="searchByKeywordInput" placeholder="Search by keyword">
-            <button id="heroSearchButton">🔍</button> <!-- Added ID to the search button -->
+            <button id="heroSearchButton">Search</button> <!-- Changed button text to "Search" -->
         </div>
     </section>
 
@@ -665,12 +721,24 @@
                 </div>
 
             <form id="sendMessageForm" class="send-message-form">
-                <textarea id="messageInput" placeholder="" rows="1" class="flex-grow"></textarea> <div id="encodedPreview" class="encoded-preview hidden">
+                <textarea id="messageInput" placeholder="" rows="1" class="flex-grow"></textarea>
+                <button type="button" id="emojiButton" class="emoji-button-trigger">😀</button> <!-- Emoji button -->
+                <div id="encodedPreview" class="encoded-preview hidden">
                     Encoded: <span id="encodedTextSpan"></span>
                 </div>
                 <button type="submit" id="sendMessageButton" class="send-button-icon" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
                 </button>
+                <div id="emojiPicker" class="emoji-picker-container">
+                    <span class="emoji-item">👋</span>
+                    <span class="emoji-item">😊</span>
+                    <span class="emoji-item">👍</span>
+                    <span class="emoji-item">🎉</span>
+                    <span class="emoji-item">💡</span>
+                    <span class="emoji-item">🚀</span>
+                    <span class="emoji-item">✨</span>
+                    <span class="emoji-item">💬</span>
+                </div>
             </form>
         </div>
     </div>
@@ -738,6 +806,10 @@
         const chatOpenButton = document.getElementById('chatOpenButton');
         const chatWidgetContainer = document.getElementById('chatWidgetContainer');
         const closeChatButton = document.getElementById('closeChatButton');
+
+        // Emoji elements
+        const emojiButton = document.getElementById('emojiButton');
+        const emojiPicker = document.getElementById('emojiPicker');
 
 
         let currentChatId = '';
@@ -1419,6 +1491,36 @@
         window.addEventListener('popstate', (event) => {
             if (hasEnteredChatView) {
                 history.pushState(null, '', window.location.href);
+            }
+        });
+
+        // --- Emoji Picker Logic ---
+        emojiButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent click from bubbling up to document.body and closing chat
+            emojiPicker.classList.toggle('open');
+            resetActivityTimer(); // Reset timer on emoji picker interaction
+        });
+
+        // Insert emoji when clicked
+        emojiPicker.querySelectorAll('.emoji-item').forEach(item => {
+            item.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent click from bubbling up
+                const emoji = event.target.textContent;
+                const start = messageInput.selectionStart;
+                const end = messageInput.selectionEnd;
+                messageInput.value = messageInput.value.substring(0, start) + emoji + messageInput.value.substring(end);
+                messageInput.focus();
+                messageInput.setSelectionRange(start + emoji.length, start + emoji.length);
+                messageInput.dispatchEvent(new Event('input')); // Trigger input event to update preview/button state
+                emojiPicker.classList.remove('open'); // Close picker after selection
+                resetActivityTimer(); // Reset timer on emoji insertion
+            });
+        });
+
+        // Close emoji picker if clicked outside
+        document.addEventListener('click', (event) => {
+            if (!emojiPicker.contains(event.target) && !emojiButton.contains(event.target)) {
+                emojiPicker.classList.remove('open');
             }
         });
 
