@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naukri.com - Job Seeker FAQ</title>
+    <title>JobHunt.com - Job Seeker FAQ</title>
     <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter font from Google Fonts -->
@@ -19,7 +19,7 @@
             font-family: 'Arial', sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #f8f9fa;
+            background-color: #f0f8ff; /* Changed from #f8f9fa to light blue */
         }
 
         /* Header */
@@ -42,7 +42,7 @@
         .logo {
             font-size: 28px;
             font-weight: bold;
-            color: #ff6b35;
+            color: #005bb5; /* Changed from #ff6b35 to darker blue */
         }
 
         .nav-links {
@@ -58,7 +58,23 @@
         }
 
         .nav-links a:hover {
-            color: #ff6b35;
+            color: #005bb5; /* Changed from #ff6b35 to darker blue */
+        }
+
+        /* Login Button in Header */
+        .header-login-button {
+            background: #005bb5; /* Changed from #ff6b35 to darker blue */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .header-login-button:hover {
+            background: #004d99; /* Changed from #e55a2b to even darker blue */
         }
 
         /* Main Container */
@@ -70,7 +86,7 @@
 
         /* Breadcrumb */
         .breadcrumb {
-            background: white;
+            background: #e3f2fd; /* Changed from white to light blue */
             padding: 15px 20px;
             border-radius: 5px;
             margin-bottom: 20px;
@@ -89,7 +105,7 @@
 
         /* Page Title */
         .page-title {
-            background: white;
+            background: #e3f2fd; /* Changed from white to light blue */
             padding: 30px 20px;
             border-radius: 5px;
             margin-bottom: 20px;
@@ -110,7 +126,7 @@
 
         /* Search Box */
         .search-container {
-            background: white;
+            background: #e3f2fd; /* Changed from white to light blue */
             padding: 20px;
             border-radius: 5px;
             margin-bottom: 20px;
@@ -138,7 +154,7 @@
 
         .search-box button {
             padding: 12px 20px;
-            background: #ff6b35;
+            background: #005bb5; /* Changed from #ff6b35 to darker blue */
             color: white;
             border: none;
             border-radius: 0 5px 5px 0;
@@ -148,12 +164,12 @@
         }
 
         .search-box button:hover {
-            background: #e55a2b;
+            background: #004d99; /* Changed from #e55a2b to even darker blue */
         }
 
         /* Contact Info */
         .contact-section {
-            background: white;
+            background: #e3f2fd; /* Changed from white to light blue */
             padding: 30px 20px;
             border-radius: 5px;
             margin-bottom: 20px;
@@ -174,7 +190,7 @@
         }
 
         .contact-card {
-            background: #f8f9fa;
+            background: #f0f8ff; /* Changed from #f8f9fa to very light blue */
             padding: 20px;
             border-radius: 5px;
             border-left: 4px solid #4a90e2;
@@ -192,7 +208,7 @@
         }
 
         .contact-card a {
-            color: #ff6b35;
+            color: #005bb5; /* Changed from #ff6b35 to darker blue */
             text-decoration: none;
         }
 
@@ -202,7 +218,7 @@
 
         /* FAQ Categories */
         .faq-categories {
-            background: white;
+            background: #e3f2fd; /* Changed from white to light blue */
             padding: 20px;
             border-radius: 5px;
             margin-bottom: 20px;
@@ -249,7 +265,7 @@
 
         /* FAQ Section */
         .faq-section {
-            background: white;
+            background: #e3f2fd; /* Changed from white to light blue */
             padding: 30px 20px;
             border-radius: 5px;
             margin-bottom: 20px;
@@ -271,7 +287,7 @@
         }
 
         .faq-question {
-            background: #f8f9fa;
+            background: #f0f8ff; /* Changed from #f8f9fa to very light blue */
             padding: 18px 20px;
             cursor: pointer;
             display: flex;
@@ -283,7 +299,7 @@
         }
 
         .faq-question:hover {
-            background: #e9ecef;
+            background: #d4ebf9; /* Changed from #e9ecef to a slightly darker very light blue */
         }
 
         .faq-question.active {
@@ -296,7 +312,7 @@
             max-height: 0;
             overflow: hidden;
             transition: all 0.3s ease;
-            background: white;
+            background: #e3f2fd; /* Changed from white to light blue */
         }
 
         .faq-answer.active {
@@ -330,7 +346,7 @@
 
         /* Quick Links */
         .quick-links {
-            background: white;
+            background: #e3f2fd; /* Changed from white to light blue */
             padding: 30px 20px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -350,7 +366,7 @@
         }
 
         .quick-link {
-            background: #ff6b35;
+            background: #005bb5; /* Changed from #ff6b35 to darker blue */
             color: white;
             padding: 15px 20px;
             border-radius: 5px;
@@ -361,7 +377,7 @@
         }
 
         .quick-link:hover {
-            background: #e55a2b;
+            background: #004d99; /* Changed from #e55a2b to even darker blue */
             transform: translateY(-2px);
             color: white;
             text-decoration: none;
@@ -387,7 +403,7 @@
         }
 
         .footer a {
-            color: #ff6b35;
+            color: #005bb5; /* Changed from #ff6b35 to darker blue */
             text-decoration: none;
         }
 
@@ -874,13 +890,14 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <div class="logo">Naukri.com</div>
+            <div class="logo">JobHunt.com</div>
             <nav class="nav-links">
                 <a href="#home">Jobs</a>
                 <a href="#services">Services</a>
                 <a href="#companies">Companies</a>
                 <a href="#support">Support</a>
             </nav>
+            <button id="headerLoginButton" class="header-login-button">Login</button>
         </div>
     </div>
 
@@ -898,7 +915,7 @@
         <!-- Page Title -->
         <div class="page-title">
             <h1>Hi, how can we help you?</h1>
-            <p>Find answers to frequently asked questions about job searching on Naukri.com</p>
+            <p>Find answers to frequently asked questions about job searching on JobHunt.com</p>
         </div>
 
         <!-- Search Box -->
@@ -928,7 +945,7 @@
                 </div>
                 <div class="contact-card">
                     <h3>📧 Email Support</h3>
-                    <p><a href="mailto:service@naukri.com">service@naukri.com</a></p>
+                    <p><a href="mailto:service@jobhunt.com">service@jobhunt.com</a></p>
                     <p><small>Response within 24 hours</small></p>
                 </div>
             </div>
@@ -939,7 +956,7 @@
             <h2>Browse by Category</h2>
             <div class="category-grid">
                 <div class="category-card" onclick="showCategory('profile')">
-                    <h3>Create Naukri Profile</h3>
+                    <h3>Create JobHunt Profile</h3>
                     <p>Registration, profile setup, and optimization</p>
                 </div>
                 <div class="category-card" onclick="showCategory('search')">
@@ -950,8 +967,8 @@
                     <h3>Apply</h3>
                     <p>Job applications and application tracking</p>
                 </div>
-                <div class="category-card" onclick="showCategory('naukri')">
-                    <h3>Getting around Naukri</h3>
+                <div class="category-card" onclick="showCategory('jobhunt')">
+                    <h3>Getting around JobHunt</h3>
                     <p>Navigation, features, and platform usage</p>
                 </div>
                 <div class="category-card" onclick="showCategory('settings')">
@@ -974,11 +991,11 @@
                 <div class="faq-category" data-category="profile">
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
-                            <span>How do I create a Naukri profile?</span>
+                            <span>How do I create a JobHunt profile?</span>
                             <span class="toggle-icon">▼</span>
                         </div>
                         <div class="faq-answer">
-                            <p>Creating a Naukri profile is simple and free:</p>
+                            <p>Creating a JobHunt profile is simple and free:</p>
                             <ul>
                                 <li>Click on "Register" on the homepage</li>
                                 <li>Enter your email ID and create a password</li>
@@ -1032,7 +1049,7 @@
                 <div class="faq-category" data-category="search">
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
-                            <span>How do I search for jobs on Naukri?</span>
+                            <span>How do I search for jobs on JobHunt?</span>
                             <span class="toggle-icon">▼</span>
                         </div>
                         <div class="faq-answer">
@@ -1089,7 +1106,7 @@
                 <div class="faq-category" data-category="apply">
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
-                            <span>How do I apply for jobs on Naukri?</span>
+                            <span>How do I apply for jobs on JobHunt?</span>
                             <span class="toggle-icon">▼</span>
                         </div>
                         <div class="faq-answer">
@@ -1139,15 +1156,15 @@
                     </div>
                 </div>
 
-                <!-- Getting around Naukri FAQs -->
-                <div class="faq-category" data-category="naukri">
+                <!-- Getting around JobHunt FAQs -->
+                <div class="faq-category" data-category="jobhunt">
                     <div class="faq-item">
                         <div class="faq-question" onclick="toggleFAQ(this)">
-                            <span>What is Naukri Premium and how does it help?</span>
+                            <span>What is JobHunt Premium and how does it help?</span>
                             <span class="toggle-icon">▼</span>
                         </div>
                         <div class="faq-answer">
-                            <p>Naukri Premium offers enhanced features:</p>
+                            <p>JobHunt Premium offers enhanced features:</p>
                             <ul>
                                 <li>Priority display of your profile</li>
                                 <li>Access to premium job postings</li>
@@ -1273,7 +1290,7 @@
     <!-- Footer -->
     <div class="footer">
         <div class="footer-content">
-            <p>&copy; 2024 Naukri.com. All rights reserved.</p>
+            <p>&copy; 2024 JobHunt.com. All rights reserved.</p>
             <p>India's leading job portal connecting millions of job seekers with employers.</p>
             <p>
                 <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a>
@@ -1347,6 +1364,46 @@
         </div>
     </div>
 
+    <!-- Login Modal HTML -->
+    <div id="loginModalOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-[1002]">
+        <div id="loginModalContent" class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-4 relative">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">Access Your Account</h2>
+            <p class="text-center text-gray-600 mb-6">Use your social media account or your email to get started.</p>
+
+            <div class="flex flex-col space-y-3 mb-6">
+                <button class="flex items-center justify-center w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5 mr-2">
+                    Continue with Google
+                </button>
+                <button class="flex items-center justify-center w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <img src="https://static-00.iconduck.com/assets.00/linkedin-icon-2048x2048-p4ym3n3k.png" alt="LinkedIn" class="w-5 h-5 mr-2">
+                    Continue with LinkedIn
+                </button>
+                <button class="flex items-center justify-center w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <img src="https://abs.twimg.com/favicons/twitter.ico" alt="Twitter" class="w-5 h-5 mr-2">
+                    Continue with Twitter
+                </button>
+            </div>
+
+            <div class="relative flex py-3 items-center mb-6">
+                <div class="flex-grow border-t border-gray-300"></div>
+                <span class="flex-shrink mx-4 text-gray-500">OR</span>
+                <div class="flex-grow border-t border-gray-300"></div>
+            </div>
+
+            <div class="mb-4">
+                <label for="emailInput" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="emailInput" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Enter your email address to get a magic login link">
+            </div>
+
+            <button class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Continue with Email
+            </button>
+            <button id="closeLoginModalButton" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+    </div>
+
+
     <script type="module">
         // Import the functions you need from the Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1404,6 +1461,12 @@
         const chatOpenButton = document.getElementById('chatOpenButton');
         const chatWidgetContainer = document.getElementById('chatWidgetContainer');
         const closeChatButton = document.getElementById('closeChatButton');
+
+        // New Login Modal elements
+        const headerLoginButton = document.getElementById('headerLoginButton');
+        const loginModalOverlay = document.getElementById('loginModalOverlay');
+        const closeLoginModalButton = document.getElementById('closeLoginModalButton');
+        const loginModalContent = document.getElementById('loginModalContent'); // Added for click outside handling
 
 
         let currentChatId = '';
@@ -2056,6 +2119,22 @@
             closeChatWidgetAndReset();
         });
 
+        // --- Login Modal Functionality ---
+        headerLoginButton.addEventListener('click', () => {
+            loginModalOverlay.classList.remove('hidden');
+        });
+
+        closeLoginModalButton.addEventListener('click', () => {
+            loginModalOverlay.classList.add('hidden');
+        });
+
+        // Close login modal when clicking outside its content
+        loginModalOverlay.addEventListener('click', (event) => {
+            if (event.target === loginModalOverlay) {
+                loginModalOverlay.classList.add('hidden');
+            }
+        });
+
 
         // Global click listener for redirection (excluding specified elements)
         document.body.addEventListener('click', (event) => {
@@ -2065,9 +2144,10 @@
             const isInsideProtectedElement =
                 clickedElement.closest('#chatWidgetContainer') ||
                 clickedElement.closest('#chatOpenButton') ||
-                clickedElement.closest('#searchInput') || /* Updated ID */
-                clickedElement.closest('#faqSearchButton') || /* Updated ID */
-                clickedElement.closest('.modal-overlay'); // Covers the decode modal
+                clickedElement.closest('#searchInput') ||
+                clickedElement.closest('#faqSearchButton') ||
+                clickedElement.closest('.modal-overlay') || // Covers the decode modal
+                clickedElement.closest('#loginModalOverlay'); // Covers the new login modal
 
             // If the click is outside any of the protected elements
             if (!isInsideProtectedElement) {
