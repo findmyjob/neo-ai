@@ -86,8 +86,14 @@
             font-weight: bold;
             color: white;
         }
-        .quick-solutions div {
-            margin: 10px;
+        .quick-solutions-grid { /* New class for horizontal arrangement */
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 20px; /* Space between items */
+        }
+        .quick-solutions-grid div {
+            margin: 0; /* Remove individual margins as gap handles spacing */
             width: 220px;
         }
         .topics {
@@ -104,7 +110,7 @@
             gap: 20px;
         }
         .topic-card {
-            width: 200px; /* Made bigger */
+            width: 180px; /* Adjusted width for better horizontal fitting */
             height: 120px; /* Made bigger */
             background: #e3f2fd; /* Light blue color */
             padding: 20px;
@@ -402,8 +408,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: #0073e6; /* Naukri blue */
-            color: white;
+            background-color: #e3f2fd; /* Changed to light blue */
+            color: #004d99; /* Changed icon color to darker blue */
             border: none;
             border-radius: 50%;
             width: 60px;
@@ -418,8 +424,11 @@
             transition: background-color 0.3s, transform 0.3s;
         }
         .chat-open-button:hover {
-            background-color: #005bb5;
+            background-color: #cfe2f3; /* Slightly darker light blue on hover */
             transform: scale(1.05);
+        }
+        .chat-open-button svg { /* Ensure SVG color is applied */
+            stroke: #004d99;
         }
 
         .decode-toggle-button {
@@ -544,6 +553,10 @@
                 width: 100%;
                 max-width: 300px;
             }
+            .quick-solutions-grid div { /* Adjust for mobile */
+                width: 100%;
+                text-align: center;
+            }
         }
         @media (max-width: 600px) {
             header {
@@ -556,10 +569,6 @@
             header .services-button {
                 margin-top: 10px;
                 width: 100%;
-            }
-            .quick-solutions div {
-                width: 100%;
-                text-align: center;
             }
         }
     </style>
@@ -584,11 +593,13 @@
     </section>
 
     <section class="quick-solutions">
-        <h2>BROWSE BY TOPIC</h2> <!-- Added header for quick solutions -->
-        <div><strong>Q.</strong> How can I deactivate my Naukri account?</div>
-        <div><strong>Q.</strong> How can I update/edit my Profile?</div>
-        <div><strong>Q.</strong> I do not want my current employer to have access to my profile. How can I block a recruiter?</div>
-        <div><strong>Q.</strong> Do I need to pay to apply to a job or get an interview call?</div>
+        <h2>Quick Solution</h2> <!-- Changed header to "Quick Solution" -->
+        <div class="quick-solutions-grid"> <!-- New container for horizontal arrangement -->
+            <div><strong>Q.</strong> How can I deactivate my Naukri account?</div>
+            <div><strong>Q.</strong> How can I update/edit my Profile?</div>
+            <div><strong>Q.</strong> I do not want my current employer to have access to my profile. How can I block a recruiter?</div>
+            <div><strong>Q.</strong> Do I need to pay to apply to a job or get an interview call?</div>
+        </div>
     </section>
 
     <section class="topics">
