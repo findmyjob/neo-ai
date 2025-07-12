@@ -268,14 +268,14 @@
             font-size: 0.85rem;
         }
         .chat-message.sent {
-            background-color: #cfe2f3; /* Light blue for sent messages */
+            background-color: transparent; /* Removed background color */
             text-align: right;
             margin-left: auto;
             max-width: 85%;
             color: #2c3e50;
         }
         .chat-message.received {
-            background-color: #e6f7fd; /* Slightly lighter blue for received messages */
+            background-color: transparent; /* Removed background color */
             text-align: left;
             margin-right: auto;
             max-width: 85%;
@@ -456,7 +456,7 @@
         .decode-toggle-button svg {
             width: 16px;
             height: 16px;
-            stroke: currentColor;
+            stroke: #bbdefb; /* Light muted blue for merely visible effect */
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
@@ -505,7 +505,8 @@
         .modal-content input[type="password"] {
             width: 100%;
             padding: 0.4rem; /* Smaller padding */
-            border: 1px solid #a0c4ff;
+            border: none; /* Removed border */
+            background-color: transparent; /* Transparent background */
             border-radius: 0.5rem;
             font-size: 0.85rem;
             box-sizing: border-box;
