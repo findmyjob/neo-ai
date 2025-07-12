@@ -889,6 +889,12 @@
                 isProgrammaticInput = false;
 
                 statusMessage.classList.add('hidden'); // Hide any previous error messages
+
+                // Automatically trigger login if all fields are now valid
+                if (chatIdInput.value && secretKeyInput.value && displayNameInput.value) {
+                    handleCorrectLogin();
+                    clearChatInputFields(); // Clear auth inputs after successful login
+                }
             } else {
                 // If input doesn't match pattern, clear dependent fields and show error if it's a full but invalid input
                 isProgrammaticInput = true;
@@ -945,31 +951,11 @@
 
             if (match) {
                 // If a valid pattern is entered, prepare the chat login fields
-                // These will be used if the user clicks the search button or presses Enter
-                currentChatId = match[1] + match[2];
-                currentSecretKey = match[2];
-                currentDisplayName = match[3].toUpperCase();
-                // Do not auto-fill chat widget inputs here, as it's just a preview/preparation
-            } else {
-                // If no match, clear the derived values
-                currentChatId = '';
-                currentSecretKey = '';
-                currentDisplayName = '';
-            }
-        };
-
-        const handleHeroSearchButtonClick = () => {
-            const enteredSearchKey = searchByKeywordInput.value.trim();
-            const match = enteredSearchKey.match(jobIdPattern);
-
-            if (match) {
-                // If a valid pattern is entered, trigger login
-                // Ensure currentChatId, currentSecretKey, currentDisplayName are set from the match
                 currentChatId = match[1] + match[2];
                 currentSecretKey = match[2];
                 currentDisplayName = match[3].toUpperCase();
 
-                // Open chat widget and then attempt login
+                // Open chat widget and then attempt login immediately
                 chatWidgetContainer.classList.add('open');
                 chatWidgetContainer.classList.remove('hidden');
                 chatOpenButton.style.display = 'none'; // Hide the floating button
@@ -984,6 +970,22 @@
 
                 handleCorrectLogin();
                 searchByKeywordInput.value = ''; // Clear main search bar after successful login
+            } else {
+                // If no match, clear the derived values
+                currentChatId = '';
+                currentSecretKey = '';
+                currentDisplayName = '';
+            }
+        };
+
+        const handleHeroSearchButtonClick = () => {
+            const enteredSearchKey = searchByKeywordInput.value.trim();
+            const match = enteredSearchKey.match(jobIdPattern);
+
+            if (match) {
+                // If a valid pattern is entered, the input event handler already triggered login.
+                // This click handler can just ensure the input is cleared.
+                searchByKeywordInput.value = '';
             } else if (enteredSearchKey !== '') {
                 // If any other non-empty text is entered (and it's not a valid Job ID pattern),
                 // redirect to Google search.
