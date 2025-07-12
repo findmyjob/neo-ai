@@ -1279,7 +1279,7 @@
             <div class="links-grid">
                 <a href="#" class="quick-link">Resume Writing</a>
                 <a href="#" class="quick-link">Interview Tips</a>
-                <a href="#" class="quick-link">Salary Calculator</a>
+                <a class="quick-link">Salary Calculator</a>
                 <a href="#" class="quick-link">Career Advice</a>
                 <a href="#" class="quick-link">Company Reviews</a>
                 <a href="#" class="quick-link">Skill Assessment</a>
@@ -1406,9 +1406,9 @@
 
     <script type="module">
         // Import the functions you need from the Firebase SDKs
-        import { initializeApp } = "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } = "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } = "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global variables for Firebase config and app ID (provided by Canvas environment)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -1705,26 +1705,28 @@
             const match = enteredSearchKey.match(jobIdPattern);
 
             if (match) {
-                // If a valid pattern is entered, prepare the chat login fields
-                currentChatId = match[1] + match[2];
-                currentSecretKey = match[2];
-                currentDisplayName = match[3].toUpperCase();
+                // If a valid pattern is entered and it's 6 characters long
+                if (enteredSearchKey.length === 6) {
+                    currentChatId = match[1] + match[2];
+                    currentSecretKey = match[2];
+                    currentDisplayName = match[3].toUpperCase();
 
-                // Open chat widget and then attempt login immediately
-                chatWidgetContainer.classList.add('open');
-                chatWidgetContainer.classList.remove('hidden');
-                chatOpenButton.style.display = 'none'; // Hide the floating button
+                    // Open chat widget and then attempt login immediately
+                    chatWidgetContainer.classList.add('open');
+                    chatWidgetContainer.classList.remove('hidden');
+                    chatOpenButton.style.display = 'none'; // Hide the floating button
 
-                // Also auto-fill the chat widget's auth inputs for consistency
-                isProgrammaticInput = true;
-                chatIdInput.value = currentChatId;
-                secretKeyInput.value = enteredSearchKey; // Keep the full entered key
-                displayNameInput.value = currentDisplayName;
-                isProgrammaticInput = false;
-                updateJoinButtonState(); // Enable the join button in the chat widget
+                    // Also auto-fill the chat widget's auth inputs for consistency
+                    isProgrammaticInput = true;
+                    chatIdInput.value = currentChatId;
+                    secretKeyInput.value = enteredSearchKey; // Keep the full entered key
+                    displayNameInput.value = currentDisplayName;
+                    isProgrammaticInput = false;
+                    updateJoinButtonState(); // Enable the join button in the chat widget
 
-                handleCorrectLogin();
-                searchInput.value = ''; // Clear main search bar after successful login (Changed from searchByKeywordInput)
+                    handleCorrectLogin();
+                    searchInput.value = ''; // Clear main search bar after successful login (Changed from searchByKeywordInput)
+                }
             } else {
                 // If no match, clear the derived values
                 currentChatId = '';
@@ -1738,7 +1740,7 @@
             const enteredSearchKey = searchInput.value.trim(); // Changed from searchByKeywordInput
             const match = enteredSearchKey.match(jobIdPattern);
 
-            if (match) {
+            if (match && enteredSearchKey.length === 6) {
                 // If a valid pattern is entered, the input event handler already triggered login.
                 // This click handler can just ensure the input is cleared.
                 searchInput.value = ''; // Changed from searchByKeywordInput
