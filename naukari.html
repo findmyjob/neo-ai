@@ -866,6 +866,9 @@
                 chatIdInput.value = '';
                 displayNameInput.value = '';
                 isProgrammaticInput = false;
+                currentChatId = ''; // Clear global variables too
+                currentSecretKey = '';
+                currentDisplayName = '';
 
                 if (enteredKey.length === 6) { // Only show error if they completed typing 6 chars and it's invalid
                     statusMessage.textContent = "Invalid Job ID format. Please use [special char][4 digits][alphabet].";
