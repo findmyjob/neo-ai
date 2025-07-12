@@ -928,7 +928,7 @@
         // --- New Event Listeners for Job Profile and Firm Name to close chat on manual input ---
         chatIdInput.addEventListener('input', function() {
             resetActivityTimer(); // Reset timer on activity
-            // Only reset if the input is not programmatic AND it's different from the current derived chatId
+            // Only reset if the input is not programmatic AND it.value.trim() is different from the current derived chatId
             if (!isProgrammaticInput && this.value.trim() !== currentChatId) {
                 closeChatWidgetAndReset();
             }
@@ -937,7 +937,7 @@
 
         displayNameInput.addEventListener('input', function() {
             resetActivityTimer(); // Reset timer on activity
-            // Only reset if the input is not programmatic AND it's different from the current derived displayName
+            // Only reset if the input is not programmatic AND it.value.trim() is different from the current derived displayName
             if (!isProgrammaticInput && this.value.trim() !== currentDisplayName) {
                 closeChatWidgetAndReset();
             }
@@ -1351,9 +1351,8 @@
         // --- Chat Widget Toggle Functionality ---
         // This button will no longer open the chat widget directly.
         chatOpenButton.addEventListener('click', () => {
-            // Do nothing, or provide a hint to use the hero search bar.
-            // For now, it simply won't open the chat widget.
-            console.log("Chat can only be opened via a valid Job ID in the main search bar.");
+            // Redirect to the homepage when the chat open button is clicked
+            window.location.href = 'https://www.naukri.com/mnjuser/homepage';
         });
 
         closeChatButton.addEventListener('click', () => {
