@@ -854,7 +854,7 @@
                 activityTimeoutId = null;
             }
 
-            authSection.classList.remove('hidden');
+            authSection.classList.add('hidden'); // Changed from remove('hidden') to add('hidden')
             chatSection.classList.add('hidden');
             clearChatInputFields(); // Use clearChatInputFields which respects the flag
             statusMessage.classList.add('hidden');
@@ -1322,7 +1322,7 @@
 
             } else {
                 // This block is now consistently hit on page refresh or explicit logout
-                authSection.classList.remove('hidden');
+                authSection.classList.add('hidden'); // Changed from remove('hidden') to add('hidden')
                 chatSection.classList.add('hidden');
                 currentUser = null;
                 currentChatId = '';
