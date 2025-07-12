@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naukri.com - Job Seeker FAQ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff6b35;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ff6b35;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .breadcrumb a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+
+        .breadcrumb span {
+            color: #666;
+            margin: 0 10px;
+        }
+
+        /* Page Title */
+        .page-title {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .page-title h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .page-title p {
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        /* Search Box */
+        .search-container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .search-box {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: #4a90e2;
+        }
+
+        .search-box button {
+            padding: 12px 20px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .search-box button:hover {
+            background: #e55a2b;
+        }
+
+        /* Contact Info */
+        .contact-section {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .contact-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            border-left: 4px solid #4a90e2;
+        }
+
+        .contact-card h3 {
+            color: #4a90e2;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .contact-card p {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .contact-card a {
+            color: #ff6b35;
+            text-decoration: none;
+        }
+
+        .contact-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* FAQ Categories */
+        .faq-categories {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .faq-categories h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .category-card {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .category-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .category-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .faq-section h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .faq-item {
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            background: #f8f9fa;
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .faq-question:hover {
+            background: #e9ecef;
+        }
+
+        .faq-question.active {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .faq-answer.active {
+            padding: 20px;
+            max-height: 500px;
+        }
+
+        .faq-answer p {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .faq-answer ul {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .faq-answer li {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .toggle-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.active {
+            transform: rotate(180deg);
+        }
+
+        /* Quick Links */
+        .quick-links {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .quick-links h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .quick-link {
+            background: #ff6b35;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .quick-link:hover {
+            background: #e55a2b;
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Footer */
+        .footer {
+            background: #333;
+            color: white;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer a {
+            color: #ff6b35;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .page-title h1 {
+                font-size: 2em;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-box input {
+                border-radius: 5px;
+                margin-bottom: 10px;
+            }
+
+            .search-box button {
+                border-radius: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">Naukri.com</div>
+            <nav class="nav-links">
+                <a href="#home">Jobs</a>
+                <a href="#services">Services</a>
+                <a href="#companies">Companies</a>
+                <a href="#support">Support</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="#home">Home</a>
+            <span>›</span>
+            <a href="#faq">FAQ</a>
+            <span>›</span>
+            <span>Job Seeker</span>
+        </div>
+
+        <!-- Page Title -->
+        <div class="page-title">
+            <h1>Hi, how can we help you?</h1>
+            <p>Find answers to frequently asked questions about job searching on Naukri.com</p>
+        </div>
+
+        <!-- Search Box -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" placeholder="Search for help..." id="searchInput">
+                <button onclick="searchFAQ()">Search</button>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="contact-section">
+            <h2>Contact Support</h2>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <h3>📞 Phone Support</h3>
+                    <p>Toll Free: 1800-102-5557</p>
+                    <p>Toll Free: 1800-572-5557</p>
+                    <p>International: +91 120 4021100</p>
+                    <p><small>(9:30 AM to 6:00 PM IST)</small></p>
+                </div>
+                <div class="contact-card">
+                    <h3>🕒 Working Hours</h3>
+                    <p>Monday to Saturday</p>
+                    <p>9:30 AM to 6:30 PM</p>
+                    <p><small>We're here to help you find your dream job!</small></p>
+                </div>
+                <div class="contact-card">
+                    <h3>📧 Email Support</h3>
+                    <p><a href="mailto:service@naukri.com">service@naukri.com</a></p>
+                    <p><small>Response within 24 hours</small></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Categories -->
+        <div class="faq-categories">
+            <h2>Browse by Category</h2>
+            <div class="category-grid">
+                <div class="category-card" onclick="showCategory('profile')">
+                    <h3>Create Naukri Profile</h3>
+                    <p>Registration, profile setup, and optimization</p>
+                </div>
+                <div class="category-card" onclick="showCategory('search')">
+                    <h3>Search</h3>
+                    <p>Finding jobs, search filters, and job alerts</p>
+                </div>
+                <div class="category-card" onclick="showCategory('apply')">
+                    <h3>Apply</h3>
+                    <p>Job applications and application tracking</p>
+                </div>
+                <div class="category-card" onclick="showCategory('naukri')">
+                    <h3>Getting around Naukri</h3>
+                    <p>Navigation, features, and platform usage</p>
+                </div>
+                <div class="category-card" onclick="showCategory('settings')">
+                    <h3>Settings</h3>
+                    <p>Account settings, privacy, and preferences</p>
+                </div>
+                <div class="category-card" onclick="showCategory('security')">
+                    <h3>Security Advice</h3>
+                    <p>Account security and safety tips</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div id="faq-container">
+                <!-- Profile FAQs -->
+                <div class="faq-category" data-category="profile">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I create a Naukri profile?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Creating a Naukri profile is simple and free:</p>
+                            <ul>
+                                <li>Click on "Register" on the homepage</li>
+                                <li>Enter your email ID and create a password</li>
+                                <li>Fill in your personal details</li>
+                                <li>Add your work experience and education</li>
+                                <li>Upload your resume</li>
+                                <li>Complete your profile with skills and preferences</li>
+                            </ul>
+                            <p>A complete profile gets 3x more views from recruiters!</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What are key skills and how do I add them?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Key skills are the specific abilities that make you suitable for a job. They include:</p>
+                            <ul>
+                                <li>Technical skills (programming languages, software)</li>
+                                <li>Soft skills (communication, leadership)</li>
+                                <li>Industry-specific knowledge</li>
+                                <li>Certifications and tools you're familiar with</li>
+                            </ul>
+                            <p>Add skills by going to your profile and clicking "Add Skills". Choose from suggestions or add custom skills.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How can I make my profile more attractive to recruiters?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Follow these tips to improve your profile visibility:</p>
+                            <ul>
+                                <li>Add a professional profile photo</li>
+                                <li>Write a compelling profile summary</li>
+                                <li>Include relevant keywords in your profile</li>
+                                <li>Add detailed work experience with achievements</li>
+                                <li>Keep your profile updated regularly</li>
+                                <li>Upload an updated resume</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search FAQs -->
+                <div class="faq-category" data-category="search">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I search for jobs on Naukri?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Searching for jobs is easy:</p>
+                            <ul>
+                                <li>Use the search bar on the homepage</li>
+                                <li>Enter job title, skills, or company name</li>
+                                <li>Select your preferred location</li>
+                                <li>Choose your experience level</li>
+                                <li>Apply filters for salary, company type, etc.</li>
+                                <li>Browse through relevant job listings</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What are job alerts and how do I set them up?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Job alerts notify you when new jobs matching your criteria are posted:</p>
+                            <ul>
+                                <li>Go to "Job Alerts" in your account</li>
+                                <li>Click "Create Job Alert"</li>
+                                <li>Set your preferences (location, salary, skills)</li>
+                                <li>Choose alert frequency (daily/weekly)</li>
+                                <li>Save your alert</li>
+                            </ul>
+                            <p>You can create multiple alerts for different job types.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I use advanced search filters?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Advanced filters help you find more relevant jobs:</p>
+                            <ul>
+                                <li>Company size and type</li>
+                                <li>Industry and functional area</li>
+                                <li>Salary range</li>
+                                <li>Job posting date</li>
+                                <li>Work from home options</li>
+                                <li>Part-time/full-time preferences</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apply FAQs -->
+                <div class="faq-category" data-category="apply">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I apply for jobs on Naukri?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Applying for jobs is straightforward:</p>
+                            <ul>
+                                <li>Click on a job that interests you</li>
+                                <li>Read the job description carefully</li>
+                                <li>Click "Apply Now" button</li>
+                                <li>Choose the resume you want to send</li>
+                                <li>Add a cover letter if required</li>
+                                <li>Submit your application</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How can I track my job applications?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Track all your applications in one place:</p>
+                            <ul>
+                                <li>Go to "My Jobs" section</li>
+                                <li>Click on "Applied Jobs"</li>
+                                <li>View application status: Applied, Viewed, Shortlisted</li>
+                                <li>Filter by date or company</li>
+                                <li>Get notifications on status updates</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What does each application status mean?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Understanding application statuses:</p>
+                            <ul>
+                                <li><strong>Applied:</strong> Your application has been submitted</li>
+                                <li><strong>Viewed:</strong> Recruiter has viewed your profile</li>
+                                <li><strong>Shortlisted:</strong> You've been selected for next round</li>
+                                <li><strong>Not Shortlisted:</strong> Application was not selected</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Getting around Naukri FAQs -->
+                <div class="faq-category" data-category="naukri">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What is Naukri Premium and how does it help?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Naukri Premium offers enhanced features:</p>
+                            <ul>
+                                <li>Priority display of your profile</li>
+                                <li>Access to premium job postings</li>
+                                <li>Direct recruiter contact details</li>
+                                <li>Enhanced profile visibility</li>
+                                <li>Application tracking and insights</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do recommended jobs work?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Recommended jobs are personalized suggestions based on:</p>
+                            <ul>
+                                <li>Your profile information</li>
+                                <li>Previous job searches</li>
+                                <li>Skills and experience</li>
+                                <li>Job preferences</li>
+                                <li>Application history</li>
+                            </ul>
+                            <p>Keep your profile updated for better recommendations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings FAQs -->
+                <div class="faq-category" data-category="settings">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I manage my privacy settings?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Control your privacy with these settings:</p>
+                            <ul>
+                                <li>Go to "Settings" in your account</li>
+                                <li>Choose "Privacy Settings"</li>
+                                <li>Control profile visibility to recruiters</li>
+                                <li>Manage email notifications</li>
+                                <li>Set communication preferences</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I hide my profile from my current employer?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>To maintain confidentiality:</p>
+                            <ul>
+                                <li>Go to "Settings" > "Privacy"</li>
+                                <li>Select "Block companies"</li>
+                                <li>Add your current employer's name</li>
+                                <li>Your profile won't be visible to them</li>
+                                <li>You can add multiple companies to block</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security FAQs -->
+                <div class="faq-category" data-category="security">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I keep my account secure?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Follow these security best practices:</p>
+                            <ul>
+                                <li>Use a strong, unique password</li>
+                                <li>Don't share your login credentials</li>
+                                <li>Log out from public computers</li>
+                                <li>Be cautious of phishing emails</li>
+                                <li>Update your password regularly</li>
+                                <li>Report suspicious activity immediately</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I identify fake job postings?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Watch out for these red flags:</p>
+                            <ul>
+                                <li>Jobs asking for upfront payment</li>
+                                <li>Unrealistic salary offers</li>
+                                <li>Poor grammar in job descriptions</li>
+                                <li>Requests for personal financial information</li>
+                                <li>Interviews via chat or SMS only</li>
+                                <li>Jobs requiring you to purchase products</li>
+                            </ul>
+                            <p>Always verify company details and report suspicious postings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <h2>Quick Links</h2>
+            <div class="links-grid">
+                <a href="#" class="quick-link">Resume Writing</a>
+                <a href="#" class="quick-link">Interview Tips</a>
+                <a href="#" class="quick-link">Salary Calculator</a>
+                <a href="#" class="quick-link">Career Advice</a>
+                <a href="#" class="quick-link">Company Reviews</a>
+                <a href="#" class="quick-link">Skill Assessment</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Naukri.com. All rights reserved.</p>
+            <p>India's leading job portal connecting millions of job seekers with employers.</p>
+            <p>
+                <a href="#">Privacy Policy</a> |
