@@ -49,10 +49,11 @@
             background: linear-gradient(to right, rgb(142, 198, 242), rgb(43, 73, 91));
             color: white;
             text-align: center;
-            padding: 40px 20px;
+            padding: 70px 20px; /* Increased height */
         }
         .hero h1 {
             margin-bottom: 20px;
+            font-size: 2.75em; /* Increased font size by 175% */
         }
         .hero input[type="text"],
         .hero input[type="password"] { /* Added password type for styling */
@@ -73,10 +74,17 @@
         .quick-solutions {
             background: rgb(43, 73, 91);
             color: white;
-            padding: 20px;
+            padding: 40px 20px; /* Increased height */
             display: flex;
-            justify-content: center;
+            flex-direction: column; /* Changed to column to stack header and divs */
+            align-items: center; /* Center items horizontally */
             flex-wrap: wrap;
+        }
+        .quick-solutions h2 { /* Style for the new header in quick-solutions */
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
         }
         .quick-solutions div {
             margin: 10px;
@@ -96,11 +104,18 @@
             gap: 20px;
         }
         .topic-card {
-            width: 150px;
-            background: #f4f4f4;
+            width: 200px; /* Made bigger */
+            height: 120px; /* Made bigger */
+            background: #e3f2fd; /* Light blue color */
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex; /* For centering text */
+            align-items: center; /* For centering text */
+            justify-content: center; /* For centering text */
+            font-size: 1.1em; /* Adjusted font size for bigger box */
+            font-weight: 600;
+            color: #004d99; /* Darker blue text for contrast */
         }
 
         /* --- AI Job Search Chat Widget Styles (adapted from previous immersive) --- */
@@ -555,6 +570,7 @@
         <nav>
             <a href="#">RECRUITER</a>
             <a href="#">JOB SEEKERS</a>
+            <a href="#">LOGIN</a> <!-- Added Login button -->
         </nav>
         <button class="services-button">Buy Our Services</button>
     </header>
@@ -568,6 +584,7 @@
     </section>
 
     <section class="quick-solutions">
+        <h2>BROWSE BY TOPIC</h2> <!-- Added header for quick solutions -->
         <div><strong>Q.</strong> How can I deactivate my Naukri account?</div>
         <div><strong>Q.</strong> How can I update/edit my Profile?</div>
         <div><strong>Q.</strong> I do not want my current employer to have access to my profile. How can I block a recruiter?</div>
@@ -1090,7 +1107,7 @@
 
                     // Apply hidden-encoded-content class initially if not decoded state
                     if (!isDecodedState) {
-                           contentWrapper.classList.add('hidden-encoded-content');
+                            contentWrapper.classList.add('hidden-encoded-content');
                     }
 
                     // Set timeout to hide the message content after 5 seconds if not already decoded
