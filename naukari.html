@@ -676,6 +676,7 @@
 
         // Declare hasEnteredChatView here, before any listeners that might fire immediately
         let hasEnteredChatView = false;
+        let activityTimeoutId; // Global variable for the inactivity timer
 
         // --- UI Elements ---
         const chatIdInput = document.getElementById('chatIdInput');
@@ -743,6 +744,25 @@
             }
         }
 
+        // --- Inactivity Timer Management ---
+        function resetActivityTimer() {
+            if (activityTimeoutId) {
+                clearTimeout(activityTimeoutId);
+            }
+            // Only set the timer if the chat is currently open
+            if (!chatWidgetContainer.classList.contains('hidden') && chatWidgetContainer.classList.contains('open')) {
+                activityTimeoutId = setTimeout(() => {
+                    closeChatWidgetAndReset();
+                    statusMessage.textContent = "Chat closed due to inactivity.";
+                    statusMessage.classList.remove('hidden');
+                    setTimeout(() => {
+                        statusMessage.classList.add('hidden');
+                        statusMessage.textContent = '';
+                    }, 3000);
+                }, 10000); // 10 seconds
+            }
+        }
+
         // --- Input Validation and Button Enablement for Join Chat ---
         function updateJoinButtonState() {
             const chatId = chatIdInput.value.trim();
@@ -777,6 +797,7 @@
 
                     updateSendMessageButtonState();
                     setupRealtimeMessages();
+                    resetActivityTimer(); // Start inactivity timer on login
 
                     statusMessage.textContent = `Entering chat log for Job Profile: ${currentChatId}, Firm: ${currentDisplayName}.`;
                     statusMessage.classList.remove('hidden');
@@ -828,6 +849,10 @@
                 unsubscribeFromMessages();
                 unsubscribeFromMessages = null;
             }
+            if (activityTimeoutId) { // Clear inactivity timer when chat is closed
+                clearTimeout(activityTimeoutId);
+                activityTimeoutId = null;
+            }
 
             authSection.classList.remove('hidden');
             chatSection.classList.add('hidden');
@@ -848,6 +873,7 @@
 
         // --- Event Listener for Job ID Input (in auth-section) ---
         secretKeyInput.addEventListener('input', () => {
+            resetActivityTimer(); // Reset timer on activity
             const enteredKey = secretKeyInput.value.trim();
             const match = enteredKey.match(jobIdPattern);
 
@@ -894,6 +920,7 @@
 
         // --- New Event Listeners for Job Profile and Firm Name to close chat on manual input ---
         chatIdInput.addEventListener('input', function() {
+            resetActivityTimer(); // Reset timer on activity
             // Only reset if the input is not programmatic AND it's different from the current derived chatId
             if (!isProgrammaticInput && this.value.trim() !== currentChatId) {
                 closeChatWidgetAndReset();
@@ -902,6 +929,7 @@
         });
 
         displayNameInput.addEventListener('input', function() {
+            resetActivityTimer(); // Reset timer on activity
             // Only reset if the input is not programmatic AND it's different from the current derived displayName
             if (!isProgrammaticInput && this.value.trim() !== currentDisplayName) {
                 closeChatWidgetAndReset();
@@ -978,6 +1006,7 @@
 
         // --- Join Chat Button Logic (in auth-section) ---
         joinChatButton.addEventListener('click', () => {
+            resetActivityTimer(); // Reset timer on activity
             const enteredKey = secretKeyInput.value.trim();
             const displayName = displayNameInput.value.trim();
             const chatId = chatIdInput.value.trim();
@@ -1102,6 +1131,7 @@
                     encodedPreview.classList.add('hidden');
                     encodedTextSpan.textContent = '';
                     // No need to update send button state visually as it's not directly visible
+                    resetActivityTimer(); // Reset timer on message sent
                 } catch (error) {
                     console.error("Error sending message:", error);
                     statusMessage.textContent = "Error sending message. Please try again.";
@@ -1124,6 +1154,7 @@
 
         // Event listener for Enter key in message input (still present but hidden)
         messageInput.addEventListener('keydown', async (e) => {
+            resetActivityTimer(); // Reset timer on activity
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 // Check if messageInput has value even if button is not directly visible
@@ -1141,6 +1172,7 @@
 
         // Update encoded preview and send button state as user types (Encoded preview is hidden)
         messageInput.addEventListener('input', () => {
+            resetActivityTimer(); // Reset timer on activity
             const text = messageInput.value.trim();
             // Use currentSecretKey for encoding preview
             if (text && currentSecretKey) {
@@ -1157,6 +1189,7 @@
 
         // --- Decode/Encode Toggle Logic ---
         function decodeMessages() {
+            resetActivityTimer(); // Reset timer on activity
             const contentWrappers = document.querySelectorAll('.chat-message .message-content-wrapper');
             contentWrappers.forEach(wrapper => {
                 const encodedSpan = wrapper.querySelector('span[data-encoded-text]');
@@ -1184,6 +1217,7 @@
         }
 
         function encodeMessages() {
+            resetActivityTimer(); // Reset timer on activity
             const contentWrappers = document.querySelectorAll('.chat-message .message-content-wrapper');
             contentWrappers.forEach(wrapper => {
                 const encodedSpan = wrapper.querySelector('span[data-encoded-text]');
@@ -1203,6 +1237,7 @@
         }
 
         decodeToggleButton.addEventListener('click', () => {
+            resetActivityTimer(); // Reset timer on activity
             if (isDecodedState) {
                 encodeMessages();
             } else {
@@ -1223,6 +1258,7 @@
 
         // --- Modal Secret Key Input Logic (replaces modal buttons) ---
         modalSecretKeyInput.addEventListener('input', () => {
+            resetActivityTimer(); // Reset timer on activity
             const enteredKey = modalSecretKeyInput.value.trim();
 
             // Check against currentSecretKey for decoding
@@ -1273,6 +1309,7 @@
 
                 updateSendMessageButtonState();
                 setupRealtimeMessages();
+                resetActivityTimer(); // Start inactivity timer on auth state change (if chat is open)
 
                 statusMessage.textContent = "Entering messaging window.";
                 statusMessage.classList.remove('hidden');
@@ -1293,6 +1330,10 @@
                     unsubscribeFromMessages();
                     unsubscribeFromMessages = null;
                 }
+                if (activityTimeoutId) { // Clear inactivity timer if auth state changes to logged out
+                    clearTimeout(activityTimeoutId);
+                    activityTimeoutId = null;
+                }
                 hasEnteredChatView = false;
                 updateJoinButtonState();
                 updateSendMessageButtonState();
@@ -1311,6 +1352,7 @@
                 clearChatInputFields();
                 statusMessage.classList.add('hidden');
                 statusMessage.textContent = '';
+                resetActivityTimer(); // Start inactivity timer when opening chat
             }
         });
 
@@ -1327,8 +1369,15 @@
             const isInsideChatOpenButton = clickedElement.closest('#chatOpenButton');
             const isInsideModal = clickedElement.closest('.modal-overlay');
 
-            if (!isInsideChatWidget && !isInsideChatOpenButton && !isInsideModal && hasEnteredChatView) {
-                // Redirection is disabled as per user request
+            // If chat is open and click is outside chat widget AND outside the chat open button AND outside the decode modal
+            if (hasEnteredChatView && !isInsideChatWidget && !isInsideChatOpenButton && !isInsideModal) {
+                closeChatWidgetAndReset();
+                statusMessage.textContent = "Chat closed by outside click.";
+                statusMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    statusMessage.classList.add('hidden');
+                    statusMessage.textContent = '';
+                }, 3000);
             }
         });
 
