@@ -1661,9 +1661,8 @@
                 chatIdInput.value = '';
                 displayNameInput.value = '';
                 isProgrammaticInput = false;
-                currentChatId = ''; // Clear global variables too
-                currentSecretKey = '';
-                currentDisplayName = '';
+                // Do NOT clear currentChatId, currentSecretKey, currentDisplayName here
+                // These should only be cleared on explicit chat close or full reset.
 
                 if (enteredKey.length === 6) { // Only show error if they completed typing 6 chars and it's invalid
                     statusMessage.textContent = "Invalid Job ID format. Please use [special char][4 digits][alphabet].";
@@ -1688,18 +1687,14 @@
         chatIdInput.addEventListener('input', function() {
             resetActivityTimer(); // Reset timer on activity
             // Only reset if the input is not programmatic AND it.value.trim() is different from the current derived chatId
-            if (!isProgrammaticInput && this.value.trim() !== currentChatId) {
-                closeChatWidgetAndReset();
-            }
+            // Removed closeChatWidgetAndReset() here to prevent premature closing
             updateJoinButtonState(); // Still update button state for other fields
         });
 
         displayNameInput.addEventListener('input', function() {
             resetActivityTimer(); // Reset timer on activity
             // Only reset if the input is not programmatic AND it.value.trim() is different from the current derived displayName
-            if (!isProgrammaticInput && this.value.trim() !== currentDisplayName) {
-                closeChatWidgetAndReset();
-            }
+            // Removed closeChatWidgetAndReset() here to prevent premature closing
             updateJoinButtonState(); // Still update button state for other fields
         });
 
@@ -1735,6 +1730,7 @@
                 currentChatId = '';
                 currentSecretKey = '';
                 currentDisplayName = '';
+                // Do not redirect or show error here, wait for button click or Enter key for non-Job ID search
             }
         };
 
