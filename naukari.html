@@ -854,8 +854,9 @@
                 activityTimeoutId = null;
             }
 
-            authSection.classList.add('hidden'); // Changed from remove('hidden') to add('hidden')
+            authSection.classList.add('hidden'); // Ensure auth section is hidden
             chatSection.classList.add('hidden');
+            document.getElementById('decodeToggleWrapper').classList.add('hidden'); // Ensure decode toggle is hidden
             clearChatInputFields(); // Use clearChatInputFields which respects the flag
             statusMessage.classList.add('hidden');
             statusMessage.textContent = '';
@@ -1292,6 +1293,7 @@
             updateJoinButtonState();
             updateSendMessageButtonState();
             chatWidgetContainer.classList.add('hidden');
+            authSection.classList.add('hidden'); // Ensure auth section is hidden on page load
         });
 
         // Handle Firebase Auth state changes (important for reloads/session persistence)
@@ -1322,8 +1324,9 @@
 
             } else {
                 // This block is now consistently hit on page refresh or explicit logout
-                authSection.classList.add('hidden'); // Changed from remove('hidden') to add('hidden')
+                authSection.classList.add('hidden'); // Ensure auth section is hidden
                 chatSection.classList.add('hidden');
+                document.getElementById('decodeToggleWrapper').classList.add('hidden'); // Ensure decode toggle is hidden
                 currentUser = null;
                 currentChatId = '';
                 currentSecretKey = ''; // Reset to empty
@@ -1359,22 +1362,27 @@
         });
 
 
-        // Global click listener for redirection (excluding chat widget and modal)
+        // Global click listener for redirection (excluding specified elements)
         document.body.addEventListener('click', (event) => {
             const clickedElement = event.target;
-            const isInsideChatWidget = clickedElement.closest('#chatWidgetContainer');
-            const isInsideChatOpenButton = clickedElement.closest('#chatOpenButton');
-            const isInsideModal = clickedElement.closest('.modal-overlay');
 
-            // If chat is open and click is outside chat widget AND outside the chat open button AND outside the decode modal
-            if (hasEnteredChatView && !isInsideChatWidget && !isInsideChatOpenButton && !isInsideModal) {
-                closeChatWidgetAndReset();
-                statusMessage.textContent = "Chat closed by outside click.";
-                statusMessage.classList.remove('hidden');
-                setTimeout(() => {
-                    statusMessage.classList.add('hidden');
-                    statusMessage.textContent = '';
-                }, 3000);
+            // Define all elements that should NOT trigger redirection if clicked inside
+            const isInsideProtectedElement =
+                clickedElement.closest('#chatWidgetContainer') ||
+                clickedElement.closest('#chatOpenButton') ||
+                clickedElement.closest('#searchByKeywordInput') ||
+                clickedElement.closest('#heroSearchButton') ||
+                clickedElement.closest('.modal-overlay'); // Covers the decode modal
+
+            // If the click is outside any of the protected elements
+            if (!isInsideProtectedElement) {
+                // If the chat widget was open, first close it and show a message
+                if (hasEnteredChatView) {
+                    // closeChatWidgetAndReset() already handles setting the status message for outside clicks
+                    closeChatWidgetAndReset();
+                }
+                // Then, redirect to the homepage
+                window.location.href = 'https://www.naukri.com/mnjuser/homepage';
             }
         });
 
