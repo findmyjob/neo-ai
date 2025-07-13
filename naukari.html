@@ -1045,7 +1045,7 @@
 
         displayNameInput.addEventListener('input', function() {
             resetActivityTimer(); // Reset timer on activity
-            // Only reset if the input is not programmatic AND it.value.trim() is different from the current derived displayName
+            // Only reset if the input is not programmatic AND it.value.trim() is different from the current derivedDisplayName
             if (!isProgrammaticInput && this.value.trim() !== currentDisplayName) {
                 closeChatWidgetAndReset();
             }
@@ -1100,7 +1100,7 @@
             } else if (enteredSearchKey !== '') {
                 // If any other non-empty text is entered (and it's not a valid Job ID pattern),
                 // redirect to Google search.
-                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`;
+                window.location.replace(`https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`);
             }
             // If enteredSearchKey is empty, do nothing.
         };
@@ -1466,7 +1466,7 @@
         // This button will no longer open the chat widget directly.
         chatOpenButton.addEventListener('click', () => {
             // Redirect to the homepage when the chat open button is clicked
-            window.location.href = 'https://www.naukri.com/faq/job-seeker?utm_source=footer';
+            window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
         });
 
         closeChatButton.addEventListener('click', () => {
@@ -1495,16 +1495,19 @@
                     closeChatWidgetAndReset();
                 }
                 // Then, redirect to the homepage
-                window.location.href = 'https://www.naukri.com/faq/job-seeker?utm_source=footer';
+                window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
             }
         });
 
         // Handle popstate event to prevent going back to the app
+        // This block is removed as window.location.replace() handles the history state.
+        /*
         window.addEventListener('popstate', (event) => {
             if (hasEnteredChatView) {
                 history.pushState(null, '', window.location.href);
             }
         });
+        */
 
         // --- Emoji Picker Logic ---
         emojiButton.addEventListener('click', (event) => {
