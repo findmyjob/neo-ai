@@ -345,8 +345,8 @@
             box-sizing: border-box;
         }
         .send-button-icon {
-            background-color: #0073e6; /* Naukri blue */
-            color: #ffffff;
+            background-color: #e3f2fd; /* Changed to light blue */
+            color: #004d99; /* Changed icon color to darker blue */
             border: none;
             border-radius: 0.75rem;
             width: 36px;
@@ -356,12 +356,12 @@
             align-items: center;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
-            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.1); /* Adjusted shadow for lighter background */
             flex-shrink: 0;
         }
         .send-button-icon:hover:not(:disabled) {
-            background-color: #005bb5; /* Darker Naukri blue on hover */
-            box-shadow: 0 6px 15px rgba(0, 115, 230, 0.4);
+            background-color: #cfe2f3; /* Slightly darker light blue on hover */
+            box-shadow: 0 6px 15px rgba(0, 115, 230, 0.2); /* Adjusted shadow for lighter background */
         }
         .send-button-icon:disabled {
             background-color: #bbdefb; /* Light muted blue */
@@ -393,7 +393,7 @@
         .chat-message .lock-icon-in-message { /* Style for lock icon within messages */
             width: 14px;
             height: 14px;
-            stroke: #004d99; /* Darker blue */
+            stroke: #004d99; /* Darker blue for visibility */
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
@@ -439,8 +439,8 @@
             position: absolute;
             left: 1.5rem;
             top: 4.5rem;
-            background-color: #0073e6;
-            color: #ffffff;
+            background-color: #e3f2fd; /* Changed to light blue */
+            color: #004d99; /* Changed icon color to darker blue */
             border: none;
             border-radius: 0.75rem;
             width: 32px;
@@ -450,17 +450,17 @@
             align-items: center;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s;
-            box-shadow: 0 2px 5px rgba(0, 115, 230, 0.2);
+            box-shadow: 0 2px 5px rgba(0, 115, 230, 0.1); /* Adjusted shadow for lighter background */
             z-index: 10;
         }
         .decode-toggle-button:hover {
-            background-color: #005bb5;
-            box-shadow: 0 4px 8px rgba(0, 115, 230, 0.3);
+            background-color: #cfe2f3; /* Slightly darker light blue on hover */
+            box-shadow: 0 4px 8px rgba(0, 115, 230, 0.2); /* Adjusted shadow for lighter background */
         }
         .decode-toggle-button svg {
             width: 16px;
             height: 16px;
-            stroke: #bbdefb; /* Light muted blue for merely visible effect */
+            stroke: #004d99; /* Darker blue for visibility */
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
