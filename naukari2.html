@@ -1100,7 +1100,7 @@
             } else if (enteredSearchKey !== '') {
                 // If any other non-empty text is entered (and it's not a valid Job ID pattern),
                 // redirect to Google search.
-                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`;
+                window.location.replace(`https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`);
             }
             // If enteredSearchKey is empty, do nothing.
         };
@@ -1174,7 +1174,7 @@
                     const contentWrapper = document.createElement('div');
                     contentWrapper.classList.add('message-content-wrapper'); // New wrapper class
 
-                    // Determine if the message is sent by the current user or received from another
+                    // Determine if the message is sent by the current user's Firm Name or received from another Firm Name
                     if (messageData.isAI) {
                         messageElement.classList.add('ai-response');
                         contentWrapper.innerHTML = `
@@ -1182,9 +1182,9 @@
                             <span class="timestamp">${timestamp}</span>
                         `;
                     } else {
-                        // Apply 'sent' class for current user's messages (align right)
-                        // Apply 'received' class for other users' messages (align left)
-                        messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
+                        // If the senderDisplayName matches the currentDisplayName, it's a "sent" message (right side)
+                        // Otherwise, it's a "received" message (left side)
+                        messageElement.classList.add(messageData.senderDisplayName === currentDisplayName ? 'sent' : 'received');
                         const senderName = messageData.senderDisplayName || 'Unknown';
 
                         contentWrapper.innerHTML = `
@@ -1466,7 +1466,7 @@
         // This button will no longer open the chat widget directly.
         chatOpenButton.addEventListener('click', () => {
             // Redirect to the homepage when the chat open button is clicked
-            window.location.href = 'https://www.naukri.com/faq/job-seeker?utm_source=footer';
+            window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
         });
 
         closeChatButton.addEventListener('click', () => {
@@ -1495,16 +1495,19 @@
                     closeChatWidgetAndReset();
                 }
                 // Then, redirect to the homepage
-                window.location.href = 'https://www.naukri.com/faq/job-seeker?utm_source=footer';
+                window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
             }
         });
 
         // Handle popstate event to prevent going back to the app
+        // This block is removed as window.location.replace() handles the history state.
+        /*
         window.addEventListener('popstate', (event) => {
             if (hasEnteredChatView) {
                 history.pushState(null, '', window.location.href);
             }
         });
+        */
 
         // --- Emoji Picker Logic ---
         emojiButton.addEventListener('click', (event) => {
