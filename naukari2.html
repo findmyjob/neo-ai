@@ -12,6 +12,7 @@
         /* --- Existing Naukri Help Page Styles --- */
         body {
             margin: 0;
+            padding: 0; /* Ensure no default padding */
             font-family: Arial, sans-serif;
             min-height: 100vh; /* Ensure body takes full height for chat widget positioning */
             position: relative; /* For chat widget positioning */
@@ -27,21 +28,15 @@
         header .logo {
             display: flex;
             align-items: center;
-            font-size: 31.2px; /* Original 24px * 1.30 = 31.2px */
+            font-size: 24px;
             font-weight: bold;
             color: #0073e6;
-        }
-        header .logo-svg { /* Style for the new SVG logo */
-            margin-right: 10px; /* Space between logo and text */
-            width: 40px; /* Adjusted size to fit the new SVG's viewBox */
-            height: 40px; /* Adjusted size to fit the new SVG's viewBox */
         }
         header nav a {
             margin: 0 10px;
             text-decoration: none;
             font-weight: bold;
             color: #0073e6;
-            font-size: 0.85em; /* 85% of current font size */
         }
         header .services-button {
             background: #002d5b;
@@ -55,11 +50,10 @@
             background: linear-gradient(to right, rgb(142, 198, 242), rgb(43, 73, 91));
             color: white;
             text-align: center;
-            padding: 70px 20px; /* Increased height */
+            padding: 40px 20px;
         }
         .hero h1 {
             margin-bottom: 20px;
-            font-size: 2.75em; /* Increased font size by 175% */
         }
         .hero input[type="text"],
         .hero input[type="password"] { /* Added password type for styling */
@@ -71,7 +65,7 @@
         }
         .hero button {
             padding: 10px;
-            background: rgb(43, 73, 91); /* Changed to match dark rectangle */
+            background: #002d5b;
             color: white;
             border: none;
             border-radius: 0 4px 4px 0;
@@ -80,26 +74,13 @@
         .quick-solutions {
             background: rgb(43, 73, 91);
             color: white;
-            padding: 40px 20px; /* Increased height */
-            display: flex;
-            flex-direction: column; /* Changed to column to stack header and divs */
-            align-items: center; /* Center items horizontally */
-            flex-wrap: wrap;
-        }
-        .quick-solutions h2 { /* Style for the new header in quick-solutions */
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: white;
-        }
-        .quick-solutions-grid { /* New class for horizontal arrangement */
+            padding: 20px;
             display: flex;
             justify-content: center;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
-            gap: 20px; /* Space between items */
+            flex-wrap: wrap;
         }
-        .quick-solutions-grid div {
-            margin: 0; /* Remove individual margins as gap handles spacing */
+        .quick-solutions div {
+            margin: 10px;
             width: 220px;
         }
         .topics {
@@ -116,18 +97,11 @@
             gap: 20px;
         }
         .topic-card {
-            width: 180px; /* Adjusted width for better horizontal fitting */
-            height: 120px; /* Made bigger */
-            background: #e3f2fd; /* Light blue color */
+            width: 150px;
+            background: #f4f4f4;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex; /* For centering text */
-            align-items: center; /* For centering text */
-            justify-content: center; /* For centering text */
-            font-size: 1.1em; /* Adjusted font size for bigger box */
-            font-weight: 600;
-            color: #004d99; /* Darker blue text for contrast */
         }
 
         /* --- AI Job Search Chat Widget Styles (adapted from previous immersive) --- */
@@ -265,6 +239,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.4rem;
+            padding-top: 40px; /* Added space for the lock icon */
         }
         .chat-message {
             margin-bottom: 0.4rem;
@@ -274,14 +249,14 @@
             font-size: 0.85rem;
         }
         .chat-message.sent {
-            background-color: transparent; /* Removed background color */
+            background-color: #cfe2f3; /* Light blue for sent messages */
             text-align: right;
             margin-left: auto;
             max-width: 85%;
             color: #2c3e50;
         }
         .chat-message.received {
-            background-color: transparent; /* Removed background color */
+            background-color: #e6f7fd; /* Slightly lighter blue for received messages */
             text-align: left;
             margin-right: auto;
             max-width: 85%;
@@ -311,7 +286,7 @@
             display: flex;
             align-items: flex-end;
             gap: 0.4rem;
-            position: relative; /* Make it a positioning context for the lock button and emoji picker */
+            position: relative; /* Make it a positioning context for the lock button */
         }
         .send-message-form textarea {
             flex-grow: 1;
@@ -321,7 +296,6 @@
             padding-top: 0.5rem;
             padding-bottom: 0.5rem;
             font-size: 0.9rem;
-            /* padding-left: 38px; Removed as lock button is now in chatIdInput */
         }
         .spinner {
             border: 3px solid rgba(255, 255, 255, 0.3);
@@ -351,8 +325,8 @@
             box-sizing: border-box;
         }
         .send-button-icon {
-            background-color: #e3f2fd; /* Changed to light blue */
-            color: #004d99; /* Changed icon color to darker blue */
+            background-color: #0073e6; /* Naukri blue */
+            color: #ffffff;
             border: none;
             border-radius: 0.75rem;
             width: 36px;
@@ -362,12 +336,12 @@
             align-items: center;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
-            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.1); /* Adjusted shadow for lighter background */
+            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.3);
             flex-shrink: 0;
         }
         .send-button-icon:hover:not(:disabled) {
-            background-color: #cfe2f3; /* Slightly darker light blue on hover */
-            box-shadow: 0 6px 15px rgba(0, 115, 230, 0.2); /* Adjusted shadow for lighter background */
+            background-color: #005bb5; /* Darker Naukri blue on hover */
+            box-shadow: 0 6px 15px rgba(0, 115, 230, 0.4);
         }
         .send-button-icon:disabled {
             background-color: #bbdefb; /* Light muted blue */
@@ -399,7 +373,7 @@
         .chat-message .lock-icon-in-message { /* Style for lock icon within messages */
             width: 14px;
             height: 14px;
-            stroke: #004d99; /* Darker blue for visibility */
+            stroke: #004d99; /* Darker blue */
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
@@ -411,42 +385,16 @@
 
         /* Toggle Button Specific Styles */
         .chat-open-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #e3f2fd; /* Changed to light blue */
-            color: #004d99; /* Changed icon color to darker blue */
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.3);
-            z-index: 1001;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        .chat-open-button:hover {
-            background-color: #cfe2f3; /* Slightly darker light blue on hover */
-            transform: scale(1.05);
-        }
-        .chat-open-button svg { /* Ensure SVG color is applied */
-            stroke: #004d99;
-        }
-        /* New rule to hide the button when chat is open */
-        .chat-open-button.hidden-on-open {
-            display: none;
+            /* This button is now permanently hidden */
+            display: none !important;
         }
 
         .decode-toggle-button {
-            position: absolute;
-            left: 1.5rem;
-            top: 4.5rem;
-            background-color: #e3f2fd; /* Changed to light blue */
-            color: #004d99; /* Changed icon color to darker blue */
+            position: absolute; /* Position relative to chat-messages */
+            left: 0.8rem; /* Left corner, matching padding */
+            top: 0.8rem; /* Below header, matching padding */
+            background-color: #0073e6; /* Naukri blue */
+            color: #ffffff;
             border: none;
             border-radius: 0.75rem;
             width: 32px;
@@ -456,86 +404,81 @@
             align-items: center;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s;
-            box-shadow: 0 2px 5px rgba(0, 115, 230, 0.1); /* Adjusted shadow for lighter background */
-            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0, 115, 230, 0.2);
+            z-index: 20; /* Ensure it's on top */
         }
         .decode-toggle-button:hover {
-            background-color: #cfe2f3; /* Slightly darker light blue on hover */
-            box-shadow: 0 4px 8px rgba(0, 115, 230, 0.2); /* Adjusted shadow for lighter background */
+            background-color: #005bb5;
+            box-shadow: 0 4px 8px rgba(0, 115, 230, 0.3);
         }
         .decode-toggle-button svg {
             width: 16px;
             height: 16px;
-            stroke: #004d99; /* Darker blue for visibility */
+            stroke: currentColor;
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-        /* Adjust input padding to make space for the icon */
-        /* Removed #chatIdInput padding-left as lock button is no longer there */
-
 
         /* Modal Styles for the small pop-up */
         .modal-overlay {
-            position: fixed;
-            width: auto;
-            height: auto;
-            background-color: rgba(0, 0, 0, 0.0);
-            display: block;
+            position: fixed; /* Position relative to viewport */
+            width: auto; /* Content defines width */
+            height: auto; /* Content defines height */
+            background-color: rgba(0, 0, 0, 0.0); /* Transparent background */
+            display: block; /* Control position directly */
             z-index: 1002;
-            pointer-events: none;
-            opacity: 0;
+            pointer-events: none; /* Allow clicks through when not active */
+            opacity: 0; /* Start hidden */
             transition: opacity 0.2s ease-in-out;
+            /* Initial positioning, will be adjusted by JS */
             top: 0;
             left: 0;
         }
 
-        .modal-overlay.active {
+        .modal-overlay.active { /* Use 'active' class to show */
             opacity: 1;
-            pointer-events: auto;
+            pointer-events: auto; /* Enable clicks when active */
         }
 
         .modal-content {
             height: 100%;
             align-items: center;
             justify-content: center;
-            background-color: #e3f2fd;
-            padding: 0.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            width: 150px;
+            background-color: #e3f2fd; /* Light blue */
+            padding: 0.5rem; /* Reduced padding */
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Softer shadow */
+            width: 150px; /* Fixed small width */
             max-width: 150px;
             text-align: center;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            position: relative;
+            position: relative; /* Position relative within the overlay */
         }
         .modal-content input[type="password"] {
             width: 100%;
-            padding: 0.4rem;
-            border: 0; /* Changed to 0 to ensure no border */
-            background-color: transparent;
+            padding: 0.4rem; /* Smaller padding */
+            border: 1px solid #a0c4ff;
             border-radius: 0.5rem;
             font-size: 0.85rem;
             box-sizing: border-box;
             color: #2c3e50;
-            margin-bottom: 0;
-            text-align: center;
-            box-shadow: none; /* Ensure no box shadow */
+            margin-bottom: 0; /* No margin bottom */
+            text-align: center; /* Center text */
         }
-        /* Removed h3 and modal-buttons styles from .modal-content */
 
         /* Message display area */
         #statusMessage {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #d4edda; /* Light green for success */
+            color: #155724; /* Dark green text */
             padding: 0.75rem;
             border-radius: 0.5rem;
             margin-bottom: 1rem;
             text-align: center;
             font-weight: 600;
-            display: none;
+            display: none; /* Hidden by default */
         }
 
         /* --- Responsive Adjustments --- */
@@ -544,10 +487,10 @@
                 bottom: 0;
                 right: 0;
                 width: 100%;
-                max-width: 100%;
-                height: 90vh;
-                border-radius: 1.5rem 1.5rem 0 0;
-                padding-bottom: 70px;
+                max-width: 100%; /* Full width on smaller screens */
+                height: 90vh; /* Take up most of the viewport height */
+                border-radius: 1.5rem 1.5rem 0 0; /* Rounded top corners only */
+                padding-bottom: 70px; /* Space for the floating button if it's below */
             }
             .chat-open-button {
                 bottom: 10px;
@@ -557,16 +500,12 @@
                 font-size: 1.8rem;
             }
             .hero input[type="text"],
-            .hero input[type="password"] {
+            .hero input[type="password"] { /* Apply to both types */
                 width: 80%;
             }
             .topic-card {
                 width: 100%;
                 max-width: 300px;
-            }
-            .quick-solutions-grid div {
-                width: 100%;
-                text-align: center;
             }
         }
         @media (max-width: 600px) {
@@ -581,143 +520,434 @@
                 margin-top: 10px;
                 width: 100%;
             }
-        }
-
-        /* Emoji Picker Styles */
-        .emoji-picker-container {
-            position: absolute;
-            bottom: 45px; /* Adjust based on textarea height and button height */
-            right: 0; /* Align with send button */
-            background-color: #ffffff;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            padding: 0.5rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(24px, 1fr));
-            gap: 0.5rem;
-            z-index: 10;
-            visibility: hidden; /* Controlled by JS */
-            opacity: 0; /* For transition */
-            transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
-            max-width: 100%; /* Ensure it doesn't overflow on small screens */
-        }
-
-        .emoji-picker-container.open {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .emoji-button-trigger {
-            background-color: #f0f8ff; /* Light blue background */
-            color: #004d99; /* Darker blue emoji color */
-            border: 1px solid #a0c4ff;
-            border-radius: 0.75rem;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s;
-            flex-shrink: 0;
-        }
-        .emoji-button-trigger:hover {
-            background-color: #e6f7fd;
-            border-color: #0073e6;
-        }
-
-        .emoji-item {
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0.2rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s;
-            text-align: center;
-        }
-        .emoji-item:hover {
-            background-color: #f0f0f0;
+            .quick-solutions div {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <svg class="logo-svg" viewBox="0 0 82 82" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Blue circle background -->
-                <circle cx="41" cy="41" r="40" fill="#2563eb"/>
-                <!-- Curved '<' shape (reverted to the one that looked better) -->
-                <path d="M 50 25 C 30 41, 30 41, 50 57" stroke="white" stroke-width="8" fill="none"/>
-                <!-- Dot of 'i' -->
-                <circle cx="41" cy="16" r="6" fill="white"/>
-                <!-- Gradient definition (still present but not used by the path) -->
-                <defs>
-                    <linearGradient id="white-gradient" x1="41" y1="24" x2="41" y2="58" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="white" stop-opacity="1"/>
-                        <stop offset="1" stop-color="white" stop-opacity="0.5"/>
-                    </linearGradient>
-                </defs>
-            </svg>
-            naukri
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">Naukri.com</div>
+            <nav class="nav-links">
+                <a href="#home">Jobs</a>
+                <a href="#services">Services</a>
+                <a href="#companies">Companies</a>
+                <a href="#support">Support</a>
+            </nav>
         </div>
-        <nav>
-            <a href="#">RECRUITER</a>
-            <a href="#">JOB SEEKERS</a>
-            <a href="#">LOGIN</a> <!-- Added Login button -->
-        </nav>
-        <button class="services-button">Buy Our Services</button>
-    </header>
+    </div>
 
-    <section class="hero">
-        <h1>Hi, how can we help you?</h1>
-        <div>
-            <input type="password" id="searchByKeywordInput" placeholder="Search by keyword">
-            <button id="heroSearchButton">Search</button> <!-- Changed button text to "Search" -->
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="#home">Home</a>
+            <span>›</span>
+            <a href="#faq">FAQ</a>
+            <span>›</span>
+            <span>Job Seeker</span>
         </div>
-    </section>
 
-    <section class="quick-solutions">
-        <h2>Quick Solution</h2> <!-- Changed header to "Quick Solution" -->
-        <div class="quick-solutions-grid"> <!-- New container for horizontal arrangement -->
-            <div><strong>Q.</strong> How can I deactivate my Naukri account?</div>
-            <div><strong>Q.</strong> How can I update/edit my Profile?</div>
-            <div><strong>Q.</strong> I do not want my current employer to have access to my profile. How can I block a recruiter?</div>
-            <div><strong>Q.</strong> Do I need to pay to apply to a job or get an interview call?</div>
+        <!-- Page Title -->
+        <div class="page-title">
+            <h1>Hi, how can we help you?</h1>
+            <p>Find answers to frequently asked questions about job searching on Naukri.com</p>
         </div>
-    </section>
 
-    <section class="topics">
-        <h2>BROWSE BY TOPIC</h2>
-        <div class="topic-grid">
-            <div class="topic-card">Create Naukri Profile</div>
-            <div class="topic-card">Search</div>
-            <div class="topic-card">Apply</div>
-            <div class="topic-card">Getting around Naukri</div>
-            <div class="topic-card">Settings</div>
-            <div class="topic-card">Security Advice</div>
+        <!-- Search Box -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" placeholder="Search for help..." id="searchInput">
+                <button onclick="searchFAQ()">Search</button>
+            </div>
         </div>
-    </section>
 
-    <button id="chatOpenButton" class="chat-open-button">
+        <!-- Contact Information -->
+        <div class="contact-section">
+            <h2>Contact Support</h2>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <h3>📞 Phone Support</h3>
+                    <p>Toll Free: 1800-102-5557</p>
+                    <p>Toll Free: 1800-572-5557</p>
+                    <p>International: +91 120 4021100</p>
+                    <p><small>(9:30 AM to 6:00 PM IST)</small></p>
+                </div>
+                <div class="contact-card">
+                    <h3>🕒 Working Hours</h3>
+                    <p>Monday to Saturday</p>
+                    <p>9:30 AM to 6:30 PM</p>
+                    <p><small>We're here to help you find your dream job!</small></p>
+                </div>
+                <div class="contact-card">
+                    <h3>📧 Email Support</h3>
+                    <p><a href="mailto:service@naukri.com">service@naukri.com</a></p>
+                    <p><small>Response within 24 hours</small></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Categories -->
+        <div class="faq-categories">
+            <h2>Browse by Category</h2>
+            <div class="category-grid">
+                <div class="category-card" onclick="showCategory('profile')">
+                    <h3>Create Naukri Profile</h3>
+                    <p>Registration, profile setup, and optimization</p>
+                </div>
+                <div class="category-card" onclick="showCategory('search')">
+                    <h3>Search</h3>
+                    <p>Finding jobs, search filters, and job alerts</p>
+                </div>
+                <div class="category-card" onclick="showCategory('apply')">
+                    <h3>Apply</h3>
+                    <p>Job applications and application tracking</p>
+                </div>
+                <div class="category-card" onclick="showCategory('naukri')">
+                    <h3>Getting around Naukri</h3>
+                    <p>Navigation, features, and platform usage</p>
+                </div>
+                <div class="category-card" onclick="showCategory('settings')">
+                    <h3>Settings</h3>
+                    <p>Account settings, privacy, and preferences</p>
+                </div>
+                <div class="category-card" onclick="showCategory('security')">
+                    <h3>Security Advice</h3>
+                    <p>Account security and safety tips</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            
+            <div id="faq-container">
+                <!-- Profile FAQs -->
+                <div class="faq-category" data-category="profile">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I create a Naukri profile?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Creating a Naukri profile is simple and free:</p>
+                            <ul>
+                                <li>Click on "Register" on the homepage</li>
+                                <li>Enter your email ID and create a password</li>
+                                <li>Fill in your personal details</li>
+                                <li>Add your work experience and education</li>
+                                <li>Upload your resume</li>
+                                <li>Complete your profile with skills and preferences</li>
+                            </ul>
+                            <p>A complete profile gets 3x more views from recruiters!</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What are key skills and how do I add them?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Key skills are the specific abilities that make you suitable for a job. They include:</p>
+                            <ul>
+                                <li>Technical skills (programming languages, software)</li>
+                                <li>Soft skills (communication, leadership)</li>
+                                <li>Industry-specific knowledge</li>
+                                <li>Certifications and tools you're familiar with</li>
+                            </ul>
+                            <p>Add skills by going to your profile and clicking "Add Skills". Choose from suggestions or add custom skills.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How can I make my profile more attractive to recruiters?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Follow these tips to improve your profile visibility:</p>
+                            <ul>
+                                <li>Add a professional profile photo</li>
+                                <li>Write a compelling profile summary</li>
+                                <li>Include relevant keywords in your profile</li>
+                                <li>Add detailed work experience with achievements</li>
+                                <li>Keep your profile updated regularly</li>
+                                <li>Upload an updated resume</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search FAQs -->
+                <div class="faq-category" data-category="search">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I search for jobs on Naukri?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Searching for jobs is easy:</p>
+                            <ul>
+                                <li>Use the search bar on the homepage</li>
+                                <li>Enter job title, skills, or company name</li>
+                                <li>Select your preferred location</li>
+                                <li>Choose your experience level</li>
+                                <li>Apply filters for salary, company type, etc.</li>
+                                <li>Browse through relevant job listings</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What are job alerts and how do I set them up?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Job alerts notify you when new jobs matching your criteria are posted:</p>
+                            <ul>
+                                <li>Go to "Job Alerts" in your account</li>
+                                <li>Click "Create Job Alert"</li>
+                                <li>Set your preferences (location, salary, skills)</li>
+                                <li>Choose alert frequency (daily/weekly)</li>
+                                <li>Save your alert</li>
+                            </ul>
+                            <p>You can create multiple alerts for different job types.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I use advanced search filters?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Advanced filters help you find more relevant jobs:</p>
+                            <ul>
+                                <li>Company size and type</li>
+                                <li>Industry and functional area</li>
+                                <li>Salary range</li>
+                                <li>Job posting date</li>
+                                <li>Work from home options</li>
+                                <li>Part-time/full-time preferences</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apply FAQs -->
+                <div class="faq-category" data-category="apply">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I apply for jobs on Naukri?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Applying for jobs is straightforward:</p>
+                            <ul>
+                                <li>Click on a job that interests you</li>
+                                <li>Read the job description carefully</li>
+                                <li>Click "Apply Now" button</li>
+                                <li>Choose the resume you want to send</li>
+                                <li>Add a cover letter if required</li>
+                                <li>Submit your application</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How can I track my job applications?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Track all your applications in one place:</p>
+                            <ul>
+                                <li>Go to "My Jobs" section</li>
+                                <li>Click on "Applied Jobs"</li>
+                                <li>View application status: Applied, Viewed, Shortlisted</li>
+                                <li>Filter by date or company</li>
+                                <li>Get notifications on status updates</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What does each application status mean?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Understanding application statuses:</p>
+                            <ul>
+                                <li><strong>Applied:</strong> Your application has been submitted</li>
+                                <li><strong>Viewed:</strong> Recruiter has viewed your profile</li>
+                                <li><strong>Shortlisted:</strong> You've been selected for next round</li>
+                                <li><strong>Not Shortlisted:</strong> Application was not selected</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Getting around Naukri FAQs -->
+                <div class="faq-category" data-category="naukri">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What is Naukri Premium and how does it help?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Naukri Premium offers enhanced features:</p>
+                            <ul>
+                                <li>Priority display of your profile</li>
+                                <li>Access to premium job postings</li>
+                                <li>Direct recruiter contact details</li>
+                                <li>Enhanced profile visibility</li>
+                                <li>Application tracking and insights</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do recommended jobs work?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Recommended jobs are personalized suggestions based on:</p>
+                            <ul>
+                                <li>Your profile information</li>
+                                <li>Previous job searches</li>
+                                <li>Skills and experience</li>
+                                <li>Job preferences</li>
+                                <li>Application history</li>
+                            </ul>
+                            <p>Keep your profile updated for better recommendations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings FAQs -->
+                <div class="faq-category" data-category="settings">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I manage my privacy settings?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Control your privacy with these settings:</p>
+                            <ul>
+                                <li>Go to "Settings" in your account</li>
+                                <li>Choose "Privacy Settings"</li>
+                                <li>Control profile visibility to recruiters</li>
+                                <li>Manage email notifications</li>
+                                <li>Set communication preferences</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I hide my profile from my current employer?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>To maintain confidentiality:</p>
+                            <ul>
+                                <li>Go to "Settings" > "Privacy"</li>
+                                <li>Select "Block companies"</li>
+                                <li>Add your current employer's name</li>
+                                <li>Your profile won't be visible to them</li>
+                                <li>You can add multiple companies to block</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security FAQs -->
+                <div class="faq-category" data-category="security">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I keep my account secure?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Follow these security best practices:</p>
+                            <ul>
+                                <li>Use a strong, unique password</li>
+                                <li>Don't share your login credentials</li>
+                                <li>Log out from public computers</li>
+                                <li>Be cautious of phishing emails</li>
+                                <li>Update your password regularly</li>
+                                <li>Report suspicious activity immediately</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I identify fake job postings?</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Watch out for these red flags:</p>
+                            <ul>
+                                <li>Jobs asking for upfront payment</li>
+                                <li>Unrealistic salary offers</li>
+                                <li>Poor grammar in job descriptions</li>
+                                <li>Requests for personal financial information</li>
+                                <li>Interviews via chat or SMS only</li>
+                                <li>Jobs requiring you to purchase products</li>
+                            </ul>
+                            <p>Always verify company details and report suspicious postings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <h2>Quick Links</h2>
+            <div class="links-grid">
+                <a href="#" class="quick-link">Resume Writing</a>
+                <a href="#" class="quick-link">Interview Tips</a>
+                <a href="#" class="quick-link">Salary Calculator</a>
+                <a href="#" class="quick-link">Career Advice</a>
+                <a href="#" class="quick-link">Company Reviews</a>
+                <a href="#" class="quick-link">Skill Assessment</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Naukri.com. All rights reserved.</p>
+            <p>India's leading job portal connecting millions of job seekers with employers.</p>
+            <p>
+                <a href="#">Privacy Policy</a> |
+            </p>
+        </div>
+    </div>
+
+    <!-- Chat Open Button (now permanently hidden) -->
+    <button id="chatOpenButton" class="chat-open-button hidden">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle-code"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="m10 10-2 2 2 2"/><path d="m14 14 2-2-2-2"/></svg>
     </button>
 
-    <div id="chatWidgetContainer" class="chat-widget-container">
+    <div id="chatWidgetContainer" class="chat-widget-container hidden">
         <div class="chat-widget-header">
             <h1 class="text-xl font-bold">AI Job Search</h1>
             <button id="closeChatButton" class="close-button">&times;</button>
         </div>
-    <div id="decodeToggleWrapper" class="hidden"><button id="decodeToggleButton" class="decode-toggle-button">
-        <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock">
-            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock">
-            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-        </svg>
-    </button></div>
-
+        <!-- decodeToggleWrapper is now removed from HTML -->
 
         <div id="auth-section">
             <div class="input-group">
@@ -743,36 +973,36 @@
         <div id="chat-section" class="chat-area hidden">
             <div id="statusMessage" class="hidden"></div>
 
+            <!-- Decode Toggle Button moved directly into chat-section, positioned absolutely -->
+            <button id="decodeToggleButton" class="decode-toggle-button">
+                <svg id="lockIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <svg id="unlockIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-unlock">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                </svg>
+            </button>
+
             <div id="chatMessages" class="chat-messages">
-                </div>
+            </div>
 
             <form id="sendMessageForm" class="send-message-form">
-                <textarea id="messageInput" placeholder="" rows="1" class="flex-grow"></textarea>
-                <button type="button" id="emojiButton" class="emoji-button-trigger">😀</button> <!-- Emoji button -->
+                <textarea id="messageInput" placeholder="Type your message..." rows="1" class="flex-grow"></textarea>
                 <div id="encodedPreview" class="encoded-preview hidden">
                     Encoded: <span id="encodedTextSpan"></span>
                 </div>
                 <button type="submit" id="sendMessageButton" class="send-button-icon" disabled>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
                 </button>
-                <div id="emojiPicker" class="emoji-picker-container">
-                    <span class="emoji-item">😀</span> <!-- Grinning Face -->
-                    <span class="emoji-item">😁</span> <!-- Grinning Face with Smiling Eyes -->
-                    <span class="emoji-item">😂</span> <!-- Face with Tears of Joy -->
-                    <span class="emoji-item">😊</span> <!-- Smiling Face with Smiling Eyes -->
-                    <span class="emoji-item">😍</span> <!-- Smiling Face with Heart-Eyes (Love) -->
-                    <span class="emoji-item">😘</span> <!-- Face Blowing a Kiss (Kiss) -->
-                    <span class="emoji-item">😢</span> <!-- Crying Face (Sad) -->
-                    <span class="emoji-item">😡</span> <!-- Pouting Face (Mad) -->
-                    <span class="emoji-item">👋</span> <!-- Waving Hand -->
-                </div>
             </form>
         </div>
     </div>
 
     <div id="decodeModal" class="modal-overlay hidden">
         <div class="modal-content">
-            <input type="password" id="modalSecretKeyInput" placeholder="" autocomplete="off">
+            <input type="password" id="modalSecretKeyInput" placeholder="Job ID" autocomplete="off">
         </div>
     </div>
 
@@ -821,8 +1051,8 @@
         const lockIcon = document.getElementById('lockIcon');
         const unlockIcon = document.getElementById('unlockIcon');
         const sendMessageButton = document.getElementById('sendMessageButton');
-        const searchByKeywordInput = document.getElementById('searchByKeywordInput');
-        const heroSearchButton = document.getElementById('heroSearchButton'); // Get reference to the hero search button
+        const searchByKeywordInput = document.getElementById('searchInput'); // Changed ID to match new HTML
+        const heroSearchButton = document.querySelector('.search-box button'); // Get reference to the search button in the search-box div
         const statusMessage = document.getElementById('statusMessage');
 
         // Modal elements
@@ -830,13 +1060,9 @@
         const modalSecretKeyInput = document.getElementById('modalSecretKeyInput');
 
         // Chat Widget elements
-        const chatOpenButton = document.getElementById('chatOpenButton');
+        const chatOpenButton = document.getElementById('chatOpenButton'); // This button is now hidden
         const chatWidgetContainer = document.getElementById('chatWidgetContainer');
         const closeChatButton = document.getElementById('closeChatButton');
-
-        // Emoji elements
-        const emojiButton = document.getElementById('emojiButton');
-        const emojiPicker = document.getElementById('emojiPicker');
 
 
         let currentChatId = '';
@@ -849,7 +1075,7 @@
         let isProgrammaticInput = false; // Flag to distinguish programmatic input
 
         // New regex for Job ID validation: starts with a special character, then 4 digits, then an alphabet
-        const jobIdPattern = /^([!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])(\d{4})([a-zA-Z])$/;
+        const jobIdPattern = /^([!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?])(\d{4})([a-zA-Z])$/;
 
 
         // --- Encryption/Decryption Functions (Simplified for demonstration) ---
@@ -916,11 +1142,10 @@
 
                     authSection.classList.add('hidden');
                     chatSection.classList.remove('hidden');
-                    document.getElementById('decodeToggleWrapper').classList.remove('hidden');
+                    // Removed document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                     chatWidgetContainer.classList.add('open');
                     chatWidgetContainer.classList.remove('hidden');
-                    // Hide the chat open button when chat is successfully opened
-                    chatOpenButton.classList.add('hidden-on-open');
+                    // chatOpenButton.style.display = 'none'; // Removed as chatOpenButton is always hidden
 
                     history.replaceState(null, '', window.location.href);
                     hasEnteredChatView = true;
@@ -965,8 +1190,7 @@
             chatWidgetContainer.classList.remove('open');
             setTimeout(() => {
                 chatWidgetContainer.classList.add('hidden');
-                // Show the chat open button when chat is closed
-                chatOpenButton.classList.remove('hidden-on-open');
+                // chatOpenButton.style.display = 'flex'; // Removed as chatOpenButton is always hidden
             }, 300);
 
             hasEnteredChatView = false;
@@ -987,7 +1211,7 @@
 
             authSection.classList.add('hidden'); // Ensure auth section is hidden
             chatSection.classList.add('hidden');
-            document.getElementById('decodeToggleWrapper').classList.add('hidden'); // Ensure decode toggle is hidden
+            // Removed document.getElementById('decodeToggleWrapper').classList.add('hidden'); // Removed as decodeToggleWrapper is removed
             clearChatInputFields(); // Use clearChatInputFields which respects the flag
             statusMessage.classList.add('hidden');
             statusMessage.textContent = '';
@@ -1056,7 +1280,7 @@
         });
 
 
-        // --- New Event Listeners for Job Profile and Firm Name to close chat on manual input ---
+        // --- New Event Listeners for Job Profile and Firm Name to close chat on manual input ---\
         chatIdInput.addEventListener('input', function() {
             resetActivityTimer(); // Reset timer on activity
             // Only reset if the input is not programmatic AND it.value.trim() is different from the current derived chatId
@@ -1068,7 +1292,7 @@
 
         displayNameInput.addEventListener('input', function() {
             resetActivityTimer(); // Reset timer on activity
-            // Only reset if the input is not programmatic AND it.value.trim() is different from the current derivedDisplayName
+            // Only reset if the input is not programmatic AND it.value.trim() is different from the current derived displayName
             if (!isProgrammaticInput && this.value.trim() !== currentDisplayName) {
                 closeChatWidgetAndReset();
             }
@@ -1090,9 +1314,7 @@
                 // Open chat widget and then attempt login immediately
                 chatWidgetContainer.classList.add('open');
                 chatWidgetContainer.classList.remove('hidden');
-                // Hide the chat open button when chat is successfully opened
-                chatOpenButton.classList.add('hidden-on-open');
-
+                // chatOpenButton.style.display = 'none'; // Removed as chatOpenButton is always hidden
 
                 // Also auto-fill the chat widget's auth inputs for consistency
                 isProgrammaticInput = true;
@@ -1123,7 +1345,7 @@
             } else if (enteredSearchKey !== '') {
                 // If any other non-empty text is entered (and it's not a valid Job ID pattern),
                 // redirect to Google search.
-                window.location.replace(`https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`);
+                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`;
             }
             // If enteredSearchKey is empty, do nothing.
         };
@@ -1197,7 +1419,7 @@
                     const contentWrapper = document.createElement('div');
                     contentWrapper.classList.add('message-content-wrapper'); // New wrapper class
 
-                    // Determine if the message is sent by the current user's Firm Name or received from another Firm Name
+                    // Determine if the message is sent by the current user or received from another
                     if (messageData.isAI) {
                         messageElement.classList.add('ai-response');
                         contentWrapper.innerHTML = `
@@ -1205,9 +1427,9 @@
                             <span class="timestamp">${timestamp}</span>
                         `;
                     } else {
-                        // If the senderDisplayName matches the currentDisplayName, it's a "sent" message (right side)
-                        // Otherwise, it's a "received" message (left side)
-                        messageElement.classList.add(messageData.senderDisplayName === currentDisplayName ? 'sent' : 'received');
+                        // Apply 'sent' class for current user's messages (align right)
+                        // Apply 'received' class for other users' messages (align left)
+                        messageElement.classList.add(messageData.senderId === currentUser.uid ? 'sent' : 'received');
                         const senderName = messageData.senderDisplayName || 'Unknown';
 
                         contentWrapper.innerHTML = `
@@ -1223,7 +1445,7 @@
 
                     // Apply hidden-encoded-content class initially if not decoded state
                     if (!isDecodedState) {
-                            contentWrapper.classList.add('hidden-encoded-content');
+                        contentWrapper.classList.add('hidden-encoded-content');
                     }
 
                     // Set timeout to hide the message content after 5 seconds if not already decoded
@@ -1427,8 +1649,7 @@
             updateSendMessageButtonState();
             chatWidgetContainer.classList.add('hidden');
             authSection.classList.add('hidden'); // Ensure auth section is hidden on page load
-            // Ensure chat open button is visible initially
-            chatOpenButton.classList.remove('hidden-on-open');
+            // chatOpenButton.style.display = 'flex'; // Removed as chatOpenButton is always hidden
         });
 
         // Handle Firebase Auth state changes (important for reloads/session persistence)
@@ -1439,11 +1660,10 @@
 
                 authSection.classList.add('hidden');
                 chatSection.classList.remove('hidden');
-                document.getElementById('decodeToggleWrapper').classList.remove('hidden');
+                // Removed document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                 chatWidgetContainer.classList.add('open');
                 chatWidgetContainer.classList.remove('hidden');
-                // Hide the chat open button when chat is successfully opened
-                chatOpenButton.classList.add('hidden-on-open');
+                // chatOpenButton.style.display = 'none'; // Removed as chatOpenButton is always hidden
 
                 history.replaceState(null, '', window.location.href);
 
@@ -1462,7 +1682,7 @@
                 // This block is now consistently hit on page refresh or explicit logout
                 authSection.classList.add('hidden'); // Ensure auth section is hidden
                 chatSection.classList.add('hidden');
-                document.getElementById('decodeToggleWrapper').classList.add('hidden'); // Ensure decode toggle is hidden
+                // Removed document.getElementById('decodeToggleWrapper').classList.add('hidden'); // Removed as decodeToggleWrapper is removed
                 currentUser = null;
                 currentChatId = '';
                 currentSecretKey = ''; // Reset to empty
@@ -1480,17 +1700,15 @@
                 updateSendMessageButtonState();
                 chatWidgetContainer.classList.remove('open');
                 chatWidgetContainer.classList.add('hidden');
-                // Show the chat open button when chat is closed
-                chatOpenButton.classList.remove('hidden-on-open');
+                // chatOpenButton.style.display = 'flex'; // Removed as chatOpenButton is always hidden
             }
         });
 
         // --- Chat Widget Toggle Functionality ---
         // This button will no longer open the chat widget directly.
-        chatOpenButton.addEventListener('click', () => {
-            // Redirect to the homepage when the chat open button is clicked
-            window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
-        });
+        // chatOpenButton.addEventListener('click', () => { // Removed this event listener entirely
+        //     window.location.href = 'https://www.naukri.com/faq/job-seeker?utm_source=footer';
+        // });
 
         closeChatButton.addEventListener('click', () => {
             // Call the reset function when the close button is clicked
@@ -1505,63 +1723,102 @@
             // Define all elements that should NOT trigger redirection if clicked inside
             const isInsideProtectedElement =
                 clickedElement.closest('#chatWidgetContainer') ||
-                clickedElement.closest('#chatOpenButton') ||
-                clickedElement.closest('#searchByKeywordInput') ||
-                clickedElement.closest('#heroSearchButton') ||
+                clickedElement.closest('#chatOpenButton') || // Still include for safety, though button is hidden
+                clickedElement.closest('#searchInput') || // Changed ID to match new HTML
+                clickedElement.closest('.search-box button') || // Changed selector to match new HTML
                 clickedElement.closest('.modal-overlay'); // Covers the decode modal
 
             // If the click is outside any of the protected elements
             if (!isInsideProtectedElement) {
                 // If the chat widget was open, first close it and show a message
                 if (hasEnteredChatView) {
-                    // closeChatWidgetAndReset() already handles setting the a status message for outside clicks
                     closeChatWidgetAndReset();
                 }
-                // Always redirect to the Naukri FAQ page for general outside clicks
-                window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
+                // Then, redirect to the homepage
+                window.location.href = 'https://www.naukri.com/faq/job-seeker?utm_source=footer';
             }
         });
 
         // Handle popstate event to prevent going back to the app
-        // This block is removed as window.location.replace() handles the history state.
-        /*
         window.addEventListener('popstate', (event) => {
             if (hasEnteredChatView) {
                 history.pushState(null, '', window.location.href);
             }
         });
-        */
 
-        // --- Emoji Picker Logic ---
-        emojiButton.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent click from bubbling up to document.body and closing chat
-            emojiPicker.classList.toggle('open');
-            resetActivityTimer(); // Reset timer on emoji picker interaction
-        });
+        // FAQ Toggle functionality
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('.toggle-icon');
 
-        // Insert emoji when clicked
-        emojiPicker.querySelectorAll('.emoji-item').forEach(item => {
-            item.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent click from bubbling up
-                const emoji = event.target.textContent;
-                const start = messageInput.selectionStart;
-                const end = messageInput.selectionEnd;
-                messageInput.value = messageInput.value.substring(0, start) + emoji + messageInput.value.substring(end);
-                messageInput.focus();
-                messageInput.setSelectionRange(start + emoji.length, start + emoji.length);
-                messageInput.dispatchEvent(new Event('input')); // Trigger input event to update preview/button state
-                emojiPicker.classList.remove('open'); // Close picker after selection
-                resetActivityTimer(); // Reset timer on emoji insertion
-            });
-        });
-
-        // Close emoji picker if clicked outside
-        document.addEventListener('click', (event) => {
-            if (!emojiPicker.contains(event.target) && !emojiButton.contains(event.target)) {
-                emojiPicker.classList.remove('open');
+            if (answer.classList.contains('active')) {
+                answer.classList.remove('active');
+                icon.classList.remove('active');
+            } else {
+                // Close all other open answers before opening the new one
+                document.querySelectorAll('.faq-answer.active').forEach(openAnswer => {
+                    openAnswer.classList.remove('active');
+                    openAnswer.previousElementSibling.querySelector('.toggle-icon').classList.remove('active');
+                });
+                answer.classList.add('active');
+                icon.classList.add('active');
             }
+        }
+
+        // FAQ Category filtering functionality
+        function showCategory(category) {
+            document.querySelectorAll('.faq-category').forEach(cat => {
+                if (category === 'all' || cat.dataset.category === category) {
+                    cat.style.display = 'block';
+                } else {
+                    cat.style.display = 'none';
+                }
+            });
+            // Close all FAQs when switching categories
+            document.querySelectorAll('.faq-answer.active').forEach(openAnswer => {
+                openAnswer.classList.remove('active');
+                openAnswer.previousElementSibling.querySelector('.toggle-icon').classList.remove('active');
+            });
+        }
+
+        // Initial display of all categories
+        document.addEventListener('DOMContentLoaded', () => {
+            showCategory('all'); // Show all categories by default on load
         });
 
+        // Placeholder for searchFAQ function (if needed for the main search bar)
+        function searchFAQ() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const faqItems = document.querySelectorAll('.faq-item');
+            let foundMatch = false;
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    // Optionally open the found FAQ item
+                    const answerElement = item.querySelector('.faq-answer');
+                    const toggleIcon = item.querySelector('.toggle-icon');
+                    if (!answerElement.classList.contains('active')) {
+                        answerElement.classList.add('active');
+                        toggleIcon.classList.add('active');
+                    }
+                    foundMatch = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            if (!foundMatch && searchTerm.length > 0) {
+                 // If no FAQ matches, and there's a search term, perform Google search
+                window.location.href = `https://www.google.com/search?q=Naukri+FAQ+${encodeURIComponent(searchTerm)}`;
+            } else if (searchTerm.length === 0) {
+                // If search term is empty, show all categories again
+                showCategory('all');
+            }
+        }
     </script>
 </body>
 </html>
