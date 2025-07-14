@@ -4,17 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naukri Help Page - AI Job Search</title>
-    <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- Existing Naukri Help Page Styles --- */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            min-height: 100vh; /* Ensure body takes full height for chat widget positioning */
-            position: relative; /* For chat widget positioning */
+            min-height: 100vh;
+            position: relative;
         }
         header {
             background: #fff;
@@ -27,21 +24,21 @@
         header .logo {
             display: flex;
             align-items: center;
-            font-size: 31.2px; /* Original 24px * 1.30 = 31.2px */
+            font-size: 31.2px;
             font-weight: bold;
             color: #0073e6;
         }
-        header .logo-svg { /* Style for the new SVG logo */
-            margin-right: 10px; /* Space between logo and text */
-            width: 40px; /* Adjusted size to fit the new SVG's viewBox */
-            height: 40px; /* Adjusted size to fit the new SVG's viewBox */
+        header .logo-svg {
+            margin-right: 10px;
+            width: 40px;
+            height: 40px;
         }
         header nav a {
             margin: 0 10px;
             text-decoration: none;
             font-weight: bold;
             color: #0073e6;
-            font-size: 0.85em; /* 85% of current font size */
+            font-size: 0.85em;
         }
         header .services-button {
             background: #002d5b;
@@ -55,14 +52,14 @@
             background: linear-gradient(to right, rgb(142, 198, 242), rgb(43, 73, 91));
             color: white;
             text-align: center;
-            padding: 70px 20px; /* Increased height */
+            padding: 70px 20px;
         }
         .hero h1 {
             margin-bottom: 20px;
-            font-size: 2.75em; /* Increased font size by 175% */
+            font-size: 2.75em;
         }
         .hero input[type="text"],
-        .hero input[type="password"] { /* Added password type for styling */
+        .hero input[type="password"] {
             padding: 10px;
             width: 60%;
             max-width: 500px;
@@ -71,35 +68,35 @@
         }
         .hero button {
             padding: 10px;
-            background: rgb(43, 73, 91); /* Changed to match dark rectangle */
+            background: rgb(43, 73, 91);
             color: white;
             border: none;
-            border-radius: 0 4px 4px 0; /* Changed border-radius to make it rectangular */
+            border-radius: 0 4px 4px 0;
             cursor: pointer;
         }
         .quick-solutions {
             background: rgb(43, 73, 91);
             color: white;
-            padding: 40px 20px; /* Increased height */
+            padding: 40px 20px;
             display: flex;
-            flex-direction: column; /* Changed to column to stack header and divs */
-            align-items: center; /* Center items horizontally */
+            flex-direction: column;
+            align-items: center;
             flex-wrap: wrap;
         }
-        .quick-solutions h2 { /* Style for the new header in quick-solutions */
+        .quick-solutions h2 {
             margin-bottom: 20px;
             font-size: 1.5em;
             font-weight: bold;
             color: white;
         }
-        .quick-solutions-grid { /* New class for horizontal arrangement */
+        .quick-solutions-grid {
             display: flex;
             justify-content: center;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
-            gap: 20px; /* Space between items */
+            flex-wrap: wrap;
+            gap: 20px;
         }
         .quick-solutions-grid div {
-            margin: 0; /* Remove individual margins as gap handles spacing */
+            margin: 0;
             width: 220px;
         }
         .topics {
@@ -116,30 +113,28 @@
             gap: 20px;
         }
         .topic-card {
-            width: 180px; /* Adjusted width for better horizontal fitting */
-            height: 120px; /* Made bigger */
-            background: #e3f2fd; /* Light blue color */
+            width: 180px;
+            height: 120px;
+            background: #e3f2fd;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex; /* For centering text */
-            align-items: center; /* For centering text */
-            justify-content: center; /* For centering text */
-            font-size: 1.1em; /* Adjusted font size for bigger box */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
             font-weight: 600;
-            color: #004d99; /* Darker blue text for contrast */
+            color: #004d99;
         }
-
-        /* --- AI Job Search Chat Widget Styles (adapted from previous immersive) --- */
         .chat-widget-container {
             font-family: 'Inter', sans-serif;
-            background-color: #e3f2fd; /* Light blue */
+            background-color: #e3f2fd;
             border-radius: 1.5rem;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
             width: 100%;
             max-width: 380px;
-            height: auto; /* Default height */
+            height: auto;
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -150,35 +145,30 @@
             transform: translateX(120%);
             transition: transform 0.3s ease-in-out, max-width 0.3s ease-in-out, height 0.3s ease-in-out, padding 0.3s ease-in-out;
         }
-
         .chat-widget-container.open {
             transform: translateX(0);
         }
-
         .chat-widget-container.hidden {
             display: none;
         }
-
         .chat-widget-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
         }
-
         .chat-widget-header h1 {
-            color: #004d99; /* Darker blue */
+            color: #004d99;
             font-size: 1.3rem;
             font-weight: 700;
             margin-bottom: 0;
         }
-
         .chat-widget-header .close-button {
             background: none;
             border: none;
             font-size: 1.3rem;
             cursor: pointer;
-            color: #2c3e50; /* Dark grey-blue */
+            color: #2c3e50;
             padding: 0.2rem;
             border-radius: 50%;
             transition: background-color 0.2s;
@@ -186,37 +176,35 @@
         .chat-widget-header .close-button:hover {
             background-color: #f0f0f0;
         }
-
         .input-group {
             margin-bottom: 0.8rem;
             text-align: left;
-            position: relative; /* Added for positioning the lock button */
+            position: relative;
         }
         .input-group label {
             display: block;
             margin-bottom: 0.4rem;
             font-weight: 600;
-            color: #2c3e50; /* Dark grey-blue */
+            color: #2c3e50;
             font-size: 0.9rem;
         }
         .input-group input,
         .input-group textarea {
             width: 100%;
             padding: 0.6rem;
-            border: 1px solid #a0c4ff; /* Soft blue border */
+            border: 1px solid #a0c4ff;
             border-radius: 0.75rem;
             font-size: 0.9rem;
             box-sizing: border-box;
             transition: border-color 0.2s, height 0.2s, background-color 0.2s, padding 0.2s;
-            min-height: 38px; /* Ensure a consistent default height */
+            min-height: 38px;
         }
         .input-group input:focus,
         .input-group textarea:focus {
             outline: none;
-            border-color: #0073e6; /* Naukri blue focus color */
+            border-color: #0073e6;
             box-shadow: 0 0 0 3px rgba(0, 115, 230, 0.2);
         }
-
         .button {
             width: 100%;
             padding: 0.6rem;
@@ -232,24 +220,24 @@
             gap: 0.4rem;
         }
         .button.primary {
-            background-color: #0073e6; /* Naukri blue */
+            background-color: #0073e6;
             color: #ffffff;
             box-shadow: 0 4px 10px rgba(0, 115, 230, 0.3);
         }
         .button.primary:hover:not(:disabled) {
-            background-color: #005bb5; /* Darker Naukri blue on hover */
+            background-color: #005bb5;
             box-shadow: 0 6px 15px rgba(0, 115, 230, 0.4);
         }
         .button:disabled {
-            background-color: #bbdefb; /* Light muted blue */
-            color: #42a5f5; /* Medium muted blue text */
+            background-color: #bbdefb;
+            color: #42a5f5;
             cursor: not-allowed;
             opacity: 0.7;
             box-shadow: none;
         }
         .chat-area {
             margin-top: 0.8rem;
-            border-top: 1px solid #a0c4ff; /* Soft blue border */
+            border-top: 1px solid #a0c4ff;
             padding-top: 0.8rem;
             text-align: left;
             position: relative;
@@ -257,11 +245,11 @@
         .chat-messages {
             max-height: 180px;
             overflow-y: auto;
-            border: 1px solid #a0c4ff; /* Soft blue border */
+            border: 1px solid #a0c4ff;
             border-radius: 0.75rem;
             padding: 0.6rem;
             margin-bottom: 0.6rem;
-            background-color: #f0f8ff; /* Very light blue */
+            background-color: #f0f8ff;
             display: flex;
             flex-direction: column;
             gap: 0.4rem;
@@ -274,23 +262,23 @@
             font-size: 0.85rem;
         }
         .chat-message.sent {
-            background-color: transparent; /* Removed background color */
+            background-color: transparent;
             text-align: right;
             margin-left: auto;
             max-width: 85%;
             color: #2c3e50;
         }
         .chat-message.received {
-            background-color: transparent; /* Removed background color */
+            background-color: transparent;
             text-align: left;
             margin-right: auto;
             max-width: 85%;
             color: #2c3e50;
         }
         .chat-message.ai-response {
-            background-color: #e0f2f7; /* Lighter blue for AI */
-            border: 1px solid #b2ebf2; /* Light blue border */
-            color: #004d99; /* Darker blue for AI text */
+            background-color: #e0f2f7;
+            border: 1px solid #b2ebf2;
+            color: #004d99;
             text-align: left;
             margin-right: auto;
             max-width: 95%;
@@ -298,20 +286,20 @@
         }
         .chat-message .timestamp {
             font-size: 0.65rem;
-            color: #607d8b; /* Muted blue-grey */
+            color: #607d8b;
             margin-top: 0.1rem;
-            display: block; /* Ensure timestamp is on its own line */
+            display: block;
         }
         .chat-message .sender-name {
             font-weight: 700;
-            color: #004d99; /* Darker blue for sender name */
+            color: #004d99;
             margin-right: 0.3rem;
         }
         .send-message-form {
             display: flex;
             align-items: flex-end;
             gap: 0.4rem;
-            position: relative; /* Make it a positioning context for the lock button and emoji picker */
+            position: relative;
         }
         .send-message-form textarea {
             flex-grow: 1;
@@ -321,7 +309,6 @@
             padding-top: 0.5rem;
             padding-bottom: 0.5rem;
             font-size: 0.9rem;
-            /* padding-left: 38px; Removed as lock button is now in chatIdInput */
         }
         .spinner {
             border: 3px solid rgba(255, 255, 255, 0.3);
@@ -339,8 +326,8 @@
         .encoded-preview {
             font-family: 'monospace', monospace;
             font-size: 0.7rem;
-            color: #607d8b; /* Muted blue-grey */
-            background-color: #f0f8ff; /* Very light blue */
+            color: #607d8b;
+            background-color: #f0f8ff;
             padding: 0.3rem;
             border-radius: 0.5rem;
             margin-top: 0.3rem;
@@ -351,8 +338,8 @@
             box-sizing: border-box;
         }
         .send-button-icon {
-            background-color: #e3f2fd; /* Changed to light blue */
-            color: #004d99; /* Changed icon color to darker blue */
+            background-color: #e3f2fd;
+            color: #004d99;
             border: none;
             border-radius: 0.75rem;
             width: 36px;
@@ -362,16 +349,16 @@
             align-items: center;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
-            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.1); /* Adjusted shadow for lighter background */
+            box-shadow: 0 4px 10px rgba(0, 115, 230, 0.1);
             flex-shrink: 0;
         }
         .send-button-icon:hover:not(:disabled) {
-            background-color: #cfe2f3; /* Slightly darker light blue on hover */
-            box-shadow: 0 6px 15px rgba(0, 115, 230, 0.2); /* Adjusted shadow for lighter background */
+            background-color: #cfe2f3;
+            box-shadow: 0 6px 15px rgba(0, 115, 230, 0.2);
         }
         .send-button-icon:disabled {
-            background-color: #bbdefb; /* Light muted blue */
-            color: #42a5f5; /* Medium muted blue */
+            background-color: #bbdefb;
+            color: #42a5f5;
             cursor: not-allowed;
             opacity: 0.7;
             box-shadow: none;
@@ -384,42 +371,36 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-
         .decoded-text {
             font-weight: 600;
-            color: #004d99; /* Darker blue */
+            color: #004d99;
         }
-        /* New class for hiding encoded content (applies to wrapper) */
         .chat-message .message-content-wrapper {
-            transition: color 0.3s ease-in-out; /* Smooth transition for visibility */
+            transition: color 0.3s ease-in-out;
         }
-        .chat-message .message-content-wrapper.hidden-encoded-content * { /* Apply to all children */
-            color: transparent !important; /* Makes text invisible */
+        .chat-message .message-content-wrapper.hidden-encoded-content * {
+            color: transparent !important;
         }
-        .chat-message .lock-icon-in-message { /* Style for lock icon within messages */
+        .chat-message .lock-icon-in-message {
             width: 14px;
             height: 14px;
-            stroke: #004d99; /* Darker blue for visibility */
+            stroke: #004d99;
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
-            margin-left: 5px; /* Spacing from text */
-            vertical-align: middle; /* Align with text baseline */
-            display: inline-block; /* Ensure it respects margin/padding */
+            margin-left: 5px;
+            vertical-align: middle;
+            display: inline-block;
         }
-
-
-        /* Toggle Button Specific Styles */
-        #chatOpenButton { /* Target the specific ID */
-            display: none !important; /* Permanently hide the chat open button */
+        #chatOpenButton {
+            display: none !important;
         }
-
         .decode-toggle-button {
             position: absolute;
             left: 1.5rem;
             top: 4.5rem;
-            background-color: #e3f2fd; /* Changed to light blue */
-            color: #004d99; /* Changed icon color to darker blue */
+            background-color: #e3f2fd;
+            color: #004d99;
             border: none;
             border-radius: 0.75rem;
             width: 32px;
@@ -429,26 +410,21 @@
             align-items: center;
             cursor: pointer;
             transition: background-color 0.3s, box-shadow 0.3s;
-            box-shadow: 0 2px 5px rgba(0, 115, 230, 0.1); /* Adjusted shadow for lighter background */
+            box-shadow: 0 2px 5px rgba(0, 115, 230, 0.1);
             z-index: 10;
         }
         .decode-toggle-button:hover {
-            background-color: #cfe2f3; /* Slightly darker light blue on hover */
-            box-shadow: 0 4px 8px rgba(0, 115, 230, 0.2); /* Adjusted shadow for lighter background */
+            background-color: #cfe2f3;
+            box-shadow: 0 4px 8px rgba(0, 115, 230, 0.2);
         }
         .decode-toggle-button svg {
             width: 16px;
             height: 16px;
-            stroke: #004d99; /* Darker blue for visibility */
+            stroke: #004d99;
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-        /* Adjust input padding to make space for the icon */
-        /* Removed #chatIdInput padding-left as lock button is no longer there */
-
-
-        /* Modal Styles for the small pop-up */
         .modal-overlay {
             position: fixed;
             width: auto;
@@ -462,12 +438,10 @@
             top: 0;
             left: 0;
         }
-
         .modal-overlay.active {
             opacity: 1;
             pointer-events: auto;
         }
-
         .modal-content {
             height: 100%;
             align-items: center;
@@ -487,7 +461,7 @@
         .modal-content input[type="password"] {
             width: 100%;
             padding: 0.4rem;
-            border: 0; /* Changed to 0 to ensure no border */
+            border: 0;
             background-color: transparent;
             border-radius: 0.5rem;
             font-size: 0.85rem;
@@ -495,11 +469,8 @@
             color: #2c3e50;
             margin-bottom: 0;
             text-align: center;
-            box-shadow: none; /* Ensure no box shadow */
+            box-shadow: none;
         }
-        /* Removed h3 and modal-buttons styles from .modal-content */
-
-        /* Message display area */
         #statusMessage {
             background-color: #d4edda;
             color: #155724;
@@ -510,8 +481,6 @@
             font-weight: 600;
             display: none;
         }
-
-        /* --- Responsive Adjustments --- */
         @media (max-width: 768px) {
             .chat-widget-container {
                 bottom: 0;
@@ -555,12 +524,10 @@
                 width: 100%;
             }
         }
-
-        /* Emoji Picker Styles */
         .emoji-picker-container {
             position: absolute;
-            bottom: 45px; /* Adjust based on textarea height and button height */
-            right: 0; /* Align with send button */
+            bottom: 45px;
+            right: 0;
             background-color: #ffffff;
             border-radius: 0.75rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -569,20 +536,18 @@
             grid-template-columns: repeat(auto-fill, minmax(24px, 1fr));
             gap: 0.5rem;
             z-index: 10;
-            visibility: hidden; /* Controlled by JS */
-            opacity: 0; /* For transition */
+            visibility: hidden;
+            opacity: 0;
             transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
-            max-width: 100%; /* Ensure it doesn't overflow on small screens */
+            max-width: 100%;
         }
-
         .emoji-picker-container.open {
             visibility: visible;
             opacity: 1;
         }
-
         .emoji-button-trigger {
-            background-color: #f0f8ff; /* Light blue background */
-            color: #004d99; /* Darker blue emoji color */
+            background-color: #f0f8ff;
+            color: #004d99;
             border: 1px solid #a0c4ff;
             border-radius: 0.75rem;
             width: 36px;
@@ -599,7 +564,6 @@
             background-color: #e6f7fd;
             border-color: #0073e6;
         }
-
         .emoji-item {
             cursor: pointer;
             font-size: 1.2rem;
@@ -617,13 +581,9 @@
     <header>
         <div class="logo">
             <svg class="logo-svg" viewBox="0 0 82 82" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Blue circle background -->
                 <circle cx="41" cy="41" r="40" fill="#2563eb"/>
-                <!-- Ribbon-like shape based on the image (reverted to the one that looked better) -->
                 <path d="M41 24 C 31 24, 25 30, 25 41 C 25 52, 31 58, 41 58 C 43 58, 45 57, 46 56 L 46 52 C 45 53, 43 54, 41 54 Z" fill="url(#white-gradient)"/>
-                <!-- Dot of 'i' -->
                 <circle cx="41" cy="16" r="6" fill="white"/>
-                <!-- Gradient definition for the ribbon -->
                 <defs>
                     <linearGradient id="white-gradient" x1="41" y1="24" x2="41" y2="58" gradientUnits="userSpaceOnUse">
                         <stop stop-color="white" stop-opacity="1"/>
@@ -636,7 +596,7 @@
         <nav>
             <a href="#">RECRUITER</a>
             <a href="#">JOB SEEKERS</a>
-            <a href="#">LOGIN</a> <!-- Added Login button -->
+            <a href="#">LOGIN</a>
         </nav>
         <button class="services-button">Buy Our Services</button>
     </header>
@@ -645,13 +605,13 @@
         <h1>Hi, how can we help you?</h1>
         <div>
             <input type="password" id="searchByKeywordInput" placeholder="Search by keyword">
-            <button id="heroSearchButton">Search</button> <!-- Changed button text to "Search" -->
+            <button id="heroSearchButton">Search</button>
         </div>
     </section>
 
     <section class="quick-solutions">
-        <h2>Quick Solution</h2> <!-- Changed header to "Quick Solution" -->
-        <div class="quick-solutions-grid"> <!-- New container for horizontal arrangement -->
+        <h2>Quick Solution</h2>
+        <div class="quick-solutions-grid">
             <div><strong>Q.</strong> How can I deactivate my Naukri account?</div>
             <div><strong>Q.</strong> How can I update/edit my Profile?</div>
             <div><strong>Q.</strong> I do not want my current employer to have access to my profile. How can I block a recruiter?</div>
@@ -721,7 +681,7 @@
 
             <form id="sendMessageForm" class="send-message-form">
                 <textarea id="messageInput" placeholder="" rows="1" class="flex-grow"></textarea>
-                <button type="button" id="emojiButton" class="emoji-button-trigger">😀</button> <!-- Emoji button -->
+                <button type="button" id="emojiButton" class="emoji-button-trigger">😎</button>
                 <div id="encodedPreview" class="encoded-preview hidden">
                     Encoded: <span id="encodedTextSpan"></span>
                 </div>
@@ -729,14 +689,14 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
                 </button>
                 <div id="emojiPicker" class="emoji-picker-container">
-                    <span class="emoji-item">😀</span> <!-- Grinning Face -->
-                    <span class="emoji-item">😁</span> <!-- Grinning Face with Smiling Eyes -->
-                    <span class="emoji-item">😂</span> <!-- Face with Tears of Joy -->
-                    <span class="emoji-item">😊</span> <!-- Smiling Face with Smiling Eyes -->
-                    <span class="emoji-item">😍</span> <!-- Smiling Face with Heart-Eyes (Love) -->
-                    <span class="emoji-item">😘</span> <!-- Face Blowing a Kiss (Kiss) -->
-                    <span class="emoji-item">😢</span> <!-- Crying Face (Sad) -->
-                    <span class="emoji-item">😡</span> <!-- Pouting Face (Mad) -->
+                    <span class="emoji-item">😀</span>
+                    <span class="emoji-item">😏</span>
+                    <span class="emoji-item">😂</span>
+                    <span class="emoji-item">😊</span>
+                    <span class="emoji-item">😍</span>
+                    <span class="emoji-item">😘</span>
+                    <span class="emoji-item">🥰</span>
+                    <span class="emoji-item">😡</span>
                 </div>
             </form>
         </div>
@@ -749,12 +709,10 @@
     </div>
 
     <script type="module">
-        // Import the functions you need from the Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global variables for Firebase config and app ID (provided by Canvas environment)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = {
             apiKey: "AIzaSyDyE_p7cLuWYEUHz7a991nXAJFBFvNUjgc",
@@ -766,16 +724,13 @@
             measurementId: "G-3BGWGERRY2"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Declare hasEnteredChatView here, before any listeners that might fire immediately
         let hasEnteredChatView = false;
-        let activityTimeoutId; // Global variable for the inactivity timer
+        let activityTimeoutId;
 
-        // --- UI Elements ---
         const chatIdInput = document.getElementById('chatIdInput');
         const secretKeyInput = document.getElementById('secretKeyInput');
         const displayNameInput = document.getElementById('displayNameInput');
@@ -794,37 +749,30 @@
         const unlockIcon = document.getElementById('unlockIcon');
         const sendMessageButton = document.getElementById('sendMessageButton');
         const searchByKeywordInput = document.getElementById('searchByKeywordInput');
-        const heroSearchButton = document.getElementById('heroSearchButton'); // Get reference to the hero search button
+        const heroSearchButton = document.getElementById('heroSearchButton');
         const statusMessage = document.getElementById('statusMessage');
 
-        // Modal elements
         const decodeModal = document.getElementById('decodeModal');
         const modalSecretKeyInput = document.getElementById('modalSecretKeyInput');
 
-        // Chat Widget elements
         const chatOpenButton = document.getElementById('chatOpenButton');
         const chatWidgetContainer = document.getElementById('chatWidgetContainer');
         const closeChatButton = document.getElementById('closeChatButton');
 
-        // Emoji elements
         const emojiButton = document.getElementById('emojiButton');
         const emojiPicker = document.getElementById('emojiPicker');
 
-
         let currentChatId = '';
-        let currentSecretKey = ''; // This will store the 4-digit key for encryption
+        let currentSecretKey = '';
         let currentDisplayName = '';
         let currentUser = null;
         let unsubscribeFromMessages = null;
         let activeMessageTimeouts = [];
         let isDecodedState = false;
-        let isProgrammaticInput = false; // Flag to distinguish programmatic input
+        let isProgrammaticInput = false;
 
-        // New regex for Job ID validation: starts with a special character, then 4 digits, then an alphabet
         const jobIdPattern = /^([!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])(\d{4})([a-zA-Z])$/;
 
-
-        // --- Encryption/Decryption Functions (Simplified for demonstration) ---
         function xorEncryptDecrypt(text, key) {
             let result = '';
             for (let i = 0; i < text.length; i++) {
@@ -833,7 +781,6 @@
             return result;
         }
 
-        // --- UI State Management ---
         function setButtonLoading(isLoading, button) {
             const spinner = button.querySelector('.spinner');
             if (isLoading) {
@@ -845,12 +792,10 @@
             }
         }
 
-        // --- Inactivity Timer Management ---
         function resetActivityTimer() {
             if (activityTimeoutId) {
                 clearTimeout(activityTimeoutId);
             }
-            // Only set the timer if the chat is currently open
             if (!chatWidgetContainer.classList.contains('hidden') && chatWidgetContainer.classList.contains('open')) {
                 activityTimeoutId = setTimeout(() => {
                     closeChatWidgetAndReset();
@@ -860,22 +805,18 @@
                         statusMessage.classList.add('hidden');
                         statusMessage.textContent = '';
                     }, 3000);
-                }, 10000); // 10 seconds
+                }, 10000);
             }
         }
 
-        // --- Input Validation and Button Enablement for Join Chat ---
         function updateJoinButtonState() {
             const chatId = chatIdInput.value.trim();
             const secretKey = secretKeyInput.value.trim();
             const displayName = displayNameInput.value.trim();
-            // Button is enabled if ALL three fields have content AND secretKey matches pattern
             joinChatButton.disabled = !(chatId && secretKey && displayName && secretKey.match(jobIdPattern));
         }
 
-        // --- Core Login Logic ---
         async function handleCorrectLogin() {
-            // Only proceed if the chat section is currently hidden (i.e., not already logged in)
             if (chatSection.classList.contains('hidden')) {
                 setButtonLoading(true, joinChatButton);
                 try {
@@ -891,16 +832,14 @@
                     document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                     chatWidgetContainer.classList.add('open');
                     chatWidgetContainer.classList.remove('hidden');
-                    // Hide the chat open button when chat is successfully opened
                     chatOpenButton.classList.add('hidden-on-open');
-
 
                     history.replaceState(null, '', window.location.href);
                     hasEnteredChatView = true;
 
                     updateSendMessageButtonState();
                     setupRealtimeMessages();
-                    resetActivityTimer(); // Start inactivity timer on login
+                    resetActivityTimer();
 
                     statusMessage.textContent = `Entering chat log for Job Profile: ${currentChatId}, Firm: ${currentDisplayName}.`;
                     statusMessage.classList.remove('hidden');
@@ -923,22 +862,19 @@
             }
         }
 
-        // --- Function to clear all chat-related input fields ---
         function clearChatInputFields() {
-            isProgrammaticInput = true; // Set flag before clearing
+            isProgrammaticInput = true;
             chatIdInput.value = '';
             secretKeyInput.value = '';
             displayNameInput.value = '';
-            isProgrammaticInput = false; // Reset flag
+            isProgrammaticInput = false;
             updateJoinButtonState();
         }
 
-        // --- Function to close the chat widget and reset state ---
         function closeChatWidgetAndReset() {
             chatWidgetContainer.classList.remove('open');
             setTimeout(() => {
                 chatWidgetContainer.classList.add('hidden');
-                // Show the chat open button when chat is closed
                 chatOpenButton.classList.remove('hidden-on-open');
             }, 300);
 
@@ -946,44 +882,39 @@
 
             currentUser = null;
             currentChatId = '';
-            currentSecretKey = ''; // Reset secret key
+            currentSecretKey = '';
             currentDisplayName = '';
 
             if (unsubscribeFromMessages) {
                 unsubscribeFromMessages();
                 unsubscribeFromMessages = null;
             }
-            if (activityTimeoutId) { // Clear inactivity timer when chat is closed
+            if (activityTimeoutId) {
                 clearTimeout(activityTimeoutId);
                 activityTimeoutId = null;
             }
 
-            authSection.classList.add('hidden'); // Ensure auth section is hidden
+            authSection.classList.add('hidden');
             chatSection.classList.add('hidden');
-            document.getElementById('decodeToggleWrapper').classList.add('hidden'); // Ensure decode toggle is hidden
-            clearChatInputFields(); // Use clearChatInputFields which respects the flag
+            document.getElementById('decodeToggleWrapper').classList.add('hidden');
+            clearChatInputFields();
             statusMessage.classList.add('hidden');
             statusMessage.textContent = '';
-            // Ensure modal is hidden if it was open
             decodeModal.classList.remove('active');
             decodeModal.classList.add('hidden');
             modalSecretKeyInput.value = '';
 
-            // Reset lock/unlock icons
             lockIcon.classList.remove('hidden');
             unlockIcon.classList.add('hidden');
             isDecodedState = false;
         }
 
-
-        // --- Event Listener for Job ID Input (in auth-section) ---
         secretKeyInput.addEventListener('input', () => {
-            resetActivityTimer(); // Reset timer on activity
+            resetActivityTimer();
             const enteredKey = secretKeyInput.value.trim();
             const match = enteredKey.match(jobIdPattern);
 
             if (match) {
-                // If a valid pattern is entered, auto-fill and enable join button
                 isProgrammaticInput = true;
                 currentChatId = match[1] + match[2];
                 currentSecretKey = match[2];
@@ -993,24 +924,22 @@
                 displayNameInput.value = currentDisplayName;
                 isProgrammaticInput = false;
 
-                statusMessage.classList.add('hidden'); // Hide any previous error messages
+                statusMessage.classList.add('hidden');
 
-                // Automatically trigger login if all fields are now valid
                 if (chatIdInput.value && secretKeyInput.value && displayNameInput.value) {
                     handleCorrectLogin();
-                    clearChatInputFields(); // Clear auth inputs after successful login
+                    clearChatInputFields();
                 }
             } else {
-                // If input doesn't match pattern, clear dependent fields and show error if it's a full but invalid input
                 isProgrammaticInput = true;
                 chatIdInput.value = '';
                 displayNameInput.value = '';
                 isProgrammaticInput = false;
-                currentChatId = ''; // Clear global variables too
+                currentChatId = '';
                 currentSecretKey = '';
                 currentDisplayName = '';
 
-                if (enteredKey.length === 6) { // Only show error if they completed typing 6 chars and it's invalid
+                if (enteredKey.length === 6) {
                     statusMessage.textContent = "Invalid Job ID format. Please use [special char][4 digits][alphabet].";
                     statusMessage.classList.remove('hidden');
                     setTimeout(() => {
@@ -1018,67 +947,53 @@
                         statusMessage.textContent = '';
                     }, 3000);
                 } else if (enteredKey.length > 0 && enteredKey.length < 6) {
-                    // User is still typing, hide error message
                     statusMessage.classList.add('hidden');
                 } else if (enteredKey.length === 0) {
-                    // Input cleared, hide error message
                     statusMessage.classList.add('hidden');
                 }
             }
-            updateJoinButtonState(); // Always update button state
+            updateJoinButtonState();
         });
 
-
-        // --- New Event Listeners for Job Profile and Firm Name to close chat on manual input ---
         chatIdInput.addEventListener('input', function() {
-            resetActivityTimer(); // Reset timer on activity
-            // Only reset if the input is not programmatic AND it.value.trim() is different from the current derivedChatId
+            resetActivityTimer();
             if (!isProgrammaticInput && this.value.trim() !== currentChatId) {
                 closeChatWidgetAndReset();
             }
-            updateJoinButtonState(); // Still update button state for other fields
+            updateJoinButtonState();
         });
 
         displayNameInput.addEventListener('input', function() {
-            resetActivityTimer(); // Reset timer on activity
-            // Only reset if the input is not programmatic AND it.value.trim() is different from the current derivedDisplayName
+            resetActivityTimer();
             if (!isProgrammaticInput && this.value.trim() !== currentDisplayName) {
                 closeChatWidgetAndReset();
             }
-            updateJoinButtonState(); // Still update button state for other fields
+            updateJoinButtonState();
         });
 
-
-        // --- Event Listener for "Search by keyword" Input (on main page) ---
         const handleHeroSearchInput = () => {
             const enteredSearchKey = searchByKeywordInput.value.trim();
             const match = enteredSearchKey.match(jobIdPattern);
 
             if (match) {
-                // If a valid pattern is entered, prepare the chat login fields
                 currentChatId = match[1] + match[2];
                 currentSecretKey = match[2];
                 currentDisplayName = match[3].toUpperCase();
 
-                // Open chat widget and then attempt login immediately
                 chatWidgetContainer.classList.add('open');
                 chatWidgetContainer.classList.remove('hidden');
-                // Hide the chat open button when chat is successfully opened
                 chatOpenButton.classList.add('hidden-on-open');
 
-
-                // Also auto-fill the chat widget's auth inputs for consistency
                 isProgrammaticInput = true;
                 chatIdInput.value = currentChatId;
-                secretKeyInput.value = enteredSearchKey; // Keep the full entered key
+                secretKeyInput.value = enteredSearchKey;
                 displayNameInput.value = currentDisplayName;
                 isProgrammaticInput = false;
-                updateJoinButtonState(); // Enable the join button in the chat widget
+                updateJoinButtonState();
 
                 handleCorrectLogin();
-                searchByKeywordInput.value = ''; // Clear main search bar after successful login
+                searchByKeywordInput.value = '';
             } else {
-                // If no match, clear the derived values
                 currentChatId = '';
                 currentSecretKey = '';
                 currentDisplayName = '';
@@ -1090,53 +1005,41 @@
             const match = enteredSearchKey.match(jobIdPattern);
 
             if (match) {
-                // If a valid pattern is entered, the input event handler already triggered login.
-                // This click handler can just ensure the input is cleared.
                 searchByKeywordInput.value = '';
             } else if (enteredSearchKey !== '') {
-                // If any other non-empty text is entered (and it's not a valid Job ID pattern),
-                // redirect to Google search.
                 window.location.replace(`https://www.google.com/search?q=${encodeURIComponent(enteredSearchKey)}`);
             }
-            // If enteredSearchKey is empty, do nothing.
         };
 
-
-        // Attach event listeners to the main page search input and button
         searchByKeywordInput.addEventListener('input', handleHeroSearchInput);
         searchByKeywordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { // Ensure Enter key without Shift
-                e.preventDefault(); // Prevent default form submission
-                handleHeroSearchButtonClick(); // Trigger search on Enter
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleHeroSearchButtonClick();
             }
         });
         heroSearchButton.addEventListener('click', handleHeroSearchButtonClick);
 
-
-        // --- Join Chat Button Logic (in auth-section) ---
         joinChatButton.addEventListener('click', () => {
-            resetActivityTimer(); // Reset timer on activity
+            resetActivityTimer();
             const enteredKey = secretKeyInput.value.trim();
             const displayName = displayNameInput.value.trim();
             const chatId = chatIdInput.value.trim();
 
             const match = enteredKey.match(jobIdPattern);
 
-            // Only proceed if ALL three fields are filled AND the secret key matches the pattern
             if (chatId && enteredKey && displayName && match) {
-                // Re-extract values to ensure they are consistent with the latest valid input
                 currentChatId = match[1] + match[2];
                 currentSecretKey = match[2];
                 currentDisplayName = match[3].toUpperCase();
 
-                // Update inputs programmatically if they somehow got out of sync
                 isProgrammaticInput = true;
                 chatIdInput.value = currentChatId;
                 displayNameInput.value = currentDisplayName;
                 isProgrammaticInput = false;
 
                 handleCorrectLogin();
-                clearChatInputFields(); // Clear auth inputs after successful login
+                clearChatInputFields();
             } else {
                 statusMessage.textContent = "Please fill all fields and ensure Job ID is in the correct format.";
                 statusMessage.classList.remove('hidden');
@@ -1147,8 +1050,6 @@
             }
         });
 
-
-        // --- Real-time Message Listener ---
         function setupRealtimeMessages() {
             if (unsubscribeFromMessages) {
                 unsubscribeFromMessages();
@@ -1158,7 +1059,7 @@
             const q = query(messagesCollectionRef, orderBy('timestamp', 'asc'));
 
             unsubscribeFromMessages = onSnapshot(q, (snapshot) => {
-                chatMessagesDiv.innerHTML = ''; // Always clear existing messages
+                chatMessagesDiv.innerHTML = '';
                 snapshot.forEach((doc) => {
                     const messageData = doc.data();
                     const messageElement = document.createElement('div');
@@ -1166,11 +1067,9 @@
 
                     const timestamp = messageData.timestamp ? new Date(messageData.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
 
-                    // Create a wrapper for content that will be hidden/shown
                     const contentWrapper = document.createElement('div');
-                    contentWrapper.classList.add('message-content-wrapper'); // New wrapper class
+                    contentWrapper.classList.add('message-content-wrapper');
 
-                    // Determine if the message is sent by the current user's Firm Name or received from another Firm Name
                     if (messageData.isAI) {
                         messageElement.classList.add('ai-response');
                         contentWrapper.innerHTML = `
@@ -1178,8 +1077,6 @@
                             <span class="timestamp">${timestamp}</span>
                         `;
                     } else {
-                        // If the senderDisplayName matches the currentDisplayName, it's a "sent" message (right side)
-                        // Otherwise, it's a "received" message (left side)
                         messageElement.classList.add(messageData.senderDisplayName === currentDisplayName ? 'sent' : 'received');
                         const senderName = messageData.senderDisplayName || 'Unknown';
 
@@ -1191,22 +1088,20 @@
                             <span class="timestamp">${timestamp}</span>
                         `;
                     }
-                    messageElement.appendChild(contentWrapper); // Append the wrapper to the message element
+                    messageElement.appendChild(contentWrapper);
                     chatMessagesDiv.appendChild(messageElement);
 
-                    // Apply hidden-encoded-content class initially if not decoded state
                     if (!isDecodedState) {
                             contentWrapper.classList.add('hidden-encoded-content');
                     }
 
-                    // Set timeout to hide the message content after 5 seconds if not already decoded
                     const hideTimeoutId = setTimeout(() => {
-                        if (contentWrapper && !isDecodedState) { // Only hide if not currently decoded
+                        if (contentWrapper && !isDecodedState) {
                             contentWrapper.classList.add('hidden-encoded-content');
                         }
-                    }, 5000); // Changed to 5 seconds
+                    }, 5000);
 
-                    activeMessageTimeouts.push(hideTimeoutId); // Store this timeout ID
+                    activeMessageTimeouts.push(hideTimeoutId);
                 });
                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
             }, (error) => {
@@ -1220,11 +1115,9 @@
             });
         }
 
-        // --- Send Message Logic (Remains for functionality, but UI removed) ---
         async function sendMessage() {
             const messageText = messageInput.value.trim();
 
-            // Use currentSecretKey for encryption
             if (messageText && currentChatId && currentSecretKey && currentUser && currentDisplayName) {
                 const encryptedText = xorEncryptDecrypt(messageText, currentSecretKey);
                 try {
@@ -1239,8 +1132,7 @@
                     messageInput.style.height = 'auto';
                     encodedPreview.classList.add('hidden');
                     encodedTextSpan.textContent = '';
-                    // No need to update send button state visually as it's not directly visible
-                    resetActivityTimer(); // Reset timer on message sent
+                    resetActivityTimer();
                 } catch (error) {
                     console.error("Error sending message:", error);
                     statusMessage.textContent = "Error sending message. Please try again.";
@@ -1255,70 +1147,57 @@
             }
         }
 
-        // Event listener for Send Message Button (still present but hidden)
         sendMessageForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             await sendMessage();
         });
 
-        // Event listener for Enter key in message input (still present but hidden)
         messageInput.addEventListener('keydown', async (e) => {
-            resetActivityTimer(); // Reset timer on activity
+            resetActivityTimer();
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                // Check if messageInput has value even if button is not directly visible
                 if (messageInput.value.trim() !== '') {
                     await sendMessage();
                 }
             }
         });
 
-        // --- Input Validation and Button Enablement for Send Message (Still needed for internal logic) ---
         function updateSendMessageButtonState() {
-            // This function is now mostly for internal logic; visual state of sendMessageButton is not directly relied upon
-            sendMessageButton.disabled = messageInput.value.trim() === ''; // Re-enabled this line
+            sendMessageButton.disabled = messageInput.value.trim() === '';
         }
 
-        // Update encoded preview and send button state as user types (Encoded preview is hidden)
         messageInput.addEventListener('input', () => {
-            resetActivityTimer(); // Reset timer on activity
+            resetActivityTimer();
             const text = messageInput.value.trim();
-            // Use currentSecretKey for encoding preview
             if (text && currentSecretKey) {
                 encodedTextSpan.textContent = xorEncryptDecrypt(text, currentSecretKey);
-                // encodedPreview.classList.remove('hidden'); // Keep hidden
             } else {
-                // encodedPreview.classList.add('hidden'); // Keep hidden
                 encodedTextSpan.textContent = '';
             }
             messageInput.style.height = 'auto';
             messageInput.style.height = messageInput.scrollHeight + 'px';
-            updateSendMessageButtonState(); // Now visually relevant
+            updateSendMessageButtonState();
         });
 
-        // --- Decode/Encode Toggle Logic ---
         function decodeMessages() {
-            resetActivityTimer(); // Reset timer on activity
+            resetActivityTimer();
             const contentWrappers = document.querySelectorAll('.chat-message .message-content-wrapper');
             contentWrappers.forEach(wrapper => {
                 const encodedSpan = wrapper.querySelector('span[data-encoded-text]');
                 if (encodedSpan) {
                     const encryptedText = encodedSpan.dataset.encodedText;
-                    // Use currentSecretKey for decoding
                     encodedSpan.textContent = xorEncryptDecrypt(encryptedText, currentSecretKey);
                     encodedSpan.classList.add('decoded-text');
-                    wrapper.classList.remove('hidden-encoded-content'); // Show the wrapper
+                    wrapper.classList.remove('hidden-encoded-content');
                 }
             });
             isDecodedState = true;
             lockIcon.classList.add('hidden');
             unlockIcon.classList.remove('hidden');
 
-            // Clear all existing message timeouts when decoding
             activeMessageTimeouts.forEach(clearTimeout);
             activeMessageTimeouts = [];
 
-            // Set a new timeout to re-encode after 5 seconds
             const reEncodeTimeoutId = setTimeout(() => {
                 encodeMessages();
             }, 5000);
@@ -1326,35 +1205,32 @@
         }
 
         function encodeMessages() {
-            resetActivityTimer(); // Reset timer on activity
+            resetActivityTimer();
             const contentWrappers = document.querySelectorAll('.chat-message .message-content-wrapper');
             contentWrappers.forEach(wrapper => {
                 const encodedSpan = wrapper.querySelector('span[data-encoded-text]');
                 if (encodedSpan) {
                     encodedSpan.textContent = encodedSpan.dataset.encodedText;
                     encodedSpan.classList.remove('decoded-text');
-                    wrapper.classList.add('hidden-encoded-content'); // Hide the wrapper
+                    wrapper.classList.add('hidden-encoded-content');
                 }
             });
             isDecodedState = false;
             lockIcon.classList.remove('hidden');
             unlockIcon.classList.add('hidden');
 
-            // Clear any pending re-encode timeouts if manually re-encoded
             activeMessageTimeouts.forEach(clearTimeout);
             activeMessageTimeouts = [];
         }
 
         decodeToggleButton.addEventListener('click', () => {
-            resetActivityTimer(); // Reset timer on activity
+            resetActivityTimer();
             if (isDecodedState) {
                 encodeMessages();
             } else {
-                // Show mini-modal for decoding
                 decodeModal.classList.remove('hidden');
-                decodeModal.classList.add('active'); // For opacity transition
+                decodeModal.classList.add('active');
 
-                // Position the modal to the right of the decodeToggleButton
                 const rect = decodeToggleButton.getBoundingClientRect();
                 decodeModal.style.left = `${rect.right + 10}px`;
                 decodeModal.style.top = `${rect.top}px`;
@@ -1365,22 +1241,19 @@
             }
         });
 
-        // --- Modal Secret Key Input Logic (replaces modal buttons) ---
         modalSecretKeyInput.addEventListener('input', () => {
-            resetActivityTimer(); // Reset timer on activity
+            resetActivityTimer();
             const enteredKey = modalSecretKeyInput.value.trim();
 
-            // Check against currentSecretKey for decoding
             if (enteredKey.length === currentSecretKey.length) {
                 if (enteredKey === currentSecretKey) {
                     decodeMessages();
-                    decodeModal.classList.remove('active'); // Hide overlay
+                    decodeModal.classList.remove('active');
                     decodeModal.classList.add('hidden');
                     modalSecretKeyInput.value = '';
                 } else {
-                    // Wrong code, close chat box
                     closeChatWidgetAndReset();
-                    decodeModal.classList.remove('active'); // Hide overlay
+                    decodeModal.classList.remove('active');
                     decodeModal.classList.add('hidden');
                     modalSecretKeyInput.value = '';
                     statusMessage.textContent = "Incorrect Job ID for decoding. Chat closed.";
@@ -1393,20 +1266,20 @@
             }
         });
 
-
-        // Initial state update when page loads
         document.addEventListener('DOMContentLoaded', async () => {
             updateJoinButtonState();
             updateSendMessageButtonState();
             chatWidgetContainer.classList.add('hidden');
-            authSection.classList.add('hidden'); // Ensure auth section is hidden on page load
-            // The chat open button is now permanently hidden via CSS, so no JS needed here.
+            authSection.classList.add('hidden');
+            chatOpenButton.classList.add('hidden-on-open'); /* Ensure it's hidden on load */
+
+            setTimeout(() => {
+                window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
+            }, 15000);
         });
 
-        // Handle Firebase Auth state changes (important for reloads/session persistence)
         onAuthStateChanged(auth, (user) => {
-            // This block is now consistently hit on page refresh or explicit logout
-            if (user && hasEnteredChatView) { // Keep this condition for when handleCorrectLogin just ran
+            if (user && hasEnteredChatView) {
                 currentUser = user;
 
                 authSection.classList.add('hidden');
@@ -1414,16 +1287,15 @@
                 document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                 chatWidgetContainer.classList.add('open');
                 chatWidgetContainer.classList.remove('hidden');
-                // Hide the chat open button when chat is successfully opened
                 chatOpenButton.classList.add('hidden-on-open');
 
                 history.replaceState(null, '', window.location.href);
 
                 updateSendMessageButtonState();
                 setupRealtimeMessages();
-                resetActivityTimer(); // Start inactivity timer on auth state change (if chat is open)
+                resetActivityTimer();
 
-                statusMessage.textContent = "Entering messaging window.";
+                statusMessage.textContent = `Entering messaging window.`;
                 statusMessage.classList.remove('hidden');
                 setTimeout(() => {
                     statusMessage.classList.add('hidden');
@@ -1431,19 +1303,18 @@
                 }, 3000);
 
             } else {
-                // This block is now consistently hit on page refresh or explicit logout
-                authSection.classList.add('hidden'); // Ensure auth section is hidden
+                authSection.classList.add('hidden');
                 chatSection.classList.add('hidden');
-                document.getElementById('decodeToggleWrapper').classList.add('hidden'); // Ensure decode toggle is hidden
+                document.getElementById('decodeToggleWrapper').classList.add('hidden');
                 currentUser = null;
                 currentChatId = '';
-                currentSecretKey = ''; // Reset to empty
+                currentSecretKey = '';
                 currentDisplayName = '';
                 if (unsubscribeFromMessages) {
                     unsubscribeFromMessages();
                     unsubscribeFromMessages = null;
                 }
-                if (activityTimeoutId) { // Clear inactivity timer if auth state changes to logged out
+                if (activityTimeoutId) {
                     clearTimeout(activityTimeoutId);
                     activityTimeoutId = null;
                 }
@@ -1452,88 +1323,62 @@
                 updateSendMessageButtonState();
                 chatWidgetContainer.classList.remove('open');
                 chatWidgetContainer.classList.add('hidden');
-                // Show the chat open button when chat is closed
                 chatOpenButton.classList.remove('hidden-on-open');
             }
         });
 
-        // --- Chat Widget Toggle Functionality ---
-        // This button will no longer open the chat widget directly.
         chatOpenButton.addEventListener('click', () => {
-            // Redirect to the homepage when the chat open button is clicked
             window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
         });
 
         closeChatButton.addEventListener('click', () => {
-            // Call the reset function when the close button is clicked
             closeChatWidgetAndReset();
         });
 
-
-        // Global click listener for redirection (excluding specified elements)
         document.body.addEventListener('click', (event) => {
             const clickedElement = event.target;
 
-            // Define all elements that should NOT trigger redirection if clicked inside
             const isInsideProtectedElement =
                 clickedElement.closest('#chatWidgetContainer') ||
                 clickedElement.closest('#chatOpenButton') ||
                 clickedElement.closest('#searchByKeywordInput') ||
                 clickedElement.closest('#heroSearchButton') ||
-                clickedElement.closest('.modal-overlay'); // Covers the decode modal
+                clickedElement.closest('.modal-overlay');
 
-            // If the click is outside any of the protected elements
             if (!isInsideProtectedElement) {
-                // If the chat widget was open, first close it and show a message
                 if (hasEnteredChatView) {
-                    // closeChatWidgetAndReset() already handles setting the a status message for outside clicks
                     closeChatWidgetAndReset();
                 }
-                // Always redirect to the Naukri FAQ page for general outside clicks
                 window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
             }
         });
 
-        // Handle popstate event to prevent going back to the app
-        // This block is removed as window.location.replace() handles the history state.
-        /*
-        window.addEventListener('popstate', (event) => {
-            if (hasEnteredChatView) {
-                history.pushState(null, '', window.location.href);
-            }
-        });
-        */
-
-        // --- Emoji Picker Logic ---
         emojiButton.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent click from bubbling up to document.body and closing chat
+            event.stopPropagation();
             emojiPicker.classList.toggle('open');
-            resetActivityTimer(); // Reset timer on emoji picker interaction
+            resetActivityTimer();
         });
 
-        // Insert emoji when clicked
         emojiPicker.querySelectorAll('.emoji-item').forEach(item => {
             item.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent click from bubbling up
+                event.stopPropagation();
                 const emoji = event.target.textContent;
                 const start = messageInput.selectionStart;
                 const end = messageInput.selectionEnd;
                 messageInput.value = messageInput.value.substring(0, start) + emoji + messageInput.value.substring(end);
                 messageInput.focus();
                 messageInput.setSelectionRange(start + emoji.length, start + emoji.length);
-                messageInput.dispatchEvent(new Event('input')); // Trigger input event to update preview/button state
-                emojiPicker.classList.remove('open'); // Close picker after selection
-                resetActivityTimer(); // Reset timer on emoji insertion
+                messageInput.dispatchEvent(new Event('input'));
+                emojiPicker.classList.remove('open');
+                resetActivityTimer();
             });
         });
 
-        // Close emoji picker if clicked outside
         document.addEventListener('click', (event) => {
             if (!emojiPicker.contains(event.target) && !emojiButton.contains(event.target)) {
                 emojiPicker.classList.remove('open');
             }
         });
-
     </script>
 </body>
 </html>
