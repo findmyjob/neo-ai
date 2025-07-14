@@ -749,7 +749,8 @@
         const storage = getStorage(app);
 
         let hasEnteredChatView = false;
-        let activityTimeoutId;
+        let chatInactivityTimeoutId; // For chat widget inactivity
+        let pageInactivityTimeoutId; // For overall page inactivity
 
         const chatIdInput = document.getElementById('chatIdInput');
         const secretKeyInput = document.getElementById('secretKeyInput');
@@ -814,12 +815,13 @@
             }
         }
 
-        function resetActivityTimer() {
-            if (activityTimeoutId) {
-                clearTimeout(activityTimeoutId);
+        // Resets the chat widget inactivity timer
+        function resetChatInactivityTimer() {
+            if (chatInactivityTimeoutId) {
+                clearTimeout(chatInactivityTimeoutId);
             }
             if (!chatWidgetContainer.classList.contains('hidden') && chatWidgetContainer.classList.contains('open')) {
-                activityTimeoutId = setTimeout(() => {
+                chatInactivityTimeoutId = setTimeout(() => {
                     closeChatWidgetAndReset();
                     statusMessage.textContent = "Chat closed due to inactivity.";
                     statusMessage.classList.remove('hidden');
@@ -827,9 +829,29 @@
                         statusMessage.classList.add('hidden');
                         statusMessage.textContent = '';
                     }, 3000);
-                }, 10000);
+                }, 10000); // 10 seconds for chat inactivity
             }
         }
+
+        // Resets the overall page inactivity timer
+        function resetPageInactivityTimer() {
+            if (pageInactivityTimeoutId) {
+                clearTimeout(pageInactivityTimeoutId);
+            }
+            // Only start page inactivity timer if chat is not open
+            if (!chatWidgetContainer.classList.contains('open')) {
+                pageInactivityTimeoutId = setTimeout(() => {
+                    window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
+                }, 15000); // 15 seconds for page inactivity
+            }
+        }
+
+        // Event listeners for page-wide activity
+        document.body.addEventListener('mousemove', resetPageInactivityTimer);
+        document.body.addEventListener('keydown', resetPageInactivityTimer);
+        document.body.addEventListener('click', resetPageInactivityTimer);
+        document.body.addEventListener('input', resetPageInactivityTimer);
+
 
         function updateJoinButtonState() {
             const chatId = chatIdInput.value.trim();
@@ -854,14 +876,20 @@
                     document.getElementById('decodeToggleWrapper').classList.remove('hidden');
                     chatWidgetContainer.classList.add('open');
                     chatWidgetContainer.classList.remove('hidden');
-                    chatOpenButton.classList.add('hidden-on-open');
+                    chatOpenButton.classList.add('hidden-on-open'); // Hide the chat open button when chat is open
 
                     history.replaceState(null, '', window.location.href);
                     hasEnteredChatView = true;
 
                     updateSendMessageButtonState();
                     setupRealtimeMessages();
-                    resetActivityTimer();
+
+                    // Clear page inactivity timer and start chat inactivity timer
+                    if (pageInactivityTimeoutId) {
+                        clearTimeout(pageInactivityTimeoutId);
+                        pageInactivityTimeoutId = null;
+                    }
+                    resetChatInactivityTimer();
 
                     statusMessage.textContent = `Entering chat log for Job Profile: ${currentChatId}, Firm: ${currentDisplayName}.`;
                     statusMessage.classList.remove('hidden');
@@ -897,7 +925,7 @@
             chatWidgetContainer.classList.remove('open');
             setTimeout(() => {
                 chatWidgetContainer.classList.add('hidden');
-                chatOpenButton.classList.remove('hidden-on-open');
+                chatOpenButton.classList.remove('hidden-on-open'); // Show chat open button when chat is closed
             }, 300);
 
             hasEnteredChatView = false;
@@ -911,12 +939,12 @@
                 unsubscribeFromMessages();
                 unsubscribeFromMessages = null;
             }
-            if (activityTimeoutId) {
-                clearTimeout(activityTimeoutId);
-                activityTimeoutId = null;
+            if (chatInactivityTimeoutId) { // Clear chat specific timer
+                clearTimeout(chatInactivityTimeoutId);
+                chatInactivityTimeoutId = null;
             }
 
-            authSection.classList.add('hidden');
+            authSection.classList.remove('hidden'); // Show auth section again
             chatSection.classList.add('hidden');
             document.getElementById('decodeToggleWrapper').classList.add('hidden');
             clearChatInputFields();
@@ -929,10 +957,12 @@
             lockIcon.classList.remove('hidden');
             unlockIcon.classList.add('hidden');
             isDecodedState = false;
+
+            resetPageInactivityTimer(); // Restart page inactivity timer
         }
 
         secretKeyInput.addEventListener('input', () => {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on input
             const enteredKey = secretKeyInput.value.trim();
             const match = enteredKey.match(jobIdPattern);
 
@@ -978,7 +1008,7 @@
         });
 
         chatIdInput.addEventListener('input', function() {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on input
             if (!isProgrammaticInput && this.value.trim() !== currentChatId) {
                 closeChatWidgetAndReset();
             }
@@ -986,7 +1016,7 @@
         });
 
         displayNameInput.addEventListener('input', function() {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on input
             if (!isProgrammaticInput && this.value.trim() !== currentDisplayName) {
                 closeChatWidgetAndReset();
             }
@@ -1043,7 +1073,7 @@
         heroSearchButton.addEventListener('click', handleHeroSearchButtonClick);
 
         joinChatButton.addEventListener('click', () => {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on click
             const enteredKey = secretKeyInput.value.trim();
             const displayName = displayNameInput.value.trim();
             const chatId = chatIdInput.value.trim();
@@ -1170,7 +1200,7 @@
                     messageInput.style.height = 'auto';
                     encodedPreview.classList.add('hidden');
                     encodedTextSpan.textContent = '';
-                    resetActivityTimer();
+                    resetChatInactivityTimer(); // Reset chat timer on message send
                 } catch (error) {
                     console.error("Error sending message:", error);
                     statusMessage.textContent = "Error sending message. Please try again.";
@@ -1191,7 +1221,7 @@
         });
 
         messageInput.addEventListener('keydown', async (e) => {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on keydown
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 if (messageInput.value.trim() !== '') {
@@ -1205,7 +1235,7 @@
         }
 
         messageInput.addEventListener('input', () => {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on input
             const text = messageInput.value.trim();
             if (text && currentSecretKey) {
                 encodedTextSpan.textContent = xorEncryptDecrypt(text, currentSecretKey);
@@ -1218,7 +1248,7 @@
         });
 
         function decodeMessages() {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on decode
             const contentWrappers = document.querySelectorAll('.chat-message .message-content-wrapper');
             contentWrappers.forEach(wrapper => {
                 const encodedSpan = wrapper.querySelector('span[data-encoded-text]');
@@ -1243,7 +1273,7 @@
         }
 
         function encodeMessages() {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on encode
             const contentWrappers = document.querySelectorAll('.chat-message .message-content-wrapper');
             contentWrappers.forEach(wrapper => {
                 const encodedSpan = wrapper.querySelector('span[data-encoded-text]');
@@ -1262,7 +1292,7 @@
         }
 
         decodeToggleButton.addEventListener('click', () => {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on decode button click
             if (isDecodedState) {
                 encodeMessages();
             } else {
@@ -1280,7 +1310,7 @@
         });
 
         modalSecretKeyInput.addEventListener('input', () => {
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on modal input
             const enteredKey = modalSecretKeyInput.value.trim();
 
             if (enteredKey.length === currentSecretKey.length) {
@@ -1308,16 +1338,14 @@
             updateJoinButtonState();
             updateSendMessageButtonState();
             chatWidgetContainer.classList.add('hidden');
-            authSection.classList.add('hidden');
-            chatOpenButton.classList.add('hidden-on-open');
+            authSection.classList.remove('hidden'); // Ensure auth section is visible initially
+            chatOpenButton.classList.add('hidden-on-open'); // Keep chat open button hidden initially if chat is not open
 
-            setTimeout(() => {
-                window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
-            }, 15000);
+            resetPageInactivityTimer(); // Start page inactivity timer on load
         });
 
         onAuthStateChanged(auth, (user) => {
-            if (user && hasEnteredChatView) {
+            if (user && hasEnteredChatView) { // Only proceed if user is authenticated AND has explicitly entered chat view
                 currentUser = user;
 
                 authSection.classList.add('hidden');
@@ -1331,7 +1359,13 @@
 
                 updateSendMessageButtonState();
                 setupRealtimeMessages();
-                resetActivityTimer();
+
+                // Clear page inactivity timer and start chat inactivity timer
+                if (pageInactivityTimeoutId) {
+                    clearTimeout(pageInactivityTimeoutId);
+                    pageInactivityTimeoutId = null;
+                }
+                resetChatInactivityTimer();
 
                 statusMessage.textContent = `Entering messaging window.`;
                 statusMessage.classList.remove('hidden');
@@ -1341,7 +1375,8 @@
                 }, 3000);
 
             } else {
-                authSection.classList.add('hidden');
+                // If not authenticated or not explicitly entered chat view, ensure chat is closed and auth section is visible
+                authSection.classList.remove('hidden'); // Show auth section
                 chatSection.classList.add('hidden');
                 document.getElementById('decodeToggleWrapper').classList.add('hidden');
                 currentUser = null;
@@ -1352,19 +1387,22 @@
                     unsubscribeFromMessages();
                     unsubscribeFromMessages = null;
                 }
-                if (activityTimeoutId) {
-                    clearTimeout(activityTimeoutId);
-                    activityTimeoutId = null;
+                if (chatInactivityTimeoutId) {
+                    clearTimeout(chatInactivityTimeoutId);
+                    chatInactivityTimeoutId = null;
                 }
                 hasEnteredChatView = false;
                 updateJoinButtonState();
                 updateSendMessageButtonState();
                 chatWidgetContainer.classList.remove('open');
                 chatWidgetContainer.classList.add('hidden');
-                chatOpenButton.classList.remove('hidden-on-open');
+                chatOpenButton.classList.remove('hidden-on-open'); // Ensure chat open button is visible if chat is not open
+
+                resetPageInactivityTimer(); // Restart page inactivity timer
             }
         });
 
+        // The chatOpenButton now always redirects as per previous behavior
         chatOpenButton.addEventListener('click', () => {
             window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
         });
@@ -1373,6 +1411,7 @@
             closeChatWidgetAndReset();
         });
 
+        // Modified global click listener to only close chat widget, not redirect the page
         document.body.addEventListener('click', (event) => {
             const clickedElement = event.target;
 
@@ -1384,17 +1423,16 @@
                 clickedElement.closest('.modal-overlay');
 
             if (!isInsideProtectedElement) {
-                if (hasEnteredChatView) {
+                if (chatWidgetContainer.classList.contains('open')) { // Only close chat if it's open
                     closeChatWidgetAndReset();
                 }
-                window.location.replace('https://www.naukri.com/faq/job-seeker?utm_source=footer');
             }
         });
 
         emojiButton.addEventListener('click', (event) => {
             event.stopPropagation();
             emojiPicker.classList.toggle('open');
-            resetActivityTimer();
+            resetChatInactivityTimer(); // Reset chat timer on emoji button click
         });
 
         emojiPicker.querySelectorAll('.emoji-item').forEach(item => {
@@ -1408,7 +1446,7 @@
                 messageInput.setSelectionRange(start + emoji.length, start + emoji.length);
                 messageInput.dispatchEvent(new Event('input'));
                 emojiPicker.classList.remove('open');
-                resetActivityTimer();
+                resetChatInactivityTimer(); // Reset chat timer on emoji selection
             });
         });
 
@@ -1420,10 +1458,12 @@
 
         // Image/GIF sending functionality
         imageButton.addEventListener('click', () => {
+            resetChatInactivityTimer(); // Reset chat timer on image button click
             imageInput.click(); // Trigger the hidden file input click
         });
 
         imageInput.addEventListener('change', async (event) => {
+            resetChatInactivityTimer(); // Reset chat timer on image input change
             const file = event.target.files[0];
             if (!file) {
                 return;
