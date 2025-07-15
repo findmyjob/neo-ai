@@ -172,6 +172,13 @@
          */
         async function initializeFirebase() {
             try {
+                // Check if firebaseConfig is valid
+                if (!firebaseConfig || !firebaseConfig.apiKey) {
+                    console.error("Firebase configuration is missing or invalid. Please ensure __firebase_config is properly provided by the environment.");
+                    showMessage("App initialization failed: Firebase config missing. Check console.", "error");
+                    return; // Stop initialization if config is bad
+                }
+
                 // Initialize Firebase app
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
