@@ -153,7 +153,16 @@
 
         // Canvas environment variables for Firebase config and auth token
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        let firebaseConfig = {}; // Initialize as empty object
+        try {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                firebaseConfig = JSON.parse(__firebase_config);
+            }
+        } catch (e) {
+            console.error("Error parsing __firebase_config:", e);
+            showMessage("App initialization failed: Invalid Firebase config format. Check console.", "error");
+            // firebaseConfig remains {} if parsing fails
+        }
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // DOM Elements
