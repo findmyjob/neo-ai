@@ -205,10 +205,21 @@
 
                         // Set up real-time listeners after auth is ready
                         setupFirestoreListeners();
+
+                        // Add event listeners to smiley buttons ONLY after userId is available
+                        smileyButtons.forEach(button => {
+                            button.removeEventListener('click', handleSmileyClick); // Prevent duplicate listeners
+                            button.addEventListener('click', handleSmileyClick);
+                        });
+
                     } else {
                         userId = null;
                         console.log("No user signed in.");
                         currentUserNameDisplay.textContent = "Please sign in.";
+                        // Remove listeners if user signs out to prevent errors
+                        smileyButtons.forEach(button => {
+                            button.removeEventListener('click', handleSmileyClick);
+                        });
                     }
                 });
             } catch (error) {
@@ -316,11 +327,6 @@
                 showMessage("Error updating data. Check console for details.", "error");
             }
         }
-
-        // Add event listeners to smiley buttons
-        smileyButtons.forEach(button => {
-            button.addEventListener('click', handleSmileyClick);
-        });
 
         // Handle user name input change
         userNameInput.addEventListener('change', async (event) => {
