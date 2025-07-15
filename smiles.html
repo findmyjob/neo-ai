@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smiley Vibrator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+        .smiley-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0e7ff; /* Light blue */
+            border: none;
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin: 10px;
+            font-size: 3rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-grow: 1;
+            min-width: 120px;
+        }
+        .smiley-button:hover {
+            background-color: #c7d2fe; /* Slightly darker blue */
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        .smiley-button:active {
+            background-color: #a5b4fc; /* Even darker blue */
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .count {
+            font-size: 0.9rem;
+            color: #4f46e5; /* Indigo */
+            margin-top: 5px;
+            font-weight: 600;
+        }
+        input[type="text"] {
+            padding: 10px 15px;
+            border: 2px solid #e0e7ff;
+            border-radius: 10px;
+            width: calc(100% - 30px);
+            max-width: 300px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #818cf8; /* Light indigo on focus */
+        }
+        .message-box {
+            background-color: #d1fae5; /* Light green */
+            color: #065f46; /* Dark green */
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .message-box.show {
+            opacity: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .smiley-grid {
+                flex-direction: column;
+            }
+            .smiley-button {
+                width: 100%;
+                margin: 8px 0;
+            }
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Smiley Vibrator</h1>
+
+        <div class="mb-6">
+            <label for="userNameInput" class="block text-gray-700 text-sm font-medium mb-2">Enter your name:</label>
+            <input type="text" id="userNameInput" placeholder="Your Name" class="focus:ring-2 focus:ring-indigo-300">
+            <p id="currentUserName" class="text-sm text-gray-500 mt-2"></p>
+        </div>
+
+        <div class="smiley-grid flex flex-wrap justify-center gap-4">
+            <button class="smiley-button" data-emoji="angry">
+                😠
+                <span class="count" id="angryCount">Count: 0</span>
+            </button>
+            <button class="smiley-button" data-emoji="smile">
+                😊
+                <span class="count" id="smileCount">Count: 0</span>
+            </button>
+            <button class="smiley-button" data-emoji="kiss">
+                😘
+                <span class="count" id="kissCount">Count: 0</span>
+            </button>
+            <button class="smiley-button" data-emoji="love">
+                😍
+                <span class="count" id="loveCount">Count: 0</span>
+            </button>
+        </div>
+
+        <div id="messageBox" class="message-box"></div>
+    </div>
+
+    <script type="module">
+        // Firebase SDK imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, collection, FieldValue, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase variables
+        let app;
+        let db;
+        let auth;
+        let userId = null;
+        let userName = "Guest"; // Default name
+        let lastProcessedTimestamp = 0; // To prevent vibrating on old data
+
+        // Canvas environment variables for Firebase config and auth token
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // DOM Elements
+        const userNameInput = document.getElementById('userNameInput');
+        const currentUserNameDisplay = document.getElementById('currentUserName');
+        const messageBox = document.getElementById('messageBox');
+        const smileyButtons = document.querySelectorAll('.smiley-button');
+
+        // Firestore paths
+        const usersCollectionPath = `artifacts/${appId}/public/data/users`;
+        const globalStateDocPath = `artifacts/${appId}/public/data/global_state/emojis`;
+
+        /**
+         * Initializes Firebase and sets up authentication.
+         * Sets up the onAuthStateChanged listener to get the current user ID.
+         */
+        async function initializeFirebase() {
+            try {
+                // Initialize Firebase app
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Sign in with custom token or anonymously
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Listen for authentication state changes
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Firebase User ID:", userId);
+                        // Load user name from local storage or set initial
+                        const storedName = localStorage.getItem('userName');
+                        if (storedName) {
+                            userName = storedName;
+                            userNameInput.value = userName;
+                        } else {
+                            // If no name stored, prompt for it or use default
+                            userNameInput.value = userName; // Set default in input
+                        }
+                        currentUserNameDisplay.textContent = `Your ID: ${userId}`;
+
+                        // Ensure user document exists with their name
+                        await setDoc(doc(db, usersCollectionPath, userId), { name: userName }, { merge: true });
+
+                        // Set up real-time listeners after auth is ready
+                        setupFirestoreListeners();
+                    } else {
+                        userId = null;
+                        console.log("No user signed in.");
+                        currentUserNameDisplay.textContent = "Please sign in.";
+                    }
+                });
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessage("Error initializing app. Check console for details.", "error");
+            }
+        }
+
+        /**
+         * Sets up real-time listeners for Firestore data.
+         * Listens to the global emojis document for count updates and vibration triggers.
+         */
+        function setupFirestoreListeners() {
+            // Listen to the global emojis document for real-time updates
+            onSnapshot(doc(db, globalStateDocPath), (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const data = docSnapshot.data();
+                    const counts = data.counts || { angry: 0, smile: 0, kiss: 0, love: 0 };
+                    const lastAction = data.lastAction || {};
+
+                    // Update UI counts for all emojis
+                    document.getElementById('angryCount').textContent = `Count: ${counts.angry}`;
+                    document.getElementById('smileCount').textContent = `Count: ${counts.smile}`;
+                    document.getElementById('kissCount').textContent = `Count: ${counts.kiss}`;
+                    document.getElementById('loveCount').textContent = `Count: ${counts.love}`;
+
+                    // Check for vibration trigger from another user
+                    if (lastAction.senderId && lastAction.senderId !== userId && lastAction.timestamp > lastProcessedTimestamp) {
+                        console.log("Vibration triggered by:", lastAction.senderName, "for emoji:", lastAction.emoji);
+                        if (navigator.vibrate) {
+                            navigator.vibrate(200); // Vibrate for 200ms
+                            showMessage(`Vibration from ${lastAction.senderName} for ${lastAction.emoji}!`, "success");
+                        } else {
+                            showMessage(`Action from ${lastAction.senderName} for ${lastAction.emoji}! (Vibration not supported)`, "info");
+                        }
+                        lastProcessedTimestamp = lastAction.timestamp; // Update last processed timestamp
+                    }
+                } else {
+                    console.log("Global emojis document does not exist. Initializing...");
+                    // Initialize the document if it doesn't exist
+                    setDoc(doc(db, globalStateDocPath), {
+                        counts: { angry: 0, smile: 0, kiss: 0, love: 0 },
+                        lastAction: { senderId: "", senderName: "", emoji: "", timestamp: 0 }
+                    });
+                }
+            }, (error) => {
+                console.error("Error listening to global emojis document:", error);
+                showMessage("Error syncing data. Check console for details.", "error");
+            });
+        }
+
+        /**
+         * Displays a temporary message in the message box.
+         * @param {string} message - The message to display.
+         * @param {string} type - 'success', 'error', or 'info' for styling.
+         */
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box show'; // Reset classes
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-800');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800');
+            } else {
+                messageBox.classList.add('bg-blue-100', 'text-blue-800');
+            }
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000); // Message disappears after 3 seconds
+        }
+
+        /**
+         * Handles the click event on smiley buttons.
+         * Updates the global counts in Firestore and records the last action.
+         * @param {Event} event - The click event.
+         */
+        async function handleSmileyClick(event) {
+            if (!userId) {
+                showMessage("Please wait, signing in...", "info");
+                return;
+            }
+            if (!userName || userName.trim() === "Guest") {
+                showMessage("Please enter your name first!", "error");
+                userNameInput.focus();
+                return;
+            }
+
+            const clickedEmoji = event.currentTarget.dataset.emoji;
+            console.log(`User ${userName} (${userId}) clicked: ${clickedEmoji}`);
+
+            try {
+                // Update the global counts and last action in Firestore
+                await updateDoc(doc(db, globalStateDocPath), {
+                    [`counts.${clickedEmoji}`]: increment(1), // Atomically increments the specific emoji count
+                    lastAction: {
+                        senderId: userId,
+                        senderName: userName,
+                        emoji: clickedEmoji,
+                        timestamp: Date.now()
+                    }
+                });
+                console.log("Firestore updated successfully.");
+            } catch (error) {
+                console.error("Error updating document:", error);
+                showMessage("Error updating data. Check console for details.", "error");
+            }
+        }
+
+        // Add event listeners to smiley buttons
+        smileyButtons.forEach(button => {
+            button.addEventListener('click', handleSmileyClick);
+        });
+
+        // Handle user name input change
+        userNameInput.addEventListener('change', async (event) => {
+            const newName = event.target.value.trim();
+            if (newName) {
+                userName = newName;
+                localStorage.setItem('userName', userName);
+                currentUserNameDisplay.textContent = `Your ID: ${userId}`;
+                if (userId) {
+                    await setDoc(doc(db, usersCollectionPath, userId), { name: userName }, { merge: true });
+                    showMessage(`Your name is now set to ${userName}!`, "success");
+                }
+            } else {
+                userName = "Guest";
+                localStorage.removeItem('userName');
+                currentUserNameDisplay.textContent = `Your ID: ${userId}`;
+                if (userId) {
+                    await setDoc(doc(db, usersCollectionPath, userId), { name: userName }, { merge: true });
+                }
+                showMessage("Name cleared. Using 'Guest'.", "info");
+            }
+        });
+
+        // Initialize Firebase when the DOM is fully loaded
+        window.onload = initializeFirebase;
+    </script>
+</body>
+</html>
