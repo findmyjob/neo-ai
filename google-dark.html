@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base styles (defaulting to light mode for systems not preferring dark) */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #ffffff; /* Default light background */
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: #202124; /* Default dark text color */
+        }
+        .header {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            color: #707070; /* Light grey for header links in light mode */
+            font-size: 0.875rem;
+        }
+        .header-link {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.2s ease-in-out;
+        }
+        .header-link:hover {
+            color: #000000; /* Darker on hover in light mode */
+        }
+        .main-content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 90%;
+            padding: 1rem;
+        }
+        .hidden-box {
+            display: none;
+        }
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8); /* Dark background for messages */
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none;
+        }
+        .message-box.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .google-input {
+            background-color: #ffffff; /* Light input background */
+            color: #202124; /* Dark text color */
+            border: 1px solid #dadce0; /* Light border */
+            box-shadow: 0 1px 6px rgba(32,33,36,.28); /* Subtle shadow */
+        }
+        .google-input:focus {
+            border-color: transparent;
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
+        }
+        .close-button {
+            background-color: transparent;
+            color: #a0a0a0;
+            border: none;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .close-button:hover {
+            background-color: #f0f0f0;
+        }
+        #theTextBox {
+            background-color: #ffffff; /* Light background for the box */
+            color: #202124;
+            border: 1px solid #dadce0;
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
+            padding: 1rem;
+        }
+        #mainTextarea {
+            border: none;
+            background-color: #f8f9fa; /* Slightly off-white for textarea background */
+            color: #202124;
+            resize: none;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+        #mainTextarea:focus {
+            border-color: #4285f4; /* Google blue on focus */
+            box-shadow: 0 1px 2px rgba(66,133,244,.2);
+            outline: none;
+        }
+        .footer {
+            width: 100%;
+            background-color: #f2f2f2; /* Light grey footer background */
+            color: #707070;
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .footer-links-group {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .footer-link {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.2s ease-in-out;
+        }
+        .footer-link:hover {
+            color: #000000;
+        }
+        .google-button {
+            background-color: #f8f9fa; /* Light button background */
+            color: #3c4043; /* Dark button text */
+            border: 1px solid #f8f9fa;
+            transition: background-color 0.3s, box-shadow 0.3s, border-color 0.3s;
+        }
+        .google-button:hover {
+            background-color: #e8eaed;
+            border-color: #dadce0;
+            box-shadow: 0 1px 1px rgba(0,0,0,.1);
+        }
+
+        /* Dark Mode Styles */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #202124; /* Deep dark background */
+                color: #e0e0e0; /* Light text color */
+            }
+            .header {
+                color: #a0a0a0;
+            }
+            .header-link:hover {
+                color: #ffffff;
+            }
+            .message-box {
+                background-color: rgba(255, 255, 255, 0.9); /* Light background for visibility */
+                color: #202124; /* Dark text for messages */
+            }
+            .google-input {
+                background-color: #333333;
+                color: #e0e0e0;
+                border: 1px solid #444444;
+            }
+            .google-input:focus {
+                box-shadow: 0 1px 6px rgba(0,0,0,.5);
+            }
+            .close-button {
+                color: #a0a0a0;
+            }
+            .close-button:hover {
+                background-color: #3a3a3a;
+            }
+            #theTextBox {
+                background-color: #282828;
+                color: #e0e0e0;
+                border: 1px solid #444444;
+                box-shadow: 0 1px 6px rgba(0,0,0,.5);
+            }
+            #mainTextarea {
+                background-color: #333333;
+                color: #e0e0e0;
+            }
+            #mainTextarea:focus {
+                border-color: #6699ff;
+                box-shadow: 0 1px 2px rgba(102,153,255,.2);
+            }
+            .footer {
+                background-color: #121212;
+                color: #a0a0a0;
+            }
+            .footer-link:hover {
+                color: #ffffff;
+            }
+            .google-button {
+                background-color: #303134; /* Darker button background */
+                color: #e8eaed; /* Lighter button text */
+                border: 1px solid #303134;
+            }
+            .google-button:hover {
+                background-color: #3c4043;
+                border-color: #5f6368;
+                box-shadow: 0 1px 1px rgba(0,0,0,.2);
+            }
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+    <header class="header">
+        <nav>
+            <a href="https://mail.google.com/" class="header-link">Gmail</a>
+            <a href="https://images.google.com/" class="header-link">Images</a>
+            <a href="#" class="header-link ml-4">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm3 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0-3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm3 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+            </a>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm ml-4 transition duration-300 ease-in-out">Sign in</button>
+        </nav>
+    </header>
+
+    <div class="main-content-area">
+        <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google" class="mb-6 max-w-[272px] w-full h-auto mx-auto">
+
+        <div class="relative w-full max-w-xl mb-6">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <input type="password" id="codeInput" maxlength="4" placeholder="Search Google" class="google-input w-full pl-10 pr-4 py-3 border rounded-full shadow-md focus:outline-none text-lg">
+        </div>
+
+        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center">
+            <button id="submitCodeBtn" class="google-button font-medium py-2 px-4 rounded-md text-sm">
+                Google Search
+            </button>
+            <button id="imFeelingLuckyBtn" class="google-button font-medium py-2 px-4 rounded-md text-sm">
+                I'm Feeling Lucky
+            </button>
+        </div>
+
+        <div id="theTextBox" class="hidden-box relative w-full md:w-3/4 lg:w-1/2 rounded-xl transition-all duration-300 ease-in-out mt-8">
+            <button id="closeTextBoxBtn" class="close-button">X</button>
+            <textarea id="mainTextarea" class="w-full h-full p-3 rounded-lg focus:outline-none" rows="8" placeholder="Type your notes here..."></textarea>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-links-group">
+            <a href="#" class="footer-link">About</a>
+            <a href="#" class="footer-link">Advertising</a>
+            <a href="#" class="footer-link">Business</a>
+            <a href="#" class="footer-link">How Search works</a>
+        </div>
+        <div class="footer-links-group">
+            <a href="#" class="footer-link">Privacy</a>
+            <a href="#" class="footer-link">Terms</a>
+            <a href="#" class="footer-link">Settings</a>
+        </div>
+    </footer>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const codeInput = document.getElementById('codeInput');
+        const submitCodeBtn = document.getElementById('submitCodeBtn');
+        const imFeelingLuckyBtn = document.getElementById('imFeelingLuckyBtn');
+        const theTextBox = document.getElementById('theTextBox');
+        const mainTextarea = document.getElementById('mainTextarea');
+        const closeTextBoxBtn = document.getElementById('closeTextBoxBtn');
+        const messageBox = document.getElementById('messageBox');
+
+        let app;
+        let db;
+        let auth;
+        let userId;
+        let unsubscribeFromNote;
+        let activeKey = null;
+
+        let boxVisibilityTimer;
+        let pageInactivityTimer;
+
+        const INACTIVITY_DURATION_MS = 10000;
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyE_p7cLuWYEUHz7a991nXAJFBFvNUjgc",
+            authDomain: "codedrop-007.firebaseapp.com",
+            projectId: "codedrop-007",
+            storageBucket: "codedrop-007.firebasestorage.app",
+            messagingSenderId: "795800759176",
+            appId: "1:795800759176:web:d8004fb546f35fbd8ae83d",
+            measurementId: "G-3BGWGERRY2"
+        };
+
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                } else {
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined') {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                        userId = auth.currentUser?.uid || crypto.randomUUID();
+                    } catch (error) {
+                        console.error("Firebase authentication failed:", error);
+                        userId = crypto.randomUUID();
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error("Failed to initialize Firebase:", error);
+        }
+
+        function showMessage(message, duration = 2000) {
+            messageBox.textContent = message;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, duration);
+        }
+
+        function toggleTextBoxVisibility(element) {
+            element.classList.toggle('hidden-box');
+            if (!element.classList.contains('hidden-box')) {
+                resetBoxVisibilityTimer();
+            } else {
+                clearTimeout(boxVisibilityTimer);
+            }
+        }
+
+        async function saveNote(key) {
+            if (!db || !key || !userId) {
+                console.warn("Firestore, Key, or User ID not ready. Cannot save note.");
+                return;
+            }
+            try {
+                const noteRef = doc(db, `artifacts/${appId}/public/data/notes`, key);
+                await setDoc(noteRef, { content: mainTextarea.value });
+                console.log(`Note for key '${key}' saved successfully.`);
+            } catch (e) {
+                console.error(`Error saving document for key '${key}': `, e);
+                if (e.code === 'permission-denied') {
+                    showMessage("Permission denied to save note. Check Firestore rules.", 4000);
+                }
+            }
+        }
+
+        function loadNote(key) {
+            if (!db || !key || !userId) {
+                console.warn("Firestore, Key, or User ID not ready. Cannot load note.");
+                return;
+            }
+
+            if (unsubscribeFromNote) {
+                unsubscribeFromNote();
+            }
+
+            const noteRef = doc(db, `artifacts/${appId}/public/data/notes`, key);
+            unsubscribeFromNote = onSnapshot(noteRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    mainTextarea.value = data.content || '';
+                    console.log(`Note for key '${key}' loaded successfully.`);
+                } else {
+                    mainTextarea.value = '';
+                    console.log(`No note found for key '${key}'. Starting fresh.`);
+                }
+            }, (error) => {
+                console.error(`Error listening to document for key '${key}': `, error);
+                if (error.code === 'permission-denied') {
+                    showMessage("Permission denied to load note. Check Firestore rules.", 4000);
+                }
+            });
+        }
+
+        function resetBoxVisibilityTimer() {
+            if (boxVisibilityTimer) {
+                clearTimeout(boxVisibilityTimer);
+            }
+            boxVisibilityTimer = setTimeout(() => {
+                theTextBox.classList.add('hidden-box');
+            }, INACTIVITY_DURATION_MS);
+        }
+
+        function resetPageInactivityTimer() {
+            if (pageInactivityTimer) {
+                clearTimeout(pageInactivityTimer);
+            }
+            pageInactivityTimer = setTimeout(() => {
+                window.location.replace('https://www.google.com');
+            }, INACTIVITY_DURATION_MS);
+        }
+
+        submitCodeBtn.addEventListener('click', () => {
+            const enteredCode = codeInput.value;
+            if (enteredCode.length === 4 && /^\d+$/.test(enteredCode)) {
+                activeKey = enteredCode;
+                loadNote(activeKey);
+                toggleTextBoxVisibility(theTextBox);
+                codeInput.value = '';
+                resetPageInactivityTimer();
+            } else {
+                codeInput.value = '';
+            }
+        });
+
+        imFeelingLuckyBtn.addEventListener('click', () => {
+            window.location.replace('https://www.google.com');
+            resetPageInactivityTimer();
+        });
+
+        mainTextarea.addEventListener('input', () => {
+            if (activeKey) {
+                saveNote(activeKey);
+            }
+            resetBoxVisibilityTimer();
+            resetPageInactivityTimer();
+        });
+
+        closeTextBoxBtn.addEventListener('click', () => {
+            theTextBox.classList.add('hidden-box');
+            clearTimeout(boxVisibilityTimer);
+            resetPageInactivityTimer();
+            if (unsubscribeFromNote) {
+                unsubscribeFromNote();
+                unsubscribeFromNote = null;
+            }
+            activeKey = null;
+        });
+
+        codeInput.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (!theTextBox.classList.contains('hidden-box')) {
+                theTextBox.classList.add('hidden-box');
+                clearTimeout(boxVisibilityTimer);
+                resetPageInactivityTimer();
+            }
+        });
+
+
+        document.addEventListener('click', (event) => {
+            const interactiveElements = [
+                codeInput,
+                submitCodeBtn,
+                imFeelingLuckyBtn,
+                theTextBox,
+                closeTextBoxBtn,
+                mainTextarea
+            ];
+
+            let clickedOnInteractiveElement = false;
+            for (const element of interactiveElements) {
+                if (element && (element === event.target || element.contains(event.target))) {
+                    clickedOnInteractiveElement = true;
+                    break;
+                }
+            }
+
+            if (!clickedOnInteractiveElement) {
+                window.location.replace('https://www.google.com');
+            }
+        });
+
+
+        document.addEventListener('keydown', resetPageInactivityTimer);
+        document.addEventListener('mousemove', resetPageInactivityTimer);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            resetPageInactivityTimer();
+        });
+    </script>
+
+</body>
+</html>
