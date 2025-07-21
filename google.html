@@ -126,6 +126,9 @@
             </button>
         </div>
 
+        <!-- User ID Display -->
+        <div id="userIdDisplay" class="text-sm text-gray-500 mt-4"></div>
+
         <!-- The single text box -->
         <div id="theTextBox" class="hidden-box relative w-full md:w-3/4 lg:w-1/2 rounded-xl transition-all duration-300 ease-in-out mt-8">
             <button id="closeTextBoxBtn" class="close-button">X</button>
@@ -136,7 +139,12 @@
     <!-- Custom Message Box - Kept for "Invalid code" message -->
     <div id="messageBox" class="message-box"></div>
 
-    <script>
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // Get references to the elements
         const codeInput = document.getElementById('codeInput');
         const submitCodeBtn = document.getElementById('submitCodeBtn');
@@ -145,6 +153,14 @@
         const mainTextarea = document.getElementById('mainTextarea');
         const closeTextBoxBtn = document.getElementById('closeTextBoxBtn');
         const messageBox = document.getElementById('messageBox');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+
+        // Firebase variables
+        let app;
+        let db;
+        let auth;
+        let userId;
+        let unsubscribeFromNote; // To store the onSnapshot unsubscribe function
 
         // Timers
         let boxVisibilityTimer; // Timer for the text box's visibility
@@ -152,6 +168,43 @@
 
         // Constants for inactivity durations (in milliseconds)
         const INACTIVITY_DURATION_MS = 10000; // 10 seconds
+
+        // Initialize Firebase
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            // Authenticate user
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                } else {
+                    // Sign in anonymously if no user is authenticated
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined') {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                        userId = auth.currentUser?.uid || crypto.randomUUID(); // Fallback for userId if anonymous sign-in fails
+                    } catch (error) {
+                        console.error("Firebase authentication failed:", error);
+                        userId = crypto.randomUUID(); // Use a random ID if auth fails
+                    }
+                }
+                userIdDisplay.textContent = `User ID: ${userId}`;
+                // Load note once authenticated
+                loadNote();
+            });
+
+        } catch (error) {
+            console.error("Failed to initialize Firebase:", error);
+            userIdDisplay.textContent = `Firebase Init Error. User ID: ${crypto.randomUUID()}`;
+        }
 
         /**
          * Displays a temporary message to the user.
@@ -182,6 +235,52 @@
         }
 
         /**
+         * Saves the current content of the textarea to Firestore.
+         */
+        async function saveNote() {
+            if (!db || !userId) {
+                console.warn("Firestore or User ID not ready. Cannot save note.");
+                return;
+            }
+            try {
+                // Store in private data path
+                const noteRef = doc(db, `artifacts/${appId}/users/${userId}/notes`, 'userNote');
+                await setDoc(noteRef, { content: mainTextarea.value });
+                // console.log("Note saved successfully!");
+            } catch (e) {
+                console.error("Error saving document: ", e);
+            }
+        }
+
+        /**
+         * Loads the note from Firestore and sets up a real-time listener.
+         */
+        function loadNote() {
+            if (!db || !userId) {
+                console.warn("Firestore or User ID not ready. Cannot load note.");
+                return;
+            }
+
+            // Unsubscribe from previous listener if it exists
+            if (unsubscribeFromNote) {
+                unsubscribeFromNote();
+            }
+
+            // Listen for real-time updates to the note
+            const noteRef = doc(db, `artifacts/${appId}/users/${userId}/notes`, 'userNote');
+            unsubscribeFromNote = onSnapshot(noteRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    mainTextarea.value = data.content || '';
+                } else {
+                    mainTextarea.value = ''; // Clear if document doesn't exist
+                }
+            }, (error) => {
+                console.error("Error listening to document: ", error);
+            });
+        }
+
+        /**
          * Resets the inactivity timer for the text box.
          * If the timer expires, the text box is hidden.
          */
@@ -193,7 +292,6 @@
             // Set a new timer to hide the box after INACTIVITY_DURATION_MS
             boxVisibilityTimer = setTimeout(() => {
                 theTextBox.classList.add('hidden-box'); // Hide the box
-                // Removed showMessage("Text box hidden due to inactivity.", 2000);
             }, INACTIVITY_DURATION_MS);
         }
 
@@ -208,8 +306,6 @@
             }
             // Set a new page inactivity timer
             pageInactivityTimer = setTimeout(() => {
-                // Removed showMessage("Redirecting to Google.com due to inactivity...", 3000);
-                // The redirection will happen silently
                 window.location.href = 'https://www.google.com';
             }, INACTIVITY_DURATION_MS);
         }
@@ -234,14 +330,13 @@
 
         // Event listener for the "I'm Feeling Lucky" button (redirect to Google)
         imFeelingLuckyBtn.addEventListener('click', () => {
-            // Removed showMessage("Feeling lucky! Redirecting to Google.com...", 2000);
-            // The redirection will happen silently
             window.location.href = 'https://www.google.com';
             resetPageInactivityTimer(); // Any interaction resets page timer
         });
 
         // Event listener for input in the main textarea
         mainTextarea.addEventListener('input', () => {
+            saveNote(); // Save content on every input
             resetBoxVisibilityTimer(); // Typing in the box resets its hide timer
             resetPageInactivityTimer(); // Typing also counts as page activity
         });
@@ -250,7 +345,6 @@
         closeTextBoxBtn.addEventListener('click', () => {
             theTextBox.classList.add('hidden-box'); // Hide the text box
             clearTimeout(boxVisibilityTimer); // Clear the box's inactivity timer
-            // Removed showMessage("Text box closed.", 1500);
             resetPageInactivityTimer(); // Closing the box also counts as page activity
         });
 
