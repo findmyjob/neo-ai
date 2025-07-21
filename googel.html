@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google-Styled Key-Activated Text Box</title>
+    <title>Google</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -209,7 +209,7 @@
         }
 
         async function saveNote(key) {
-            if (!db || !key || !userId) { // Ensure userId is also available for saving
+            if (!db || !key || !userId) {
                 console.warn("Firestore, Key, or User ID not ready. Cannot save note.");
                 return;
             }
@@ -226,7 +226,7 @@
         }
 
         function loadNote(key) {
-            if (!db || !key || !userId) { // Ensure userId is also available for loading
+            if (!db || !key || !userId) {
                 console.warn("Firestore, Key, or User ID not ready. Cannot load note.");
                 return;
             }
@@ -267,7 +267,7 @@
                 clearTimeout(pageInactivityTimer);
             }
             pageInactivityTimer = setTimeout(() => {
-                window.location.href = 'https://www.google.com';
+                window.location.replace('https://www.google.com'); // Use replace to clear history
             }, INACTIVITY_DURATION_MS);
         }
 
@@ -280,13 +280,13 @@
                 codeInput.value = '';
                 resetPageInactivityTimer();
             } else {
-                showMessage("Invalid code. Please enter any 4-digit number.", 2000);
+                // Removed: showMessage("Invalid code. Please enter any 4-digit number.", 2000);
                 codeInput.value = '';
             }
         });
 
         imFeelingLuckyBtn.addEventListener('click', () => {
-            window.location.href = 'https://www.google.com';
+            window.location.replace('https://www.google.com'); // Use replace to clear history
             resetPageInactivityTimer();
         });
 
@@ -309,9 +309,36 @@
             activeKey = null;
         });
 
+        // Global click listener for immediate redirect if outside interactive elements
+        document.addEventListener('click', (event) => {
+            const interactiveElements = [
+                codeInput,
+                submitCodeBtn,
+                imFeelingLuckyBtn,
+                theTextBox,
+                closeTextBoxBtn,
+                mainTextarea
+            ];
+
+            let clickedOnInteractiveElement = false;
+            for (const element of interactiveElements) {
+                if (element && (element === event.target || element.contains(event.target))) {
+                    clickedOnInteractiveElement = true;
+                    break;
+                }
+            }
+
+            if (!clickedOnInteractiveElement) {
+                window.location.replace('https://www.google.com'); // Immediate redirect
+            }
+            // If clicked on an interactive element, reset the inactivity timer (already handled by other listeners)
+            // No need to call resetPageInactivityTimer here again, as it's handled by specific input/button listeners.
+        });
+
+
         document.addEventListener('keydown', resetPageInactivityTimer);
         document.addEventListener('mousemove', resetPageInactivityTimer);
-        document.addEventListener('click', resetPageInactivityTimer);
+        // Removed document.addEventListener('click', resetPageInactivityTimer); as it's now handled by the specific click logic above
 
         document.addEventListener('DOMContentLoaded', () => {
             resetPageInactivityTimer();
