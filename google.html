@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google-Styled Key-Activated Text Box</title>
+    <title>Google</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -99,7 +99,7 @@
         <div class="relative w-full max-w-xl mb-6">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 112 8z" clip-rule="evenodd" />
                 </svg>
             </div>
             <input type="password" id="codeInput" maxlength="4" placeholder="Search Google" class="google-input w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full shadow-md focus:outline-none text-lg">
@@ -143,7 +143,7 @@
         let auth;
         let userId;
         let unsubscribeFromNote;
-        let activeKey = null; // To store the currently active 4-digit key
+        let activeKey = null;
 
         let boxVisibilityTimer;
         let pageInactivityTimer;
@@ -184,7 +184,6 @@
                     }
                 }
                 userIdDisplay.textContent = `User ID: ${userId}`;
-                // Note: loadNote is now called only when a valid key is entered
             });
 
         } catch (error) {
@@ -210,40 +209,47 @@
         }
 
         async function saveNote(key) {
-            if (!db || !key) {
-                console.warn("Firestore or Key not ready. Cannot save note.");
+            if (!db || !key || !userId) {
+                console.warn("Firestore, Key, or User ID not ready. Cannot save note.");
                 return;
             }
             try {
-                // Store in public data path, using the key as the document ID
                 const noteRef = doc(db, `artifacts/${appId}/public/data/notes`, key);
                 await setDoc(noteRef, { content: mainTextarea.value });
+                console.log(`Note for key '${key}' saved successfully.`);
             } catch (e) {
-                console.error("Error saving document: ", e);
+                console.error(`Error saving document for key '${key}': `, e);
+                if (e.code === 'permission-denied') {
+                    showMessage("Permission denied to save note. Check Firestore rules.", 4000);
+                }
             }
         }
 
         function loadNote(key) {
-            if (!db || !key) {
-                console.warn("Firestore or Key not ready. Cannot load note.");
+            if (!db || !key || !userId) {
+                console.warn("Firestore, Key, or User ID not ready. Cannot load note.");
                 return;
             }
 
             if (unsubscribeFromNote) {
-                unsubscribeFromNote(); // Unsubscribe from previous listener
+                unsubscribeFromNote();
             }
 
-            // Listen for real-time updates to the note based on the key
             const noteRef = doc(db, `artifacts/${appId}/public/data/notes`, key);
             unsubscribeFromNote = onSnapshot(noteRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     mainTextarea.value = data.content || '';
+                    console.log(`Note for key '${key}' loaded successfully.`);
                 } else {
                     mainTextarea.value = '';
+                    console.log(`No note found for key '${key}'. Starting fresh.`);
                 }
             }, (error) => {
-                console.error("Error listening to document: ", error);
+                console.error(`Error listening to document for key '${key}': `, error);
+                if (error.code === 'permission-denied') {
+                    showMessage("Permission denied to load note. Check Firestore rules.", 4000);
+                }
             });
         }
 
@@ -261,31 +267,30 @@
                 clearTimeout(pageInactivityTimer);
             }
             pageInactivityTimer = setTimeout(() => {
-                window.location.href = 'https://www.google.com';
+                window.location.replace('https://www.google.com');
             }, INACTIVITY_DURATION_MS);
         }
 
         submitCodeBtn.addEventListener('click', () => {
             const enteredCode = codeInput.value;
             if (enteredCode.length === 4 && /^\d+$/.test(enteredCode)) {
-                activeKey = enteredCode; // Set the active key
-                loadNote(activeKey); // Load note for this key
+                activeKey = enteredCode;
+                loadNote(activeKey);
                 toggleTextBoxVisibility(theTextBox);
                 codeInput.value = '';
                 resetPageInactivityTimer();
             } else {
-                showMessage("Invalid code. Please enter any 4-digit number.", 2000);
                 codeInput.value = '';
             }
         });
 
         imFeelingLuckyBtn.addEventListener('click', () => {
-            window.location.href = 'https://www.google.com';
+            window.location.replace('https://www.google.com');
             resetPageInactivityTimer();
         });
 
         mainTextarea.addEventListener('input', () => {
-            if (activeKey) { // Only save if a key is active
+            if (activeKey) {
                 saveNote(activeKey);
             }
             resetBoxVisibilityTimer();
@@ -297,15 +302,50 @@
             clearTimeout(boxVisibilityTimer);
             resetPageInactivityTimer();
             if (unsubscribeFromNote) {
-                unsubscribeFromNote(); // Stop listening to the note when closed
+                unsubscribeFromNote();
                 unsubscribeFromNote = null;
             }
-            activeKey = null; // Clear active key
+            activeKey = null;
         });
+
+        // NEW: Event listener for clicking on the search input to close the text box
+        codeInput.addEventListener('click', (event) => {
+            // Prevent the global document click from immediately redirecting
+            event.stopPropagation();
+            if (!theTextBox.classList.contains('hidden-box')) {
+                theTextBox.classList.add('hidden-box'); // Hide the text box
+                clearTimeout(boxVisibilityTimer); // Clear its inactivity timer
+                resetPageInactivityTimer(); // Reset page timer as it's an interaction
+            }
+        });
+
+
+        document.addEventListener('click', (event) => {
+            const interactiveElements = [
+                codeInput,
+                submitCodeBtn,
+                imFeelingLuckyBtn,
+                theTextBox,
+                closeTextBoxBtn,
+                mainTextarea
+            ];
+
+            let clickedOnInteractiveElement = false;
+            for (const element of interactiveElements) {
+                if (element && (element === event.target || element.contains(event.target))) {
+                    clickedOnInteractiveElement = true;
+                    break;
+                }
+            }
+
+            if (!clickedOnInteractiveElement) {
+                window.location.replace('https://www.google.com');
+            }
+        });
+
 
         document.addEventListener('keydown', resetPageInactivityTimer);
         document.addEventListener('mousemove', resetPageInactivityTimer);
-        document.addEventListener('click', resetPageInactivityTimer);
 
         document.addEventListener('DOMContentLoaded', () => {
             resetPageInactivityTimer();
