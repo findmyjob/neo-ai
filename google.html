@@ -4,23 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google-Styled Key-Activated Text Box</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for Inter font and general body styling */
         body {
             font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #ffffff; /* White background like Google */
+            background-color: #ffffff;
             margin: 0;
             padding: 1rem;
             box-sizing: border-box;
-            color: #202124; /* Google's default text color */
+            color: #202124;
         }
-        /* Ensure the main container takes full width on small screens */
         .main-container {
             max-width: 90%;
             width: 100%;
@@ -29,11 +26,9 @@
             align-items: center;
             justify-content: center;
         }
-        /* Hidden by default */
         .hidden-box {
             display: none;
         }
-        /* Style for the message box - kept for other messages like "Invalid code" */
         .message-box {
             position: fixed;
             top: 50%;
@@ -46,21 +41,19 @@
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
-            pointer-events: none; /* Allows clicks to pass through when hidden */
+            pointer-events: none;
         }
         .message-box.show {
             opacity: 1;
             pointer-events: auto;
         }
-        /* Custom styling for Google-like input focus */
         .google-input:focus {
-            border-color: transparent; /* Remove default blue border */
-            box-shadow: 0 1px 6px rgba(32,33,36,.28); /* Google's subtle shadow */
+            border-color: transparent;
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
         }
-        /* Style for the close button */
         .close-button {
             background-color: transparent;
-            color: #d1d5db; /* Light grey color for the cross sign */
+            color: #d1d5db;
             border: none;
             width: 30px;
             height: 30px;
@@ -76,47 +69,42 @@
             transition: background-color 0.2s ease-in-out;
         }
         .close-button:hover {
-            background-color: #f0f0f0; /* Subtle light grey on hover */
+            background-color: #f0f0f0;
         }
-        /* Styling for the text box itself to match search bar */
         #theTextBox {
-            background-color: #ffffff; /* White background */
+            background-color: #ffffff;
             color: #202124;
-            border: 1px solid #dadce0; /* Subtle light border like Google elements */
-            box-shadow: 0 1px 6px rgba(32,33,36,.28); /* Google's subtle shadow */
-            padding: 1rem; /* Adjust padding to make space for content */
+            border: 1px solid #dadce0;
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
+            padding: 1rem;
         }
-        /* Styling for the textarea inside the box */
         #mainTextarea {
-            border: none; /* Removed border */
-            background-color: transparent; /* Make background transparent to blend with parent */
-            resize: none; /* Prevent manual resizing */
-            padding: 0; /* Remove padding to make it flush with parent */
+            border: none;
+            background-color: transparent;
+            resize: none;
+            padding: 0;
         }
         #mainTextarea:focus {
-            border-color: transparent; /* Ensure no border on focus */
-            box-shadow: none; /* Ensure no shadow on focus */
-            outline: none; /* Remove default outline */
+            border-color: transparent;
+            box-shadow: none;
+            outline: none;
         }
     </style>
 </head>
 <body class="bg-white text-gray-800">
 
     <div class="main-container bg-white p-8 rounded-lg text-center space-y-6">
-        <!-- Google Logo -->
         <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google" class="mb-6 max-w-[272px] w-full h-auto mx-auto">
 
-        <!-- Search Bar (repurposed code input) -->
         <div class="relative w-full max-w-xl mb-6">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 112 8z" clip-rule="evenodd" />
                 </svg>
             </div>
             <input type="password" id="codeInput" maxlength="4" placeholder="Search Google" class="google-input w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full shadow-md focus:outline-none text-lg">
         </div>
 
-        <!-- Buttons -->
         <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center">
             <button id="submitCodeBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md text-sm transition duration-300 ease-in-out border border-transparent hover:border-gray-300">
                 Google Search
@@ -126,26 +114,21 @@
             </button>
         </div>
 
-        <!-- User ID Display -->
         <div id="userIdDisplay" class="text-sm text-gray-500 mt-4"></div>
 
-        <!-- The single text box -->
         <div id="theTextBox" class="hidden-box relative w-full md:w-3/4 lg:w-1/2 rounded-xl transition-all duration-300 ease-in-out mt-8">
             <button id="closeTextBoxBtn" class="close-button">X</button>
             <textarea id="mainTextarea" class="w-full h-full p-3 rounded-lg focus:outline-none" rows="8" placeholder="Type your notes here..."></textarea>
         </div>
     </div>
 
-    <!-- Custom Message Box - Kept for "Invalid code" message -->
     <div id="messageBox" class="message-box"></div>
 
     <script type="module">
-        // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Get references to the elements
         const codeInput = document.getElementById('codeInput');
         const submitCodeBtn = document.getElementById('submitCodeBtn');
         const imFeelingLuckyBtn = document.getElementById('imFeelingLuckyBtn');
@@ -155,49 +138,51 @@
         const messageBox = document.getElementById('messageBox');
         const userIdDisplay = document.getElementById('userIdDisplay');
 
-        // Firebase variables
         let app;
         let db;
         let auth;
         let userId;
-        let unsubscribeFromNote; // To store the onSnapshot unsubscribe function
+        let unsubscribeFromNote;
 
-        // Timers
-        let boxVisibilityTimer; // Timer for the text box's visibility
-        let pageInactivityTimer; // Global timer for page redirection
+        let boxVisibilityTimer;
+        let pageInactivityTimer;
 
-        // Constants for inactivity durations (in milliseconds)
-        const INACTIVITY_DURATION_MS = 10000; // 10 seconds
+        const INACTIVITY_DURATION_MS = 10000;
 
-        // Initialize Firebase
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyE_p7cLuWYEUHz7a991nXAJFBFvNUjgc",
+            authDomain: "codedrop-007.firebaseapp.com",
+            projectId: "codedrop-007",
+            storageBucket: "codedrop-007.firebasestorage.app",
+            messagingSenderId: "795800759176",
+            appId: "1:795800759176:web:d8004fb546f35fbd8ae83d",
+            measurementId: "G-3BGWGERRY2"
+        };
+
 
         try {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
 
-            // Authenticate user
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     userId = user.uid;
                 } else {
-                    // Sign in anonymously if no user is authenticated
                     try {
                         if (typeof __initial_auth_token !== 'undefined') {
                             await signInWithCustomToken(auth, __initial_auth_token);
                         } else {
                             await signInAnonymously(auth);
                         }
-                        userId = auth.currentUser?.uid || crypto.randomUUID(); // Fallback for userId if anonymous sign-in fails
+                        userId = auth.currentUser?.uid || crypto.randomUUID();
                     } catch (error) {
                         console.error("Firebase authentication failed:", error);
-                        userId = crypto.randomUUID(); // Use a random ID if auth fails
+                        userId = crypto.randomUUID();
                     }
                 }
                 userIdDisplay.textContent = `User ID: ${userId}`;
-                // Load note once authenticated
                 loadNote();
             });
 
@@ -206,11 +191,6 @@
             userIdDisplay.textContent = `Firebase Init Error. User ID: ${crypto.randomUUID()}`;
         }
 
-        /**
-         * Displays a temporary message to the user.
-         * @param {string} message - The message to display.
-         * @param {number} duration - How long to display the message in milliseconds.
-         */
         function showMessage(message, duration = 2000) {
             messageBox.textContent = message;
             messageBox.classList.add('show');
@@ -219,143 +199,104 @@
             }, duration);
         }
 
-        /**
-         * Toggles the visibility of the text box.
-         * @param {HTMLElement} element - The text box element.
-         */
         function toggleTextBoxVisibility(element) {
             element.classList.toggle('hidden-box');
-            // If the box becomes visible, start/reset its inactivity timer
             if (!element.classList.contains('hidden-box')) {
                 resetBoxVisibilityTimer();
             } else {
-                // If the box becomes hidden, clear its timer
                 clearTimeout(boxVisibilityTimer);
             }
         }
 
-        /**
-         * Saves the current content of the textarea to Firestore.
-         */
         async function saveNote() {
             if (!db || !userId) {
                 console.warn("Firestore or User ID not ready. Cannot save note.");
                 return;
             }
             try {
-                // Store in private data path
                 const noteRef = doc(db, `artifacts/${appId}/users/${userId}/notes`, 'userNote');
                 await setDoc(noteRef, { content: mainTextarea.value });
-                // console.log("Note saved successfully!");
             } catch (e) {
                 console.error("Error saving document: ", e);
             }
         }
 
-        /**
-         * Loads the note from Firestore and sets up a real-time listener.
-         */
         function loadNote() {
             if (!db || !userId) {
                 console.warn("Firestore or User ID not ready. Cannot load note.");
                 return;
             }
 
-            // Unsubscribe from previous listener if it exists
             if (unsubscribeFromNote) {
                 unsubscribeFromNote();
             }
 
-            // Listen for real-time updates to the note
             const noteRef = doc(db, `artifacts/${appId}/users/${userId}/notes`, 'userNote');
             unsubscribeFromNote = onSnapshot(noteRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     mainTextarea.value = data.content || '';
                 } else {
-                    mainTextarea.value = ''; // Clear if document doesn't exist
+                    mainTextarea.value = '';
                 }
             }, (error) => {
                 console.error("Error listening to document: ", error);
             });
         }
 
-        /**
-         * Resets the inactivity timer for the text box.
-         * If the timer expires, the text box is hidden.
-         */
         function resetBoxVisibilityTimer() {
-            // Clear any existing timer for the text box
             if (boxVisibilityTimer) {
                 clearTimeout(boxVisibilityTimer);
             }
-            // Set a new timer to hide the box after INACTIVITY_DURATION_MS
             boxVisibilityTimer = setTimeout(() => {
-                theTextBox.classList.add('hidden-box'); // Hide the box
+                theTextBox.classList.add('hidden-box');
             }, INACTIVITY_DURATION_MS);
         }
 
-        /**
-         * Resets the global page inactivity timer.
-         * If the timer expires, the page redirects to google.com.
-         */
         function resetPageInactivityTimer() {
-            // Clear any existing page inactivity timer
             if (pageInactivityTimer) {
                 clearTimeout(pageInactivityTimer);
             }
-            // Set a new page inactivity timer
             pageInactivityTimer = setTimeout(() => {
                 window.location.href = 'https://www.google.com';
             }, INACTIVITY_DURATION_MS);
         }
 
-        // --- Event Listeners ---
-
-        // Event listener for the "Google Search" button (submit code)
         submitCodeBtn.addEventListener('click', () => {
             const enteredCode = codeInput.value;
-            // Check if the entered code is exactly 4 digits long and consists only of numbers
             if (enteredCode.length === 4 && /^\d+$/.test(enteredCode)) {
-                toggleTextBoxVisibility(theTextBox); // Toggle the single text box
-                codeInput.value = ''; // Clear the code input field
-                showMessage("Text box toggled successfully!", 2000); // Keep this message for successful toggle
-                resetPageInactivityTimer(); // Any interaction resets page timer
+                toggleTextBoxVisibility(theTextBox);
+                codeInput.value = '';
+                resetPageInactivityTimer();
             } else {
-                // If the code is not a valid 4-digit number
                 showMessage("Invalid code. Please enter any 4-digit number.", 2000);
-                codeInput.value = ''; // Clear the input field for another try
+                codeInput.value = '';
             }
         });
 
-        // Event listener for the "I'm Feeling Lucky" button (redirect to Google)
         imFeelingLuckyBtn.addEventListener('click', () => {
             window.location.href = 'https://www.google.com';
-            resetPageInactivityTimer(); // Any interaction resets page timer
+            resetPageInactivityTimer();
         });
 
-        // Event listener for input in the main textarea
         mainTextarea.addEventListener('input', () => {
-            saveNote(); // Save content on every input
-            resetBoxVisibilityTimer(); // Typing in the box resets its hide timer
-            resetPageInactivityTimer(); // Typing also counts as page activity
+            saveNote();
+            resetBoxVisibilityTimer();
+            resetPageInactivityTimer();
         });
 
-        // Event listener for the close button inside the text box
         closeTextBoxBtn.addEventListener('click', () => {
-            theTextBox.classList.add('hidden-box'); // Hide the text box
-            clearTimeout(boxVisibilityTimer); // Clear the box's inactivity timer
-            resetPageInactivityTimer(); // Closing the box also counts as page activity
+            theTextBox.classList.add('hidden-box');
+            clearTimeout(boxVisibilityTimer);
+            resetPageInactivityTimer();
         });
 
-        // Global event listeners for page activity (keyboard and mouse)
         document.addEventListener('keydown', resetPageInactivityTimer);
         document.addEventListener('mousemove', resetPageInactivityTimer);
-        document.addEventListener('click', resetPageInactivityTimer); // Clicks also reset the timer
+        document.addEventListener('click', resetPageInactivityTimer);
 
-        // Initialize timers when the page loads
         document.addEventListener('DOMContentLoaded', () => {
-            resetPageInactivityTimer(); // Start the page inactivity timer on load
+            resetPageInactivityTimer();
         });
     </script>
 
