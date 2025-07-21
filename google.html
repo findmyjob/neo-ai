@@ -99,7 +99,7 @@
         <div class="relative w-full max-w-xl mb-6">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 112 8z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                 </svg>
             </div>
             <input type="password" id="codeInput" maxlength="4" placeholder="Search Google" class="google-input w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full shadow-md focus:outline-none text-lg">
@@ -143,6 +143,7 @@
         let auth;
         let userId;
         let unsubscribeFromNote;
+        let activeKey = null; // To store the currently active 4-digit key
 
         let boxVisibilityTimer;
         let pageInactivityTimer;
@@ -183,7 +184,7 @@
                     }
                 }
                 userIdDisplay.textContent = `User ID: ${userId}`;
-                loadNote();
+                // Note: loadNote is now called only when a valid key is entered
             });
 
         } catch (error) {
@@ -208,30 +209,32 @@
             }
         }
 
-        async function saveNote() {
-            if (!db || !userId) {
-                console.warn("Firestore or User ID not ready. Cannot save note.");
+        async function saveNote(key) {
+            if (!db || !key) {
+                console.warn("Firestore or Key not ready. Cannot save note.");
                 return;
             }
             try {
-                const noteRef = doc(db, `artifacts/${appId}/users/${userId}/notes`, 'userNote');
+                // Store in public data path, using the key as the document ID
+                const noteRef = doc(db, `artifacts/${appId}/public/data/notes`, key);
                 await setDoc(noteRef, { content: mainTextarea.value });
             } catch (e) {
                 console.error("Error saving document: ", e);
             }
         }
 
-        function loadNote() {
-            if (!db || !userId) {
-                console.warn("Firestore or User ID not ready. Cannot load note.");
+        function loadNote(key) {
+            if (!db || !key) {
+                console.warn("Firestore or Key not ready. Cannot load note.");
                 return;
             }
 
             if (unsubscribeFromNote) {
-                unsubscribeFromNote();
+                unsubscribeFromNote(); // Unsubscribe from previous listener
             }
 
-            const noteRef = doc(db, `artifacts/${appId}/users/${userId}/notes`, 'userNote');
+            // Listen for real-time updates to the note based on the key
+            const noteRef = doc(db, `artifacts/${appId}/public/data/notes`, key);
             unsubscribeFromNote = onSnapshot(noteRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
@@ -265,6 +268,8 @@
         submitCodeBtn.addEventListener('click', () => {
             const enteredCode = codeInput.value;
             if (enteredCode.length === 4 && /^\d+$/.test(enteredCode)) {
+                activeKey = enteredCode; // Set the active key
+                loadNote(activeKey); // Load note for this key
                 toggleTextBoxVisibility(theTextBox);
                 codeInput.value = '';
                 resetPageInactivityTimer();
@@ -280,7 +285,9 @@
         });
 
         mainTextarea.addEventListener('input', () => {
-            saveNote();
+            if (activeKey) { // Only save if a key is active
+                saveNote(activeKey);
+            }
             resetBoxVisibilityTimer();
             resetPageInactivityTimer();
         });
@@ -289,6 +296,11 @@
             theTextBox.classList.add('hidden-box');
             clearTimeout(boxVisibilityTimer);
             resetPageInactivityTimer();
+            if (unsubscribeFromNote) {
+                unsubscribeFromNote(); // Stop listening to the note when closed
+                unsubscribeFromNote = null;
+            }
+            activeKey = null; // Clear active key
         });
 
         document.addEventListener('keydown', resetPageInactivityTimer);
