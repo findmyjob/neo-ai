@@ -94,7 +94,7 @@
 <body class="bg-white text-gray-800">
 
     <div class="main-container bg-white p-8 rounded-lg text-center space-y-6">
-        <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google" class="mb-6 max-w-[272px] w-full h-auto mx-auto">
+        <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google" class="mb-4 max-w-[272px] w-full h-auto mx-auto">
 
         <div class="relative w-full max-w-xl mb-6">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -113,8 +113,6 @@
                 I'm Feeling Lucky
             </button>
         </div>
-
-        <div id="userIdDisplay" class="text-sm text-gray-500 mt-4"></div>
 
         <div id="theTextBox" class="hidden-box relative w-full md:w-3/4 lg:w-1/2 rounded-xl transition-all duration-300 ease-in-out mt-8">
             <button id="closeTextBoxBtn" class="close-button">X</button>
@@ -136,7 +134,7 @@
         const mainTextarea = document.getElementById('mainTextarea');
         const closeTextBoxBtn = document.getElementById('closeTextBoxBtn');
         const messageBox = document.getElementById('messageBox');
-        const userIdDisplay = document.getElementById('userIdDisplay');
+        // Removed: const userIdDisplay = document.getElementById('userIdDisplay');
 
         let app;
         let db;
@@ -183,12 +181,12 @@
                         userId = crypto.randomUUID();
                     }
                 }
-                userIdDisplay.textContent = `User ID: ${userId}`;
+                // Removed: userIdDisplay.textContent = `User ID: ${userId}`;
             });
 
         } catch (error) {
             console.error("Failed to initialize Firebase:", error);
-            userIdDisplay.textContent = `Firebase Init Error. User ID: ${crypto.randomUUID()}`;
+            // Removed: userIdDisplay.textContent = `Firebase Init Error. User ID: ${crypto.randomUUID()}`;
         }
 
         function showMessage(message, duration = 2000) {
