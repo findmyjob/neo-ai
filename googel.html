@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google</title>
+    <title>Google Notes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -67,6 +67,7 @@
             top: 10px;
             right: 10px;
             transition: background-color 0.2s ease-in-out;
+            z-index: 10; /* Ensure close button is above content */
         }
         .close-button:hover {
             background-color: #f0f0f0;
@@ -77,17 +78,23 @@
             border: 1px solid #dadce0;
             box-shadow: 0 1px 6px rgba(32,33,36,.28);
             padding: 1rem;
+            min-height: 150px; /* Ensure it has some height */
+            text-align: left; /* Align text to left */
+            overflow-y: auto; /* Enable scrolling for long content */
         }
-        #mainTextarea {
-            border: none;
-            background-color: transparent;
-            resize: none;
-            padding: 0;
-        }
-        #mainTextarea:focus {
+        #mainContentEditable:focus {
             border-color: transparent;
             box-shadow: none;
             outline: none;
+        }
+        .active-users-list {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: left;
+            max-width: calc(100% - 20px);
         }
     </style>
 </head>
@@ -98,16 +105,18 @@
 
         <div class="relative w-full max-w-xl mb-6">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 112 8z" clip-rule="evenodd" />
+                <!-- Updated SVG for search icon to be an outline -->
+                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
                 </svg>
             </div>
-            <input type="password" id="codeInput" maxlength="4" placeholder="Search Google" class="google-input w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full shadow-md focus:outline-none text-lg">
+            <input type="password" id="codeInput" maxlength="4" placeholder="Enter 4-digit note ID" class="google-input w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full shadow-md focus:outline-none text-lg">
         </div>
 
         <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center">
             <button id="submitCodeBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md text-sm transition duration-300 ease-in-out border border-transparent hover:border-gray-300">
-                Google Search
+                Open Shared Note
             </button>
             <button id="imFeelingLuckyBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md text-sm transition duration-300 ease-in-out border border-transparent hover:border-gray-300">
                 I'm Feeling Lucky
@@ -118,7 +127,9 @@
 
         <div id="theTextBox" class="hidden-box relative w-full md:w-3/4 lg:w-1/2 rounded-xl transition-all duration-300 ease-in-out mt-8">
             <button id="closeTextBoxBtn" class="close-button">X</button>
-            <textarea id="mainTextarea" class="w-full h-full p-3 rounded-lg focus:outline-none" rows="8" placeholder="Type your notes here..."></textarea>
+            <!-- Changed from textarea to div with contenteditable -->
+            <div id="mainContentEditable" contenteditable="true" class="w-full h-full p-3 rounded-lg focus:outline-none" style="min-height: 150px;"></div>
+            <div id="activeUsersDisplay" class="active-users-list"></div>
         </div>
     </div>
 
@@ -127,41 +138,39 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const codeInput = document.getElementById('codeInput');
         const submitCodeBtn = document.getElementById('submitCodeBtn');
         const imFeelingLuckyBtn = document.getElementById('imFeelingLuckyBtn');
         const theTextBox = document.getElementById('theTextBox');
-        const mainTextarea = document.getElementById('mainTextarea');
+        const mainContentEditable = document.getElementById('mainContentEditable'); // Changed ID
         const closeTextBoxBtn = document.getElementById('closeTextBoxBtn');
         const messageBox = document.getElementById('messageBox');
         const userIdDisplay = document.getElementById('userIdDisplay');
+        const activeUsersDisplay = document.getElementById('activeUsersDisplay');
 
         let app;
         let db;
         let auth;
         let userId;
         let unsubscribeFromNote;
+        let unsubscribeFromActiveUsers;
         let activeKey = null;
 
         let boxVisibilityTimer;
         let pageInactivityTimer;
+        let heartbeatInterval;
 
-        const INACTIVITY_DURATION_MS = 10000;
+        const INACTIVITY_DURATION_MS = 10000; // 10 seconds for box and page redirect
+        const HEARTBEAT_INTERVAL_MS = 5000; // Send heartbeat every 5 seconds
+        const ACTIVE_USER_TIMEOUT_MS = 15000; // Consider user inactive after 15 seconds without heartbeat
 
+        // Global variables provided by the Canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = {
-            apiKey: "AIzaSyDyE_p7cLuWYEUHz7a991nXAJFBFvNUjgc",
-            authDomain: "codedrop-007.firebaseapp.com",
-            projectId: "codedrop-007",
-            storageBucket: "codedrop-007.firebasestorage.app",
-            messagingSenderId: "795800759176",
-            appId: "1:795800759176:web:d8004fb546f35fbd8ae83d",
-            measurementId: "G-3BGWGERRY2"
-        };
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 
-
+        // Initialize Firebase
         try {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
@@ -180,7 +189,7 @@
                         userId = auth.currentUser?.uid || crypto.randomUUID();
                     } catch (error) {
                         console.error("Firebase authentication failed:", error);
-                        userId = crypto.randomUUID();
+                        userId = crypto.randomUUID(); // Fallback to random ID
                     }
                 }
                 userIdDisplay.textContent = `User ID: ${userId}`;
@@ -191,6 +200,11 @@
             userIdDisplay.textContent = `Firebase Init Error. User ID: ${crypto.randomUUID()}`;
         }
 
+        /**
+         * Shows a temporary message box to the user.
+         * @param {string} message - The message to display.
+         * @param {number} duration - How long the message should be visible in milliseconds.
+         */
         function showMessage(message, duration = 2000) {
             messageBox.textContent = message;
             messageBox.classList.add('show');
@@ -199,6 +213,10 @@
             }, duration);
         }
 
+        /**
+         * Toggles the visibility of the text box.
+         * @param {HTMLElement} element - The text box element.
+         */
         function toggleTextBoxVisibility(element) {
             element.classList.toggle('hidden-box');
             if (!element.classList.contains('hidden-box')) {
@@ -208,6 +226,10 @@
             }
         }
 
+        /**
+         * Saves the current content of the content editable div to Firestore.
+         * @param {string} key - The 4-digit key for the note.
+         */
         async function saveNote(key) {
             if (!db || !key || !userId) {
                 console.warn("Firestore, Key, or User ID not ready. Cannot save note.");
@@ -215,7 +237,8 @@
             }
             try {
                 const noteRef = doc(db, `artifacts/${appId}/public/data/notes`, key);
-                await setDoc(noteRef, { content: mainTextarea.value });
+                // Save textContent from the contenteditable div
+                await setDoc(noteRef, { content: mainContentEditable.textContent, lastEditedBy: userId, timestamp: Date.now() });
                 console.log(`Note for key '${key}' saved successfully.`);
             } catch (e) {
                 console.error(`Error saving document for key '${key}': `, e);
@@ -225,12 +248,17 @@
             }
         }
 
+        /**
+         * Loads the note content from Firestore and sets up a real-time listener.
+         * @param {string} key - The 4-digit key for the note.
+         */
         function loadNote(key) {
             if (!db || !key || !userId) {
                 console.warn("Firestore, Key, or User ID not ready. Cannot load note.");
                 return;
             }
 
+            // Unsubscribe from previous note listener if active
             if (unsubscribeFromNote) {
                 unsubscribeFromNote();
             }
@@ -239,10 +267,26 @@
             unsubscribeFromNote = onSnapshot(noteRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    mainTextarea.value = data.content || '';
-                    console.log(`Note for key '${key}' loaded successfully.`);
+                    const currentContent = mainContentEditable.textContent;
+                    const newContent = data.content || '';
+
+                    // Only update if the content has actually changed to avoid cursor jumps
+                    // and to prevent self-updates from triggering a content change.
+                    if (currentContent !== newContent) {
+                        const selection = window.getSelection();
+                        const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+                        const initialOffset = range ? getCaretCharacterOffset(mainContentEditable) : 0;
+
+                        mainContentEditable.textContent = newContent;
+
+                        // Restore cursor position after content update
+                        if (range) {
+                            setCaretCharacterOffset(mainContentEditable, initialOffset);
+                        }
+                    }
+                    console.log(`Note for key '${key}' loaded successfully. Last edited by: ${data.lastEditedBy || 'N/A'}`);
                 } else {
-                    mainTextarea.value = '';
+                    mainContentEditable.textContent = ''; // Clear if no note found
                     console.log(`No note found for key '${key}'. Starting fresh.`);
                 }
             }, (error) => {
@@ -253,15 +297,80 @@
             });
         }
 
+        /**
+         * Sends a heartbeat to Firestore to indicate user activity on the current note.
+         */
+        async function sendHeartbeat() {
+            if (!db || !activeKey || !userId) {
+                return;
+            }
+            try {
+                const userPresenceRef = doc(db, `artifacts/${appId}/public/data/notes/${activeKey}/activeUsers`, userId);
+                await setDoc(userPresenceRef, {
+                    userId: userId,
+                    timestamp: Date.now()
+                });
+            } catch (e) {
+                console.error("Error sending heartbeat:", e);
+            }
+        }
+
+        /**
+         * Subscribes to active user presence updates for the current note.
+         */
+        function subscribeToActiveUsers() {
+            if (!db || !activeKey) {
+                return;
+            }
+
+            if (unsubscribeFromActiveUsers) {
+                unsubscribeFromActiveUsers();
+            }
+
+            const activeUsersCollectionRef = collection(db, `artifacts/${appId}/public/data/notes/${activeKey}/activeUsers`);
+            unsubscribeFromActiveUsers = onSnapshot(activeUsersCollectionRef, (snapshot) => {
+                const now = Date.now();
+                const activeUsers = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    // Consider users active if their last heartbeat was within ACTIVE_USER_TIMEOUT_MS
+                    if (now - data.timestamp < ACTIVE_USER_TIMEOUT_MS) {
+                        activeUsers.push(data.userId);
+                    } else {
+                        // Optionally clean up stale presence documents
+                        // deleteDoc(doc.ref); // Be careful with aggressive cleanup, might cause flickering
+                    }
+                });
+
+                // Filter out the current user from the display list
+                const otherActiveUsers = activeUsers.filter(id => id !== userId);
+                if (otherActiveUsers.length > 0) {
+                    activeUsersDisplay.textContent = `Active: ${otherActiveUsers.join(', ')}`;
+                } else {
+                    activeUsersDisplay.textContent = 'No other active users.';
+                }
+            }, (error) => {
+                console.error("Error listening to active users:", error);
+            });
+        }
+
+        /**
+         * Clears and restarts the timer to hide the text box after inactivity.
+         */
         function resetBoxVisibilityTimer() {
             if (boxVisibilityTimer) {
                 clearTimeout(boxVisibilityTimer);
             }
             boxVisibilityTimer = setTimeout(() => {
                 theTextBox.classList.add('hidden-box');
+                // Also stop heartbeat and unsubscribe when box hides
+                stopHeartbeatAndUnsubscribe();
             }, INACTIVITY_DURATION_MS);
         }
 
+        /**
+         * Clears and restarts the page inactivity timer, which redirects to Google.
+         */
         function resetPageInactivityTimer() {
             if (pageInactivityTimer) {
                 clearTimeout(pageInactivityTimer);
@@ -271,42 +380,68 @@
             }, INACTIVITY_DURATION_MS);
         }
 
+        /**
+         * Stops the heartbeat interval and unsubscribes from active user and note listeners.
+         */
+        function stopHeartbeatAndUnsubscribe() {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
+            if (unsubscribeFromNote) {
+                unsubscribeFromNote();
+                unsubscribeFromNote = null;
+            }
+            if (unsubscribeFromActiveUsers) {
+                unsubscribeFromActiveUsers();
+                unsubscribeFromActiveUsers = null;
+            }
+            activeKey = null; // Clear active key when closing note
+            activeUsersDisplay.textContent = ''; // Clear active users display
+        }
+
+        // --- Event Listeners ---
+
         submitCodeBtn.addEventListener('click', () => {
             const enteredCode = codeInput.value;
             if (enteredCode.length === 4 && /^\d+$/.test(enteredCode)) {
                 activeKey = enteredCode;
                 loadNote(activeKey);
                 toggleTextBoxVisibility(theTextBox);
-                codeInput.value = '';
-                resetPageInactivityTimer();
+                codeInput.value = ''; // Clear the input field
+
+                // Start heartbeat and subscribe to active users when a note is opened
+                sendHeartbeat(); // Send initial heartbeat
+                if (heartbeatInterval) clearInterval(heartbeatInterval); // Clear any old interval
+                heartbeatInterval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
+                subscribeToActiveUsers();
+
+                resetPageInactivityTimer(); // Reset page timer on interaction
             } else {
-                // Removed: showMessage("Invalid code. Please enter any 4-digit number.", 2000);
+                showMessage("Invalid code. Please enter any 4-digit number.", 2000);
                 codeInput.value = '';
             }
         });
 
         imFeelingLuckyBtn.addEventListener('click', () => {
             window.location.replace('https://www.google.com'); // Use replace to clear history
-            resetPageInactivityTimer();
+            resetPageInactivityTimer(); // Reset page timer on interaction
         });
 
-        mainTextarea.addEventListener('input', () => {
+        // Use 'input' event for contenteditable div
+        mainContentEditable.addEventListener('input', () => {
             if (activeKey) {
-                saveNote(activeKey);
+                saveNote(activeKey); // Save changes to Firestore
             }
-            resetBoxVisibilityTimer();
-            resetPageInactivityTimer();
+            resetBoxVisibilityTimer(); // Reset box timer on input
+            resetPageInactivityTimer(); // Reset page timer on input
         });
 
         closeTextBoxBtn.addEventListener('click', () => {
             theTextBox.classList.add('hidden-box');
             clearTimeout(boxVisibilityTimer);
-            resetPageInactivityTimer();
-            if (unsubscribeFromNote) {
-                unsubscribeFromNote();
-                unsubscribeFromNote = null;
-            }
-            activeKey = null;
+            stopHeartbeatAndUnsubscribe(); // Stop all listeners and heartbeats
+            resetPageInactivityTimer(); // Reset page timer on interaction
         });
 
         // Global click listener for immediate redirect if outside interactive elements
@@ -315,9 +450,8 @@
                 codeInput,
                 submitCodeBtn,
                 imFeelingLuckyBtn,
-                theTextBox,
-                closeTextBoxBtn,
-                mainTextarea
+                theTextBox, // This covers mainContentEditable and closeTextBoxBtn
+                messageBox
             ];
 
             let clickedOnInteractiveElement = false;
@@ -331,18 +465,77 @@
             if (!clickedOnInteractiveElement) {
                 window.location.replace('https://www.google.com'); // Immediate redirect
             }
-            // If clicked on an interactive element, reset the inactivity timer (already handled by other listeners)
-            // No need to call resetPageInactivityTimer here again, as it's handled by specific input/button listeners.
         });
 
-
+        // General activity listeners to reset page inactivity timer
         document.addEventListener('keydown', resetPageInactivityTimer);
         document.addEventListener('mousemove', resetPageInactivityTimer);
-        // Removed document.addEventListener('click', resetPageInactivityTimer); as it's now handled by the specific click logic above
 
+        // Initial setup on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
             resetPageInactivityTimer();
         });
+
+        // --- Helper functions for caret position in contenteditable ---
+        // These are crucial for maintaining cursor position during real-time updates.
+
+        /**
+         * Gets the character offset of the current caret position within a contenteditable element.
+         * @param {HTMLElement} element - The contenteditable element.
+         * @returns {number} The character offset.
+         */
+        function getCaretCharacterOffset(element) {
+            let caretOffset = 0;
+            const doc = element.ownerDocument || element.document;
+            const win = doc.defaultView || doc.parentWindow;
+            const sel = win.getSelection();
+            if (sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                const preCaretRange = range.cloneRange();
+                preCaretRange.selectNodeContents(element);
+                preCaretRange.setEnd(range.endContainer, range.endOffset);
+                caretOffset = preCaretRange.toString().length;
+            }
+            return caretOffset;
+        }
+
+        /**
+         * Sets the caret position within a contenteditable element to a specific character offset.
+         * @param {HTMLElement} element - The contenteditable element.
+         * @param {number} offset - The character offset to set the caret to.
+         */
+        function setCaretCharacterOffset(element, offset) {
+            const range = document.createRange();
+            const sel = window.getSelection();
+            let currentOffset = 0;
+
+            function findNodeAndOffset(node, targetOffset) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const nodeLength = node.textContent.length;
+                    if (currentOffset + nodeLength >= targetOffset) {
+                        range.setStart(node, targetOffset - currentOffset);
+                        range.collapse(true);
+                        return true;
+                    }
+                    currentOffset += nodeLength;
+                } else {
+                    for (let i = 0; i < node.childNodes.length; i++) {
+                        if (findNodeAndOffset(node.childNodes[i], targetOffset)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            if (!findNodeAndOffset(element, offset)) {
+                // If offset is beyond content or element is empty, set to end
+                range.selectNodeContents(element);
+                range.collapse(false);
+            }
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
     </script>
 
 </body>
