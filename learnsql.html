@@ -41,6 +41,7 @@
             margin-bottom: 1rem;
             padding: 0.75rem;
             border-radius: 0.5rem;
+            max-width: 80%;
         }
         .user-message {
             background-color: #1f2937;
@@ -49,6 +50,11 @@
         }
         .teacher-message {
             background-color: #374151;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+        .other-user-message {
+            background-color: #4338ca; /* Indigo for other users */
             align-self: flex-start;
             margin-right: auto;
         }
@@ -150,15 +156,20 @@
                 <!-- Teacher Chat Interface -->
                 <div class="mt-auto flex-1 flex flex-col pt-4">
                     <h2 class="text-lg font-semibold mb-3 border-b border-gray-700 pb-2">Ask the Teacher</h2>
+                    <div class="flex flex-col mb-4 space-y-2">
+                        <input id="chat-key-input" type="text" placeholder="Enter a chat key (optional)" class="bg-gray-900 text-gray-200 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <input id="chat-user-input" type="text" placeholder="Enter your User ID" class="bg-gray-900 text-gray-200 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="join-chat-btn" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                            Join Chat
+                        </button>
+                    </div>
+                    <div id="chat-status" class="text-sm text-center text-gray-400 mb-4">You are not in a chat.</div>
                     <div id="chat-messages" class="chat-container mb-4 space-y-4">
                         <!-- Chat messages will be appended here -->
-                        <div class="chat-message teacher-message">
-                            Hello! I am here to help you write and understand SQL queries. What can I help you with?
-                        </div>
                     </div>
                     <div class="flex items-center">
-                        <input id="chat-input" type="text" placeholder="Type your question..." class="flex-grow bg-gray-900 text-gray-200 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                        <button id="send-chat-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg ml-2 transition-colors duration-200">
+                        <input id="chat-input" type="text" placeholder="Type your question..." class="flex-grow bg-gray-900 text-gray-200 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" disabled>
+                        <button id="send-chat-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg ml-2 transition-colors duration-200" disabled>
                             Send
                         </button>
                     </div>
@@ -192,7 +203,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, addDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, addDoc, onSnapshot, collection, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Your Firebase configuration object
         const firebaseConfig = {
@@ -210,7 +221,9 @@
         const appId = firebaseConfig.projectId;
 
         let userId = null;
-        let chatHistory = [{ role: "model", parts: [{ text: "Hello! I am here to help you write and understand SQL queries. What can I help you with?" }] }];
+        let username = null;
+        let chatId = null;
+        const chatHistory = [{ role: "model", parts: [{ text: "Hello! I am here to help you write and understand SQL queries. What can I help you with?" }] }];
 
         const queryEditor = document.getElementById('query-editor');
         const runQueryBtn = document.getElementById('run-query-btn');
@@ -218,6 +231,11 @@
         const statusMessage = document.getElementById('status-message');
         const queryHistoryList = document.getElementById('query-history-list');
         const authStatus = document.getElementById('auth-status');
+        
+        const chatKeyInput = document.getElementById('chat-key-input');
+        const chatUserInput = document.getElementById('chat-user-input');
+        const joinChatBtn = document.getElementById('join-chat-btn');
+        const chatStatus = document.getElementById('chat-status');
         const chatInput = document.getElementById('chat-input');
         const sendChatBtn = document.getElementById('send-chat-btn');
         const chatMessages = document.getElementById('chat-messages');
@@ -499,13 +517,102 @@ LIMIT 10;`;
             }
             return filteredData;
         }
-        
+
+        // --- Chat Logic (NEW) ---
+        joinChatBtn.addEventListener('click', () => {
+            username = chatUserInput.value.trim();
+            chatId = chatKeyInput.value.trim() || 'default-chat';
+
+            if (username) {
+                chatStatus.textContent = `Joined chat with key "${chatId}" as "${username}"`;
+                chatStatus.className = 'text-sm text-center text-green-400 mb-4';
+                chatInput.disabled = false;
+                sendChatBtn.disabled = false;
+                joinChatBtn.disabled = true;
+                chatKeyInput.disabled = true;
+                chatUserInput.disabled = true;
+                setupChatListener();
+            } else {
+                chatStatus.textContent = 'Please enter a User ID to join the chat.';
+                chatStatus.className = 'text-sm text-center text-red-400 mb-4';
+            }
+        });
+
+        async function setupChatListener() {
+            if (!chatId) return;
+
+            const chatCollectionPath = `/artifacts/${appId}/public/data/chats/${chatId}/messages`;
+            const q = query(collection(db, chatCollectionPath));
+            
+            onSnapshot(q, (querySnapshot) => {
+                const messages = [];
+                querySnapshot.forEach((doc) => {
+                    messages.push(doc.data());
+                });
+                renderChatMessages(messages);
+            });
+        }
+
+        async function sendChatMessage(messageText) {
+            if (!chatId || !username) return;
+
+            const chatCollectionPath = `/artifacts/${appId}/public/data/chats/${chatId}/messages`;
+            const docRef = await addDoc(collection(db, chatCollectionPath), {
+                sender: username,
+                text: messageText,
+                timestamp: serverTimestamp()
+            });
+
+            // If the message is for the teacher, simulate a response
+            if (messageText.toLowerCase().includes('teacher')) {
+                const teacherResponseText = await getTeacherResponse(messageText);
+                await addDoc(collection(db, chatCollectionPath), {
+                    sender: 'Teacher',
+                    text: teacherResponseText,
+                    timestamp: serverTimestamp()
+                });
+            }
+        }
+
+        function renderChatMessages(messages) {
+            chatMessages.innerHTML = '';
+            messages.sort((a, b) => a.timestamp?.seconds - b.timestamp?.seconds);
+
+            messages.forEach(msg => {
+                const messageElement = document.createElement('div');
+                let senderClass = '';
+                let senderName = msg.sender;
+
+                if (msg.sender === 'Teacher') {
+                    senderClass = 'teacher-message';
+                    senderName = 'Teacher';
+                } else if (msg.sender === username) {
+                    senderClass = 'user-message';
+                    senderName = `You (${username})`;
+                } else {
+                    senderClass = 'other-user-message';
+                    senderName = msg.sender;
+                }
+
+                messageElement.className = `chat-message ${senderClass}`;
+                messageElement.innerHTML = `
+                    <p class="text-xs font-bold mb-1">${senderName}</p>
+                    <p class="text-sm">${msg.text}</p>
+                `;
+                chatMessages.appendChild(messageElement);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
         async function getTeacherResponse(prompt) {
             const apiKey = "";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
-            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-            const payload = { contents: chatHistory };
+            // Note: chatHistory is not used for real chat in this version.
+            // A new conversation is created with each teacher request.
+            const payload = { 
+                contents: [{ role: "user", parts: [{ text: prompt }] }]
+            };
 
             try {
                 const response = await fetch(apiUrl, {
@@ -514,30 +621,18 @@ LIMIT 10;`;
                     body: JSON.stringify(payload)
                 });
                 const result = await response.json();
-                const text = result.candidates[0].content.parts[0].text;
-                chatHistory.push({ role: "model", parts: [{ text: text }] });
-                return text;
+                return result.candidates[0].content.parts[0].text;
             } catch (error) {
                 console.error("Error calling Gemini API:", error);
                 return "I'm sorry, I'm having trouble connecting right now. Please try again later.";
             }
         }
-        
-        function appendChatMessage(message, sender) {
-            const messageElement = document.createElement('div');
-            messageElement.className = `chat-message ${sender}-message`;
-            messageElement.textContent = message;
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
 
         sendChatBtn.addEventListener('click', async () => {
             const userMessage = chatInput.value.trim();
             if (userMessage) {
-                appendChatMessage(userMessage, 'user');
+                await sendChatMessage(userMessage);
                 chatInput.value = '';
-                const teacherResponse = await getTeacherResponse(userMessage);
-                appendChatMessage(teacherResponse, 'teacher');
             }
         });
         
@@ -546,6 +641,8 @@ LIMIT 10;`;
                 sendChatBtn.click();
             }
         });
+        // --- End of Chat Logic ---
+
 
         runQueryBtn.addEventListener('click', () => {
             const queryText = queryEditor.value.trim();
@@ -559,16 +656,12 @@ LIMIT 10;`;
             statusMessage.className = 'text-sm font-medium text-yellow-400';
 
             setTimeout(() => {
-                const parsedQuery = parseSelectQuery(queryText);
                 let resultData = [];
                 let message = '';
                 let messageClass = 'text-green-500';
                 
-                if (parsedQuery && mockData[parsedQuery.table]) {
-                    resultData = filterAndLimitData(mockData[parsedQuery.table], parsedQuery.columns, parsedQuery.limit);
-                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
-                } else if (queryText.includes('join')) {
-                    // Specific mock for the JOIN query in the pre-populated value
+                // New logic to handle the specific multi-line JOIN query
+                if (queryText.startsWith('SELECT film.title, actor.first_name, actor.last_name')) {
                     const joinQueryData = [
                         { 'film.title': 'ACADEMY DINOSAUR', 'actor.first_name': 'PENELOPE', 'actor.last_name': 'GUINESS' },
                         { 'film.title': 'ACADEMY DINOSAUR', 'actor.first_name': 'JENNIFER', 'actor.last_name': 'DAVIS' },
@@ -582,6 +675,27 @@ LIMIT 10;`;
                         { 'film.title': 'AGENT TRUMAN', 'actor.first_name': 'JOE', 'actor.last_name': 'SWANK' }
                     ];
                     resultData = joinQueryData;
+                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
+                } else if (queryText.includes('from dvdrental.film')) {
+                    resultData = mockData['dvdrental.film'];
+                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
+                } else if (queryText.includes('from dvdrental.customer')) {
+                    resultData = mockData['dvdrental.customer'];
+                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
+                } else if (queryText.includes('from dvdrental.actor')) {
+                    resultData = mockData['dvdrental.actor'];
+                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
+                } else if (queryText.includes('from dvdrental.address')) {
+                    resultData = mockData['dvdrental.address'];
+                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
+                } else if (queryText.includes('from dvdrental.city')) {
+                    resultData = mockData['dvdrental.city'];
+                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
+                } else if (queryText.includes('from dvdrental.staff')) {
+                    resultData = mockData['dvdrental.staff'];
+                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
+                } else if (queryText.includes('from dvdrental.payment')) {
+                    resultData = mockData['dvdrental.payment'];
                     message = `Query executed successfully. ${resultData.length} row(s) returned.`;
                 } else if (queryText.includes('insert into') || queryText.includes('update') || queryText.includes('delete')) {
                     message = 'Query executed successfully. 1 row(s) affected.';
