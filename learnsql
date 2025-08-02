@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL Client</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for text area and results */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #6b7280;
+        }
+        .text-editor {
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            caret-color: #fff;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .chat-message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+        .user-message {
+            background-color: #1f2937;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .teacher-message {
+            background-color: #374151;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div class="flex flex-col h-screen overflow-hidden">
+
+        <!-- Top Bar -->
+        <header class="bg-gray-800 shadow-md p-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-12h4v-2h-4v2zm0 4h4v-2h-4v2zm0 4h4v-2h-4v2z"/>
+                </svg>
+                <h1 class="text-xl font-bold text-gray-100">PostgreSQL Query Tool</h1>
+            </div>
+            <div>
+                <button id="run-query-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-lg transition-colors duration-200">
+                    Run Query
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow flex flex-col md:flex-row p-4 space-y-4 md:space-y-0 md:space-x-4 overflow-hidden">
+            
+            <!-- Sidebar / Object Browser & Teacher Chat -->
+            <aside class="w-full md:w-1/4 bg-gray-800 p-4 rounded-lg shadow-lg flex-shrink-0 overflow-y-auto flex flex-col">
+                <div id="auth-status" class="mb-4 text-sm text-center text-gray-400">Authenticating...</div>
+                <h2 class="text-lg font-semibold mb-3 border-b border-gray-700 pb-2">Object Browser</h2>
+                <ul class="space-y-2">
+                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150">Databases</a></li>
+                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                        <span class="font-bold text-yellow-300">›</span> postgres
+                    </a>
+                        <ul class="ml-6 mt-1 space-y-1">
+                            <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150">Schemas</a></li>
+                            <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                <span class="font-bold text-yellow-300">›</span> dvdrental
+                            </a>
+                                <ul class="ml-6 mt-1 space-y-1">
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150">Tables</a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> actor
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> address
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> category
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> city
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> country
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> customer
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> film
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> film_actor
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> film_category
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> inventory
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> language
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> payment
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> rental
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> staff
+                                    </a></li>
+                                    <li><a href="#" class="block p-2 rounded-md hover:bg-gray-700 transition-colors duration-150 pl-6">
+                                        <span class="text-blue-400 font-bold">›</span> store
+                                    </a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <h2 class="text-lg font-semibold mt-6 mb-3 border-b border-gray-700 pb-2">Query History</h2>
+                <ul id="query-history-list" class="space-y-1">
+                    <li class="text-gray-400 text-sm">Loading history...</li>
+                </ul>
+                
+                <!-- Teacher Chat Interface -->
+                <div class="mt-auto flex-1 flex flex-col pt-4">
+                    <h2 class="text-lg font-semibold mb-3 border-b border-gray-700 pb-2">Ask the Teacher</h2>
+                    <div id="chat-messages" class="chat-container mb-4 space-y-4">
+                        <!-- Chat messages will be appended here -->
+                        <div class="chat-message teacher-message">
+                            Hello! I am here to help you write and understand SQL queries. What can I help you with?
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="chat-input" type="text" placeholder="Type your question..." class="flex-grow bg-gray-900 text-gray-200 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="send-chat-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg ml-2 transition-colors duration-200">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Query and Results Pane -->
+            <section class="flex-grow flex flex-col space-y-4 overflow-hidden">
+                
+                <!-- Query Editor -->
+                <div class="flex-shrink-0 h-1/2 bg-gray-800 rounded-lg shadow-lg flex flex-col">
+                    <h2 class="text-lg font-semibold p-4 border-b border-gray-700">Query Editor</h2>
+                    <textarea id="query-editor" class="text-editor w-full flex-grow bg-gray-900 text-gray-200 p-4 rounded-b-lg resize-none outline-none focus:ring-2 focus:ring-blue-500 overflow-y-auto" placeholder="Type your SQL query here..."></textarea>
+                </div>
+                
+                <!-- Results Panel -->
+                <div class="flex-grow flex flex-col bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <div class="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-700">
+                        <h2 class="text-lg font-semibold">Query Results</h2>
+                        <span id="status-message" class="text-sm font-medium"></span>
+                    </div>
+                    <div id="results-panel" class="flex-grow overflow-x-auto p-4">
+                        <p class="text-gray-400">Run a query to see results...</p>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, addDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Your Firebase configuration object
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyE_p7cLuWYEUHz7a991nXAJFBFvNUjgc",
+            authDomain: "codedrop-007.firebaseapp.com",
+            projectId: "codedrop-007",
+            storageBucket: "codedrop-007.firebasestorage.app",
+            messagingSenderId: "795800759176",
+            appId: "1:795800759176:web:d8004fb546f35fbd8ae83d",
+            measurementId: "G-3BGWGERRY2"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = firebaseConfig.projectId;
+
+        let userId = null;
+        let chatHistory = [{ role: "model", parts: [{ text: "Hello! I am here to help you write and understand SQL queries. What can I help you with?" }] }];
+
+        const queryEditor = document.getElementById('query-editor');
+        const runQueryBtn = document.getElementById('run-query-btn');
+        const resultsPanel = document.getElementById('results-panel');
+        const statusMessage = document.getElementById('status-message');
+        const queryHistoryList = document.getElementById('query-history-list');
+        const authStatus = document.getElementById('auth-status');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatBtn = document.getElementById('send-chat-btn');
+        const chatMessages = document.getElementById('chat-messages');
+
+        // Initial sample query
+        queryEditor.value = `SELECT film.title, actor.first_name, actor.last_name
+FROM dvdrental.film_actor
+JOIN dvdrental.film ON film.film_id = film_actor.film_id
+JOIN dvdrental.actor ON actor.actor_id = film_actor.actor_id
+LIMIT 10;`;
+
+        // Mock data from the uploaded files (expanded for more realism)
+        const mockData = {
+            'dvdrental.customer': [
+                { customer_id: 1, first_name: 'MARY', last_name: 'SMITH', email: 'MARY.SMITH@sakilacustomer.org', store_id: 1 },
+                { customer_id: 2, first_name: 'PATRICIA', last_name: 'JOHNSON', email: 'PATRICIA.JOHNSON@sakilacustomer.org', store_id: 1 },
+                { customer_id: 3, first_name: 'LINDA', last_name: 'WILLIAMS', email: 'LINDA.WILLIAMS@sakilacustomer.org', store_id: 1 },
+                { customer_id: 4, first_name: 'BARBARA', last_name: 'JONES', email: 'BARBARA.JONES@sakilacustomer.org', store_id: 2 },
+                { customer_id: 5, first_name: 'ELIZABETH', last_name: 'BROWN', email: 'ELIZABETH.BROWN@sakilacustomer.org', store_id: 1 },
+                { customer_id: 6, first_name: 'JENNIFER', last_name: 'DAVIS', email: 'JENNIFER.DAVIS@sakilacustomer.org', store_id: 2 },
+                { customer_id: 7, first_name: 'MARIA', last_name: 'MILLER', email: 'MARIA.MILLER@sakilacustomer.org', store_id: 1 },
+                { customer_id: 8, first_name: 'SUSAN', last_name: 'WILSON', email: 'SUSAN.WILSON@sakilacustomer.org', store_id: 2 },
+                { customer_id: 9, first_name: 'MARGARET', last_name: 'MOORE', email: 'MARGARET.MOORE@sakilacustomer.org', store_id: 2 },
+                { customer_id: 10, first_name: 'DOROTHY', last_name: 'TAYLOR', email: 'DOROTHY.TAYLOR@sakilacustomer.org', store_id: 1 }
+            ],
+            'dvdrental.actor': [
+                { actor_id: 1, first_name: 'PENELOPE', last_name: 'GUINESS' },
+                { actor_id: 2, first_name: 'NICK', last_name: 'WAHLBERG' },
+                { actor_id: 3, first_name: 'ED', last_name: 'CHASE' },
+                { actor_id: 4, first_name: 'JENNIFER', last_name: 'DAVIS' },
+                { actor_id: 5, first_name: 'JOHNNY', last_name: 'LOLLOBRIGIDA' },
+                { actor_id: 6, first_name: 'BETTE', last_name: 'NICHOLSON' },
+                { actor_id: 7, first_name: 'GRACE', last_name: 'MOSTEL' },
+                { actor_id: 8, first_name: 'MATTHEW', last_name: 'JOHANSSON' },
+                { actor_id: 9, first_name: 'JOE', last_name: 'SWANK' },
+                { actor_id: 10, first_name: 'CHRISTIAN', last_name: 'GABLE' }
+            ],
+            'dvdrental.film': [
+                { film_id: 1, title: 'ACADEMY DINOSAUR', release_year: 2006, rental_rate: '0.99', length: 86, rating: 'PG' },
+                { film_id: 2, title: 'ACE GOLDFINGER', release_year: 2006, rental_rate: '4.99', length: 48, rating: 'G' },
+                { film_id: 3, title: 'ADAPTATION HOLES', release_year: 2006, rental_rate: '2.99', length: 50, rating: 'NC-17' },
+                { film_id: 4, title: 'AFFAIR PREJUDICE', release_year: 2006, rental_rate: '2.99', length: 117, rating: 'G' },
+                { film_id: 5, title: 'AFRICAN EGG', release_year: 2006, rental_rate: '2.99', length: 130, rating: 'G' },
+                { film_id: 6, title: 'AGENT TRUMAN', release_year: 2006, rental_rate: '2.99', length: 169, rating: 'PG' },
+                { film_id: 7, title: 'AIRPLANE SIERRA', release_year: 2006, rental_rate: '4.99', length: 62, rating: 'PG-13' },
+                { film_id: 8, title: 'AIRPORT POLLOCK', release_year: 2006, rental_rate: '4.99', length: 54, rating: 'R' },
+                { film_id: 9, title: 'ALABAMA DEVIL', release_year: 2006, rental_rate: '2.99', length: 114, rating: 'PG-13' },
+                { film_id: 10, title: 'ALADDIN CALENDAR', release_year: 2006, rental_rate: '4.99', length: 63, rating: 'NC-17' },
+                { film_id: 11, title: 'ALAMO VIDEOTAPE', release_year: 2006, rental_rate: '0.99', length: 126, rating: 'G' },
+                { film_id: 12, title: 'ALASKA PHANTOM', release_year: 2006, rental_rate: '0.99', length: 136, rating: 'PG' }
+            ],
+            'dvdrental.address': [
+                { address_id: 1, address: '47 MySakila Drive', district: 'Alberta', city_id: 300 },
+                { address_id: 2, address: '28 MySQL Boulevard', district: 'QLD', city_id: 576 },
+                { address_id: 3, address: '23 Workhaven Lane', district: 'Alberta', city_id: 300 },
+                { address_id: 4, address: '1411 Lillydale Drive', district: 'QLD', city_id: 576 },
+                { address_id: 5, address: '1913 Hanoi Way', district: 'Nagasaki', city_id: 463 },
+                { address_id: 6, address: '1121 Loja Avenue', district: 'California', city_id: 449 },
+                { address_id: 7, address: '692 Joliet Street', district: 'Attika', city_id: 38 },
+                { address_id: 8, address: '1566 Inegl Manor', district: 'Mandalay', city_id: 349 },
+                { address_id: 9, address: '53 Idfu Parkway', district: 'Nantou', city_id: 361 },
+                { address_id: 10, address: '1795 Santiago de Compostela Way', district: 'Texas', city_id: 295 }
+            ],
+            'dvdrental.city': [
+                { city_id: 1, city: 'A Coruña (La Coruña)', country_id: 87 },
+                { city_id: 2, city: 'Abha', country_id: 82 },
+                { city_id: 3, city: 'Abu Dhabi', country_id: 101 },
+                { city_id: 4, city: 'Acuña', country_id: 60 },
+                { city_id: 5, city: 'Adana', country_id: 97 },
+                { city_id: 6, city: 'Addis Abeba', country_id: 31 },
+                { city_id: 7, city: 'Aden', country_id: 107 },
+                { city_id: 8, city: 'Adoni', country_id: 44 },
+                { city_id: 9, city: 'Ahmadnagar', country_id: 44 },
+                { city_id: 10, city: 'Akishima', country_id: 50 }
+            ],
+            'dvdrental.staff': [
+                { staff_id: 1, first_name: 'Mike', last_name: 'Hillyer', email: 'Mike.Hillyer@sakilastaff.com', store_id: 1 },
+                { staff_id: 2, first_name: 'Jon', last_name: 'Stephens', email: 'Jon.Stephens@sakilastaff.com', store_id: 2 }
+            ],
+            'dvdrental.payment': [
+                { payment_id: '17503', customer_id: '341', staff_id: '2', amount: '7.99', payment_date: '2007-02-15 22:25:46' },
+                { payment_id: '17504', customer_id: '341', staff_id: '1', amount: '1.99', payment_date: '2007-02-16 17:23:14' },
+                { payment_id: '17505', customer_id: '341', staff_id: '1', amount: '7.99', payment_date: '2007-02-16 22:41:45' },
+                { payment_id: '17506', customer_id: '341', staff_id: '2', amount: '2.99', payment_date: '2007-02-19 19:39:56' },
+                { payment_id: '17507', customer_id: '341', staff_id: '2', amount: '7.99', payment_date: '2007-02-20 17:31:48' }
+            ],
+            'dvdrental.category': [
+                { category_id: 1, name: 'Action' },
+                { category_id: 2, name: 'Animation' },
+                { category_id: 3, name: 'Children' },
+                { category_id: 4, name: 'Classics' },
+                { category_id: 5, name: 'Comedy' },
+                { category_id: 6, name: 'Documentary' },
+                { category_id: 7, name: 'Drama' },
+                { category_id: 8, name: 'Family' },
+                { category_id: 9, name: 'Foreign' },
+                { category_id: 10, name: 'Games' }
+            ],
+            'dvdrental.film_actor': [
+                { actor_id: 1, film_id: 1 }, { actor_id: 1, film_id: 23 }, { actor_id: 1, film_id: 25 },
+                { actor_id: 1, film_id: 106 }, { actor_id: 1, film_id: 140 }, { actor_id: 2, film_id: 3 },
+                { actor_id: 2, film_id: 31 }, { actor_id: 2, film_id: 47 }, { actor_id: 2, film_id: 105 },
+                { actor_id: 2, film_id: 132 }, { actor_id: 3, film_id: 17 }, { actor_id: 3, film_id: 40 },
+                { actor_id: 3, film_id: 42 }, { actor_id: 3, film_id: 87 }, { actor_id: 3, film_id: 111 },
+                { actor_id: 4, film_id: 23 }, { actor_id: 4, film_id: 25 }, { actor_id: 4, film_id: 56 },
+                { actor_id: 4, film_id: 62 }, { actor_id: 4, film_id: 79 }, { actor_id: 4, film_id: 87 },
+                { actor_id: 5, film_id: 19 }, { actor_id: 5, film_id: 54 }, { actor_id: 5, film_id: 85 },
+                { actor_id: 5, film_id: 146 }, { actor_id: 5, film_id: 171 }, { actor_id: 6, film_id: 29 },
+                { actor_id: 6, film_id: 53 }, { actor_id: 6, film_id: 60 }, { actor_id: 6, film_id: 70 },
+                { actor_id: 6, film_id: 112 }, { actor_id: 7, film_id: 25 }, { actor_id: 7, film_id: 27 },
+                { actor_id: 7, film_id: 35 }, { actor_id: 7, film_id: 67 }, { actor_id: 7, film_id: 96 }
+            ],
+            'dvdrental.film_category': [
+                { film_id: 1, category_id: 6 }, { film_id: 2, category_id: 11 }, { film_id: 3, category_id: 6 },
+                { film_id: 4, category_id: 11 }, { film_id: 5, category_id: 8 }, { film_id: 6, category_id: 9 },
+                { film_id: 7, category_id: 5 }, { film_id: 8, category_id: 11 }, { film_id: 9, category_id: 11 },
+                { film_id: 10, category_id: 15 }, { film_id: 11, category_id: 9 }, { film_id: 12, category_id: 12 },
+                { film_id: 13, category_id: 11 }, { film_id: 14, category_id: 4 }, { film_id: 15, category_id: 9 }
+            ],
+            'dvdrental.country': [
+                { country_id: 1, country: 'Afghanistan' }, { country_id: 2, country: 'Algeria' },
+                { country_id: 3, country: 'American Samoa' }, { country_id: 4, country: 'Angola' },
+                { country_id: 5, country: 'Anguilla' }, { country_id: 6, country: 'Argentina' },
+                { country_id: 7, country: 'Armenia' }, { country_id: 8, country: 'Australia' },
+                { country_id: 9, country: 'Austria' }, { country_id: 10, country: 'Azerbaijan' }
+            ],
+            'dvdrental.inventory': [
+                { inventory_id: 1, film_id: 1, store_id: 1 }, { inventory_id: 2, film_id: 1, store_id: 1 },
+                { inventory_id: 3, film_id: 1, store_id: 1 }, { inventory_id: 4, film_id: 1, store_id: 1 },
+                { inventory_id: 5, film_id: 1, store_id: 2 }, { inventory_id: 6, film_id: 1, store_id: 2 },
+                { inventory_id: 7, film_id: 1, store_id: 2 }, { inventory_id: 8, film_id: 1, store_id: 2 },
+                { inventory_id: 9, film_id: 2, store_id: 2 }, { inventory_id: 10, film_id: 2, store_id: 2 }
+            ],
+            'dvdrental.language': [
+                { language_id: 1, name: 'English' },
+                { language_id: 2, name: 'Italian' },
+                { language_id: 3, name: 'Japanese' },
+                { language_id: 4, name: 'Mandarin' },
+                { language_id: 5, name: 'French' },
+                { language_id: 6, name: 'German' }
+            ],
+            'dvdrental.rental': [
+                { rental_id: 2, inventory_id: 1525, customer_id: 459, rental_date: '2005-05-24 22:54:33' },
+                { rental_id: 3, inventory_id: 1711, customer_id: 408, rental_date: '2005-05-24 23:03:39' },
+                { rental_id: 4, inventory_id: 2452, customer_id: 333, rental_date: '2005-05-24 23:04:41' },
+                { rental_id: 5, inventory_id: 2079, customer_id: 222, rental_date: '2005-05-24 23:05:21' },
+                { rental_id: 6, inventory_id: 2792, customer_id: 549, rental_date: '2005-05-24 23:08:07' }
+            ],
+            'dvdrental.store': [
+                { store_id: 1, manager_staff_id: 1, address_id: 1 },
+                { store_id: 2, manager_staff_id: 2, address_id: 2 }
+            ]
+        };
+
+        // Listen for authentication state changes
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                authStatus.textContent = `User authenticated: ${userId}`;
+                console.log("Firebase Auth State Changed: User is authenticated. UID:", userId);
+                setupQueryHistoryListener();
+            } else {
+                console.log("Firebase Auth State Changed: User is not authenticated. Signing in anonymously...");
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Error during anonymous authentication:", error);
+                    authStatus.textContent = "Authentication failed.";
+                }
+            }
+        });
+
+        async function setupQueryHistoryListener() {
+            if (!userId) {
+                console.error("User ID is not available for Firestore listener.");
+                return;
+            }
+
+            const historyCollectionPath = `/artifacts/${appId}/users/${userId}/query_history`;
+            const q = query(collection(db, historyCollectionPath));
+
+            onSnapshot(q, (querySnapshot) => {
+                const history = [];
+                querySnapshot.forEach((doc) => {
+                    history.push({ id: doc.id, ...doc.data() });
+                });
+                renderQueryHistory(history);
+            });
+        }
+
+        function renderQueryHistory(history) {
+            queryHistoryList.innerHTML = '';
+            if (history.length === 0) {
+                queryHistoryList.innerHTML = '<li class="text-gray-400 text-sm">No queries saved yet.</li>';
+                return;
+            }
+
+            // Sort by timestamp in descending order
+            history.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
+
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'p-2 rounded-md hover:bg-gray-700 cursor-pointer transition-colors duration-150 text-sm truncate';
+                li.textContent = item.query;
+                li.title = item.query;
+                li.addEventListener('click', () => {
+                    queryEditor.value = item.query;
+                });
+                queryHistoryList.appendChild(li);
+            });
+        }
+
+        async function saveQuery(queryText) {
+            if (!userId) {
+                console.error("Cannot save query: User not authenticated.");
+                return;
+            }
+            try {
+                const historyCollectionPath = `/artifacts/${appId}/users/${userId}/query_history`;
+                await addDoc(collection(db, historyCollectionPath), {
+                    query: queryText,
+                    timestamp: new Date()
+                });
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            }
+        }
+
+        function generateTableHtml(data) {
+            if (!data || data.length === 0) {
+                return `<p class="text-gray-300 font-semibold mt-2">No data found for this query.</p>`;
+            }
+            const headers = Object.keys(data[0]);
+            const headerHtml = headers.map(h => `<th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">${h}</th>`).join('');
+            const bodyHtml = data.map(row => {
+                const rowCells = headers.map(header => `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">${row[header]}</td>`).join('');
+                return `<tr class="hover:bg-gray-700 transition-colors">${rowCells}</tr>`;
+            }).join('');
+            return `
+                <div class="overflow-x-auto rounded-lg border border-gray-700">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-700">
+                            <tr>${headerHtml}</tr>
+                        </thead>
+                        <tbody class="bg-gray-800 divide-y divide-gray-700">
+                            ${bodyHtml}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function parseSelectQuery(queryText) {
+            const selectRegex = /select\s+(.*?)\s+from\s+dvdrental\.(\w+)(\s+where\s+(.*))?(\s+limit\s+(\d+))?;/i;
+            const match = queryText.match(selectRegex);
+            if (!match) return null;
+            const [, columns, tableName, , whereClause, , limit] = match;
+            return {
+                table: `dvdrental.${tableName}`,
+                columns: columns.split(',').map(col => col.trim()),
+                where: whereClause,
+                limit: limit ? parseInt(limit) : null
+            };
+        }
+
+        function filterAndLimitData(data, columns, limit) {
+            let filteredData = data;
+            if (columns && columns[0] !== '*') {
+                filteredData = filteredData.map(row => {
+                    const newRow = {};
+                    columns.forEach(col => {
+                        newRow[col] = row[col];
+                    });
+                    return newRow;
+                });
+            }
+            if (limit) {
+                filteredData = filteredData.slice(0, limit);
+            }
+            return filteredData;
+        }
+        
+        async function getTeacherResponse(prompt) {
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const text = result.candidates[0].content.parts[0].text;
+                chatHistory.push({ role: "model", parts: [{ text: text }] });
+                return text;
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                return "I'm sorry, I'm having trouble connecting right now. Please try again later.";
+            }
+        }
+        
+        function appendChatMessage(message, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `chat-message ${sender}-message`;
+            messageElement.textContent = message;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sendChatBtn.addEventListener('click', async () => {
+            const userMessage = chatInput.value.trim();
+            if (userMessage) {
+                appendChatMessage(userMessage, 'user');
+                chatInput.value = '';
+                const teacherResponse = await getTeacherResponse(userMessage);
+                appendChatMessage(teacherResponse, 'teacher');
+            }
+        });
+        
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatBtn.click();
+            }
+        });
+
+        runQueryBtn.addEventListener('click', () => {
+            const queryText = queryEditor.value.trim();
+            resultsPanel.innerHTML = '';
+            
+            if (queryText) {
+                saveQuery(queryText);
+            }
+
+            statusMessage.textContent = 'Executing query...';
+            statusMessage.className = 'text-sm font-medium text-yellow-400';
+
+            setTimeout(() => {
+                const parsedQuery = parseSelectQuery(queryText);
+                let resultData = [];
+                let message = '';
+                let messageClass = 'text-green-500';
+                
+                if (parsedQuery && mockData[parsedQuery.table]) {
+                    resultData = filterAndLimitData(mockData[parsedQuery.table], parsedQuery.columns, parsedQuery.limit);
+                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
+                } else if (queryText.includes('join')) {
+                    // Specific mock for the JOIN query in the pre-populated value
+                    const joinQueryData = [
+                        { 'film.title': 'ACADEMY DINOSAUR', 'actor.first_name': 'PENELOPE', 'actor.last_name': 'GUINESS' },
+                        { 'film.title': 'ACADEMY DINOSAUR', 'actor.first_name': 'JENNIFER', 'actor.last_name': 'DAVIS' },
+                        { 'film.title': 'ACADEMY DINOSAUR', 'actor.first_name': 'JOE', 'actor.last_name': 'SWANK' },
+                        { 'film.title': 'ADAPTATION HOLES', 'actor.first_name': 'NICK', 'actor.last_name': 'WAHLBERG' },
+                        { 'film.title': 'ADAPTATION HOLES', 'actor.first_name': 'JENNIFER', 'actor.last_name': 'DAVIS' },
+                        { 'film.title': 'ADAPTATION HOLES', 'actor.first_name': 'JOE', 'actor.last_name': 'SWANK' },
+                        { 'film.title': 'AFFAIR PREJUDICE', 'actor.first_name': 'JENNIFER', 'actor.last_name': 'DAVIS' },
+                        { 'film.title': 'AFFAIR PREJUDICE', 'actor.first_name': 'JOE', 'actor.last_name': 'SWANK' },
+                        { 'film.title': 'AFRICAN EGG', 'actor.first_name': 'MATTHEW', 'actor.last_name': 'JOHANSSON' },
+                        { 'film.title': 'AGENT TRUMAN', 'actor.first_name': 'JOE', 'actor.last_name': 'SWANK' }
+                    ];
+                    resultData = joinQueryData;
+                    message = `Query executed successfully. ${resultData.length} row(s) returned.`;
+                } else if (queryText.includes('insert into') || queryText.includes('update') || queryText.includes('delete')) {
+                    message = 'Query executed successfully. 1 row(s) affected.';
+                } else if (queryText.startsWith('select')) {
+                    message = 'Query executed successfully. 0 rows returned.';
+                } else {
+                    message = `ERROR: syntax error at or near "${queryText.split(' ')[0]}"`;
+                    messageClass = 'text-red-500';
+                }
+
+                // Update the UI with the simulated results and status
+                statusMessage.textContent = message;
+                statusMessage.className = `text-sm font-medium ${messageClass}`;
+                if (resultData.length > 0) {
+                    resultsPanel.innerHTML = generateTableHtml(resultData);
+                } else {
+                    resultsPanel.innerHTML = `<p class="text-gray-400 mt-2">${message}</p>`;
+                }
+            }, 500); // Simulate processing time
+        });
+    </script>
+</body>
+</html>
