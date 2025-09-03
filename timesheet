@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Daily Timesheet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'apricot': '#F6AF7B',
+                        'coral-red': '#D68175',
+                        'blue-violet': '#7B6F8A',
+                        'slate-gray': '#9AA9B3',
+                        'sage-green': '#B2C0BF',
+                        'light-gray': '#E6ECCD',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Real World Color Scheme -->
+    <!-- Application Structure Plan: The application uses a clean, tab-based interface to switch between "Weekday" and "Weekend" schedules, directly reflecting the core structure of the source report. This is more intuitive than a long scroll. Within each view, a dashboard layout presents the schedule as a series of clear, card-like elements alongside an interactive donut chart. This design transforms the static report into a dynamic tool, allowing the user to not only see their schedule but also visually understand their time allocation at a glance. -->
+    <!-- Visualization & Content Choices: 1. Schedule Data -> Goal: Inform/Organize -> Viz/Presentation: HTML/Tailwind cards -> Interaction: Click to toggle study details -> Justification: More engaging and mobile-friendly than a static table; hides complexity until needed. 2. Time Allocation -> Goal: Compare/Inform -> Viz/Presentation: Donut Chart (Chart.js) -> Interaction: Chart dynamically updates when switching between weekday/weekend views -> Justification: Provides a powerful, immediate visual summary of how time is balanced, which a text table cannot do. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .task-card.current {
+            border-color: #D68175;
+            background-color: #E6ECCD;
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .tab-button.active {
+            background-color: #7B6F8A;
+            color: white;
+        }
+    </style>
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+<body class="bg-gray-100 text-slate-900">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-blue-violet">My Daily Timesheet</h1>
+            <p class="text-gray-600 mt-2">A visual guide to your daily schedule and time allocation.</p>
+        </header>
+
+        <div class="flex justify-center mb-8 bg-gray-200 p-1 rounded-xl shadow-inner">
+            <button id="weekday-tab" class="tab-button active w-1/2 py-2 px-4 rounded-lg font-semibold transition-colors duration-300">Weekday</button>
+            <button id="weekend-tab" class="tab-button w-1/2 py-2 px-4 rounded-lg font-semibold transition-colors duration-300">Weekend</button>
+        </div>
+        
+        <main id="app-content">
+            
+        </main>
+    </div>
+
+    <script>
+        const scheduleData = {
+            weekday: {
+                title: "Weekday Schedule (Mon-Fri)",
+                schedule: [
+                    { start: "00:00", end: "08:00", activity: "Sleep", category: "Sleep", duration: 8 },
+                    { start: "08:00", end: "08:30", activity: "Wake up & Prepare Breakfast", category: "Chores", duration: 0.5 },
+                    { start: "08:30", end: "09:00", activity: "Breakfast & Get Ready", category: "Personal", duration: 0.5 },
+                    { start: "09:00", end: "11:00", activity: "Self-Study Session 1", category: "Study", duration: 2, details: "Focus on SQL fundamentals and practice problems." },
+                    { start: "11:00", end: "11:15", activity: "Short Break", category: "Rest", duration: 0.25 },
+                    { start: "11:15", end: "13:15", activity: "Self-Study Session 2", category: "Study", duration: 2, details: "Revise previous class topics and prepare for the next." },
+                    { start: "13:15", end: "14:45", activity: "Prepare & Eat Lunch/Dinner", category: "Chores", duration: 1.5 },
+                    { start: "14:45", end: "15:15", activity: "Rest & Unwind", category: "Rest", duration: 0.5 },
+                    { start: "15:15", end: "17:15", activity: "Self-Study Session 3", category: "Study", duration: 2, details: "Advanced SQL queries and data manipulation." },
+                    { start: "17:15", end: "17:30", activity: "Snack Time", category: "Personal", duration: 0.25 },
+                    { start: "17:30", end: "19:30", activity: "Self-Study Session 4", category: "Study", duration: 2, details: "Data Analytics concepts and case studies." },
+                    { start: "19:30", end: "20:30", activity: "Prepare Rotis & Class Prep", category: "Chores", duration: 1 },
+                    { start: "20:30", end: "22:30", activity: "Data Analytics Class", category: "Class", duration: 2 },
+                    { start: "22:30", end: "23:00", activity: "Class Revision", category: "Study", duration: 0.5 },
+                    { start: "23:00", end: "23:30", activity: "Dinner", category: "Personal", duration: 0.5 },
+                    { start: "23:30", end: "00:00", activity: "Wind Down & Prepare for Bed", category: "Personal", duration: 0.5 },
+                ]
+            },
+            weekend: {
+                title: "Weekend Schedule (Sat-Sun)",
+                schedule: [
+                    { start: "00:00", end: "08:00", activity: "Sleep", category: "Sleep", duration: 8 },
+                    { start: "08:00", end: "08:30", activity: "Wake up & Prepare Breakfast", category: "Chores", duration: 0.5 },
+                    { start: "08:30", end: "09:00", activity: "Breakfast & Get Ready", category: "Personal", duration: 0.5 },
+                    { start: "09:00", end: "11:30", activity: "Self-Study Session 1", category: "Study", duration: 2.5, details: "Focus on weekly revision and challenging SQL problems." },
+                    { start: "11:30", end: "13:00", activity: "Prepare Lunch/Dinner", category: "Chores", duration: 1.5 },
+                    { start: "13:00", end: "14:00", activity: "Lunch", category: "Personal", duration: 1 },
+                    { start: "14:00", end: "14:30", activity: "Rest & Unwind", category: "Rest", duration: 0.5 },
+                    { start: "14:30", end: "17:00", activity: "Self-Study Session 2", category: "Study", duration: 2.5, details: "Explore new Data Analytics libraries or tools." },
+                    { start: "17:00", end: "17:15", activity: "Snack Time", category: "Personal", duration: 0.25 },
+                    { start: "17:15", end: "19:45", activity: "Self-Study Session 3", category: "Study", duration: 2.5, details: "Work on a personal project or an in-depth case study." },
+                    { start: "19:45", end: "22:15", activity: "Gym Session", category: "Health", duration: 2.5 },
+                    { start: "22:15", end: "22:45", activity: "Freshen Up & Dinner Prep", category: "Chores", duration: 0.5 },
+                    { start: "22:45", end: "23:15", activity: "Dinner", category: "Personal", duration: 0.5 },
+                    { start: "23:15", end: "00:00", activity: "Wind Down & Prepare for Bed", category: "Personal", duration: 0.75 },
+                ]
+            }
+        };
+
+        let currentView = 'weekday';
+        let timeChart = null;
+
+        const appContent = document.getElementById('app-content');
+        const weekdayTab = document.getElementById('weekday-tab');
+        const weekendTab = document.getElementById('weekend-tab');
+
+        const categoryColors = {
+            'Study': '#7B6F8A',
+            'Class': '#9AA9B3',
+            'Chores': '#B2C0BF',
+            'Health': '#D68175',
+            'Personal': '#F6AF7B',
+            'Rest': '#E6ECCD',
+            'Sleep': '#E6ECCD',
+        };
+
+        function formatTime(timeStr) {
+            const [hour, minute] = timeStr.split(':').map(Number);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const formattedHour = hour % 12 || 12;
+            return `${formattedHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+        }
+
+        function createScheduleHTML(data) {
+            return data.schedule.map((item, index) => `
+                <div id="${currentView}-task-${index}" class="task-card bg-white p-4 rounded-lg shadow-md border-l-4 transition-all duration-300" style="border-color: ${categoryColors[item.category] || '#7B6F8A'}" ${item.details ? 'onclick="toggleDetails(this)"' : ''}>
+                    <div class="flex justify-between items-center">
+                        <p class="font-bold text-slate-800">${item.activity}</p>
+                        <p class="text-sm font-bold text-slate-600">${formatTime(item.start)} - ${formatTime(item.end)}</p>
+                    </div>
+                    ${item.details ? `<p class="details text-sm font-medium text-slate-600 mt-2 hidden">${item.details}</p>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function toggleDetails(element) {
+            const details = element.querySelector('.details');
+            if (details) {
+                details.classList.toggle('hidden');
+            }
+        }
+
+        function renderView(view) {
+            const data = scheduleData[view];
+            appContent.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-4">
+                        <h2 class="text-2xl font-bold text-center text-slate-900">${data.title}</h2>
+                        <div id="schedule-container" class="space-y-4">
+                            ${createScheduleHTML(data)}
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 rounded-lg shadow-lg sticky top-8">
+                            <h3 class="text-xl font-bold text-center mb-4 text-slate-900">Time Allocation</h3>
+                             <p class="text-center text-sm font-medium text-slate-600 mb-4">This chart shows how your time is distributed across different activities throughout the day.</p>
+                            <div class="chart-container">
+                                <canvas id="time-allocation-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            renderChart(view);
+            updateCurrentActivityHighlight();
+        }
+
+        function renderChart(view) {
+            const ctx = document.getElementById('time-allocation-chart').getContext('2d');
+            const data = scheduleData[view];
+
+            const aggregatedData = data.schedule.reduce((acc, item) => {
+                acc[item.category] = (acc[item.category] || 0) + item.duration;
+                return acc;
+            }, {});
+
+            const labels = Object.keys(aggregatedData);
+            const values = Object.values(aggregatedData);
+            
+            const categoryColors = {
+                'Study': '#7B6F8A',
+                'Class': '#9AA9B3',
+                'Chores': '#B2C0BF',
+                'Health': '#D68175',
+                'Personal': '#F6AF7B',
+                'Rest': '#E6ECCD',
+                'Sleep': '#E6ECCD',
+            };
+            const backgroundColors = labels.map(label => categoryColors[label] || '#7B6F8A');
+
+            if (timeChart) {
+                timeChart.destroy();
+            }
+
+            timeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: 'Inter',
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    const value = context.raw;
+                                    const hours = Math.floor(value);
+                                    const minutes = Math.round((value - hours) * 60);
+                                    let timeString = '';
+                                    if (hours > 0) timeString += `${hours}h `;
+                                    if (minutes > 0) timeString += `${minutes}m`;
+                                    return label + timeString.trim();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCurrentActivityHighlight() {
+            const now = new Date();
+            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            document.querySelectorAll('.task-card.current').forEach(el => el.classList.remove('current'));
+
+            const schedule = scheduleData[currentView].schedule;
+            const currentTaskIndex = schedule.findIndex(task => currentTime >= task.start && currentTime < task.end);
+
+            if (currentTaskIndex !== -1) {
+                const currentTaskElement = document.getElementById(`${currentView}-task-${currentTaskIndex}`);
+                if (currentTaskElement) {
+                    currentTaskElement.classList.add('current');
+                    currentTaskElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+        
+        function switchView(view) {
+            currentView = view;
+            if (view === 'weekday') {
+                weekdayTab.classList.add('active');
+                weekendTab.classList.remove('active');
+            } else {
+                weekendTab.classList.add('active');
+                weekdayTab.classList.remove('active');
+            }
+            renderView(view);
+        }
+
+        weekdayTab.addEventListener('click', () => switchView('weekday'));
+        weekendTab.addEventListener('click', () => switchView('weekend'));
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderView(currentView);
+            setInterval(updateCurrentActivityHighlight, 60000); 
+        });
+
+    </script>
+</body>
+</html>
